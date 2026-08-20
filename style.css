@@ -234,7 +234,20 @@ button:active {
 .region-card .card-actions button:active { box-shadow: 0 0 0; }
 
 #results {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
   text-align: center;
+}
+.result-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px 32px;
+  max-width: 420px;
 }
 #results h2 { color: #58cc02; font-weight: 800; }
 #roster-list {
