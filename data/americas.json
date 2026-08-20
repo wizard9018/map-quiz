@@ -1,0 +1,31 @@
+[
+  { "id": "ca", "name": "Canada", "region": "americas-north" },
+  { "id": "us", "name": "United States", "region": "americas-north" },
+  { "id": "mx", "name": "Mexico", "region": "americas-north" },
+  { "id": "gt", "name": "Guatemala", "region": "americas-north" },
+  { "id": "bz", "name": "Belize", "region": "americas-north" },
+  { "id": "sv", "name": "El Salvador", "region": "americas-north" },
+  { "id": "ni", "name": "Nicaragua", "region": "americas-north" },
+  { "id": "cr", "name": "Costa Rica", "region": "americas-north" },
+  { "id": "pa", "name": "Panama", "region": "americas-north" },
+
+  { "id": "cu", "name": "Cuba", "region": "americas-caribbean" },
+  { "id": "jm", "name": "Jamaica", "region": "americas-caribbean" },
+  { "id": "ht", "name": "Haiti", "region": "americas-caribbean" },
+  { "id": "do", "name": "Dominican Republic", "region": "americas-caribbean" },
+  { "id": "bs", "name": "Bahamas", "region": "americas-caribbean" },
+  { "id": "tt", "name": "Trinidad and Tobago", "region": "americas-caribbean" },
+
+  { "id": "ar", "name": "Argentina", "region": "americas-south" },
+  { "id": "bo", "name": "Bolivia", "region": "americas-south" },
+  { "id": "br", "name": "Brazil", "region": "americas-south" },
+  { "id": "cl", "name": "Chile", "region": "americas-south" },
+  { "id": "co", "name": "Colombia", "region": "americas-south" },
+  { "id": "ec", "name": "Ecuador", "region": "americas-south" },
+  { "id": "gy", "name": "Guyana", "region": "americas-south" },
+  { "id": "py", "name": "Paraguay", "region": "americas-south" },
+  { "id": "pe", "name": "Peru", "region": "americas-south" },
+  { "id": "sr", "name": "Suriname", "region": "americas-south" },
+  { "id": "uy", "name": "Uruguay", "region": "americas-south" },
+  { "id": "ve", "name": "Venezuela", "region": "americas-south" }
+]

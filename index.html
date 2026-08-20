@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>World Countries Map Quiz</title>
+<link rel="stylesheet" href="style.css?v=3">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>World Countries Quiz</h1>
+      <div id="prompt" style="display:none"></div>
+      <div class="header-actions">
+        <div id="progress" style="display:none"></div>
+        <button id="skip-btn" style="display:none">Skip</button>
+        <button id="home-btn" style="display:none">Home</button>
+        <button id="learn-quiz-btn" style="display:none">Start Quiz</button>
+      </div>
+    </header>
+
+    <div id="home-screen">
+      <section class="continent-group">
+        <h2 class="continent-title">Europe</h2>
+        <div class="region-grid">
+          <div class="region-card" data-region="europe-north">
+            <h3>Northern Europe</h3>
+            <p class="region-meta">10 countries</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="europe-north">Learn</button>
+              <button class="quiz-action" data-region="europe-north">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="europe-west">
+            <h3>Western Europe</h3>
+            <p class="region-meta">7 countries</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="europe-west">Learn</button>
+              <button class="quiz-action" data-region="europe-west">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="europe-south">
+            <h3>Southern Europe</h3>
+            <p class="region-meta">12 countries</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="europe-south">Learn</button>
+              <button class="quiz-action" data-region="europe-south">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="europe-east">
+            <h3>Eastern Europe</h3>
+            <p class="region-meta">10 countries</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="europe-east">Learn</button>
+              <button class="quiz-action" data-region="europe-east">Quiz</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="continent-group">
+        <h2 class="continent-title">Asia</h2>
+        <div class="region-grid">
+          <div class="region-card" data-region="asia-central">
+            <h3>Central Asia &amp; Caucasus</h3>
+            <p class="region-meta">8 countries</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="asia-central">Learn</button>
+              <button class="quiz-action" data-region="asia-central">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="asia-east">
+            <h3>Eastern Asia</h3>
+            <p class="region-meta">6 countries</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="asia-east">Learn</button>
+              <button class="quiz-action" data-region="asia-east">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="asia-southeast">
+            <h3>Southeast Asia</h3>
+            <p class="region-meta">11 countries</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="asia-southeast">Learn</button>
+              <button class="quiz-action" data-region="asia-southeast">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="asia-south">
+            <h3>South Asia</h3>
+            <p class="region-meta">9 countries</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="asia-south">Learn</button>
+              <button class="quiz-action" data-region="asia-south">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="asia-west">
+            <h3>Western Asia</h3>
+            <p class="region-meta">14 countries</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="asia-west">Learn</button>
+              <button class="quiz-action" data-region="asia-west">Quiz</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="continent-group">
+        <h2 class="continent-title">Americas</h2>
+        <div class="region-grid">
+          <div class="region-card" data-region="americas-north">
+            <h3>North &amp; Central America</h3>
+            <p class="region-meta">9 countries</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="americas-north">Learn</button>
+              <button class="quiz-action" data-region="americas-north">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="americas-caribbean">
+            <h3>Caribbean</h3>
+            <p class="region-meta">6 countries</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="americas-caribbean">Learn</button>
+              <button class="quiz-action" data-region="americas-caribbean">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="americas-south">
+            <h3>South America</h3>
+            <p class="region-meta">12 countries</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="americas-south">Learn</button>
+              <button class="quiz-action" data-region="americas-south">Quiz</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="continent-group">
+        <h2 class="continent-title">Africa</h2>
+        <div class="region-grid">
+          <div class="region-card" data-region="africa-north">
+            <h3>Northern Africa</h3>
+            <p class="region-meta">6 countries</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="africa-north">Learn</button>
+              <button class="quiz-action" data-region="africa-north">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="africa-west">
+            <h3>Western Africa</h3>
+            <p class="region-meta">14 countries</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="africa-west">Learn</button>
+              <button class="quiz-action" data-region="africa-west">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="africa-middle">
+            <h3>Middle Africa</h3>
+            <p class="region-meta">8 countries</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="africa-middle">Learn</button>
+              <button class="quiz-action" data-region="africa-middle">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="africa-east">
+            <h3>Eastern Africa</h3>
+            <p class="region-meta">16 countries</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="africa-east">Learn</button>
+              <button class="quiz-action" data-region="africa-east">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="africa-south">
+            <h3>Southern Africa</h3>
+            <p class="region-meta">5 countries</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="africa-south">Learn</button>
+              <button class="quiz-action" data-region="africa-south">Quiz</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="map-wrap" style="display:none"></div>
+
+    <div id="zoom-controls" style="display:none">
+      <button id="zoom-out-btn">&minus;</button>
+      <button id="zoom-reset-btn">Reset</button>
+      <button id="zoom-in-btn">+</button>
+      <button id="save-labels-btn" style="display:none">固定位置</button>
+    </div>
+
+    <div id="results" style="display:none">
+      <h2>Results</h2>
+      <p id="result-score"></p>
+      <ul id="roster-list"></ul>
+      <div class="card-actions">
+        <button id="retry-btn">Try Again</button>
+        <button id="results-home-btn">Home</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js?v=54"></script>
+</body>
+</html>
