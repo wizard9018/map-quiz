@@ -1,3 +1,7 @@
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}
+
 const DEFAULT_FILL = "#eab308";
 const DIM_FILL = "#293548";
 const HOVER_FILL = "#64748b";
