@@ -1040,16 +1040,17 @@ async function startRound(region) {
   applyRegionViewBox(region);
   mode = "quiz";
   currentRegion = region;
-  active = region === "world"
+  if (region === "world") {
     // paths[id] guards against a reviewed country whose id doesn't exist in
     // this particular map file (per-continent SVGs and the world SVG come
     // from different source data, so their id sets aren't identical).
-    ? shuffle(countries.filter(c => reviewCounts[c.id] > 0 && paths[c.id])).slice(0, WORLD_QUIZ_SIZE)
-    : regionCountries(region);
-  if (active.length === 0) {
-    mode = "idle";
-    alert("Learn or quiz a few regions first — the world quiz only draws from countries you've already studied.");
-    return;
+    const reviewedPool = countries.filter(c => reviewCounts[c.id] > 0 && paths[c.id]);
+    // No study history yet is fine too — a confident user can jump straight
+    // into the world quiz without learning regions first.
+    const pool = reviewedPool.length > 0 ? reviewedPool : countries.filter(c => paths[c.id]);
+    active = shuffle(pool).slice(0, WORLD_QUIZ_SIZE);
+  } else {
+    active = regionCountries(region);
   }
   order = shuffle(active.map((_, i) => i));
   cursor = 0;
