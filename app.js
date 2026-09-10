@@ -7,7 +7,9 @@ const DIM_FILL = "#293548";
 const HOVER_FILL = "#64748b";
 const CORRECT_FILL = "#22c55e";
 const WRONG_FILL = "#ef4444";
+const ANSWERED_FILL = "#94a3b8"; // already-identified countries in a quiz round, so remaining choices stand out
 const FLASH_MS = 500;
+const WORLD_QUIZ_SIZE = 30;
 const STORAGE_KEY = "map-quiz-review-counts";
 const LABEL_OVERRIDE_KEY = "map-quiz-label-overrides"; // { [continent]: { [id]: {x, y, fontSize} } }
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -27,7 +29,11 @@ const CONTINENT_SVG = {
   // same verified world map data, just with a tight viewBox cropped to
   // Asia's own bounding box, so it doesn't render as a tiny sliver of the
   // whole world.
-  asia: "maps/asia.svg"
+  asia: "maps/asia.svg",
+  // asia.svg's underlying data is the full world map (see comment above) —
+  // reused as-is for the world quiz, just shown at its full extent instead
+  // of cropped to Asia's bounding box.
+  world: "maps/asia.svg"
 };
 const DATA_FILES = ["data/europe.json", "data/africa.json", "data/americas.json", "data/asia.json"];
 
@@ -38,7 +44,11 @@ const DATA_FILES = ["data/europe.json", "data/africa.json", "data/americas.json"
 // past their country's own edge. Regions not listed here just show the full
 // continent (unchanged default behavior).
 const REGION_VIEWBOX = {
-  "americas-south": "1180 570 1270 1470"
+  "americas-south": "1180 570 1270 1470",
+  // Live-measured union bbox of all 232 country paths in asia.svg (see
+  // CONTINENT_SVG.world), with ~2% padding — the file's own viewBox
+  // attribute is still the Asia-only crop.
+  "world": "-7 7 948 451"
 };
 
 function applyRegionViewBox(region) {
@@ -86,6 +96,7 @@ let currentRegion = null; // e.g. "europe-north"
 let order = [];           // shuffled indices into `active` for this round
 let cursor = 0;
 let missed = new Set();
+let answered = new Set(); // correctly-identified country ids in the current quiz round
 let paths = {};           // id -> [path elements], scoped to the currently-loaded map
 let units = {};           // id -> top-level path/g element, scoped to the currently-loaded map
 let locked = false;       // true while showing flash feedback
@@ -329,7 +340,8 @@ function setFill(id, color) {
 // in play. Map features outside our dataset (fringe countries baked into the
 // base SVG, e.g. unclaimed territories) are left alone.
 function applyRegionDimming(activeIds, continent) {
-  continentCountries(continent).forEach(c => setFill(c.id, activeIds.has(c.id) ? DEFAULT_FILL : DIM_FILL));
+  const pool = continent === "world" ? countries : continentCountries(continent);
+  pool.forEach(c => setFill(c.id, activeIds.has(c.id) ? DEFAULT_FILL : DIM_FILL));
 }
 
 document.querySelectorAll(".learn-action").forEach(btn => {
@@ -955,7 +967,7 @@ function goHome() {
   currentRegion = null;
   speechSynthesis.cancel();
   if (labelsGroup) labelsGroup.style.display = "none";
-  if (continent) continentCountries(continent).forEach(c => setFill(c.id, DEFAULT_FILL));
+  if (continent) (continent === "world" ? countries : continentCountries(continent)).forEach(c => setFill(c.id, DEFAULT_FILL));
   refreshHomeProgress();
   homeScreenEl.style.display = "block";
   promptEl.style.display = "none";
@@ -1028,10 +1040,21 @@ async function startRound(region) {
   applyRegionViewBox(region);
   mode = "quiz";
   currentRegion = region;
-  active = regionCountries(region);
+  active = region === "world"
+    // paths[id] guards against a reviewed country whose id doesn't exist in
+    // this particular map file (per-continent SVGs and the world SVG come
+    // from different source data, so their id sets aren't identical).
+    ? shuffle(countries.filter(c => reviewCounts[c.id] > 0 && paths[c.id])).slice(0, WORLD_QUIZ_SIZE)
+    : regionCountries(region);
+  if (active.length === 0) {
+    mode = "idle";
+    alert("Learn or quiz a few regions first — the world quiz only draws from countries you've already studied.");
+    return;
+  }
   order = shuffle(active.map((_, i) => i));
   cursor = 0;
   missed = new Set();
+  answered = new Set();
   locked = false;
   enterSession();
   skipBtn.style.display = "inline-block";
@@ -1056,7 +1079,8 @@ function onCountryClick(id) {
     locked = true;
     setFill(id, CORRECT_FILL);
     setTimeout(() => {
-      setFill(id, DEFAULT_FILL);
+      answered.add(id);
+      setFill(id, ANSWERED_FILL);
       locked = false;
       advance();
     }, FLASH_MS);
@@ -1065,7 +1089,7 @@ function onCountryClick(id) {
     locked = true;
     setFill(id, WRONG_FILL);
     setTimeout(() => {
-      setFill(id, active.some(c => c.id === id) ? DEFAULT_FILL : DIM_FILL);
+      setFill(id, answered.has(id) ? ANSWERED_FILL : active.some(c => c.id === id) ? DEFAULT_FILL : DIM_FILL);
       locked = false;
     }, FLASH_MS);
   }
@@ -1100,5 +1124,5 @@ function finishRound() {
     li.textContent = c.name;
     rosterListEl.appendChild(li);
   });
-  continentCountries(continent).forEach(c => setFill(c.id, DEFAULT_FILL));
+  (continent === "world" ? countries : continentCountries(continent)).forEach(c => setFill(c.id, DEFAULT_FILL));
 }
