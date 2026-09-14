@@ -108,6 +108,8 @@ let labelBounds = null; // {minX, maxX, minY, maxY} from buildLabels, reused to 
 let zoom = 1;
 let svgRootEl = null;      // the currently-loaded inline <svg> root, our map surface
 let dragState = null;      // { startX, startY, startScrollLeft, startScrollTop, moved }
+let activePointers = new Map(); // pointerId -> {x, y}, tracks concurrent touches for pinch-zoom
+let pinchStart = null;     // { dist, zoom } captured when a second finger joins
 let suppressNextClick = false; // set when a drag just happened, so it doesn't also register as an answer
 let currentMapSvg = null;  // which maps/*.svg is currently loaded
 
@@ -212,6 +214,8 @@ function setupMap() {
   labelsGroup = null;
   labelsBuilt = false;
   labelsBuiltFor = null;
+  activePointers.clear();
+  pinchStart = null;
   svgRootEl.dataset.defaultViewBox = svgRootEl.getAttribute("viewBox");
 
   // Drag-to-pan (like Google Maps) once zoomed in. #map-wrap has
@@ -223,6 +227,16 @@ function setupMap() {
   svgRootEl.style.touchAction = "none";
 
   svgRootEl.addEventListener("pointerdown", e => {
+    activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (activePointers.size === 2) {
+      // A second finger joining means pinch-to-zoom, not pan — drop any
+      // single-finger drag in progress so the two gestures don't fight.
+      dragState = null;
+      const [p1, p2] = [...activePointers.values()];
+      pinchStart = { dist: Math.hypot(p1.x - p2.x, p1.y - p2.y), zoom };
+      return;
+    }
+    if (activePointers.size > 2) return; // ignore a third finger
     dragState = {
       startX: e.clientX,
       startY: e.clientY,
@@ -237,6 +251,15 @@ function setupMap() {
     // away from the country element even for a plain, no-movement click.
   });
   svgRootEl.addEventListener("pointermove", e => {
+    if (activePointers.has(e.pointerId)) activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (activePointers.size === 2 && pinchStart) {
+      e.preventDefault();
+      const [p1, p2] = [...activePointers.values()];
+      const newDist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+      const newZoom = Math.min(3, Math.max(1, pinchStart.zoom * (newDist / pinchStart.dist)));
+      setZoomAnchored(newZoom, (p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+      return;
+    }
     if (!dragState) return;
     const dx = e.clientX - dragState.startX;
     const dy = e.clientY - dragState.startY;
@@ -254,6 +277,8 @@ function setupMap() {
     }
   });
   const endDrag = e => {
+    activePointers.delete(e.pointerId);
+    if (activePointers.size < 2) pinchStart = null;
     if (!dragState) return;
     // Only a real pan (zoom > 1, where pointermove actually scrolled the map)
     // should eat the click — at zoom 1 there's no panning, so ordinary mouse
