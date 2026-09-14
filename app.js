@@ -1070,6 +1070,7 @@ function showPrompt() {
   const t = currentTarget();
   promptEl.innerHTML = `Click <span class="target">${t.name}</span>`;
   progressEl.textContent = `${cursor} / ${active.length}`;
+  speak(t.name);
 }
 
 function onCountryClick(id) {
