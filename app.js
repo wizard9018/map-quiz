@@ -12,6 +12,7 @@ const FLASH_MS = 500;
 const WORLD_QUIZ_SIZE = 30;
 const STORAGE_KEY = "map-quiz-review-counts";
 const LABEL_OVERRIDE_KEY = "map-quiz-label-overrides"; // { [continent]: { [id]: {x, y, fontSize} } }
+const TODAY_RESULTS_KEY = "map-quiz-today-results"; // { date: "YYYY-MM-DD", entries: [{region, correct, total, time}] }
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 // Region keys are continent-prefixed (e.g. "europe-north", "asia-west",
@@ -85,6 +86,8 @@ const resultScoreEl = document.getElementById("result-score");
 const rosterListEl = document.getElementById("roster-list");
 const retryBtn = document.getElementById("retry-btn");
 const resultsHomeBtn = document.getElementById("results-home-btn");
+const todayResultsListEl = document.getElementById("today-results-list");
+const todayResultsEmptyEl = document.getElementById("today-results-empty");
 const zoomControlsEl = document.getElementById("zoom-controls");
 const zoomInBtn = document.getElementById("zoom-in-btn");
 const zoomOutBtn = document.getElementById("zoom-out-btn");
@@ -123,6 +126,49 @@ try {
 
 function saveReviewCounts() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(reviewCounts));
+}
+
+function todayDateStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+// Rolls over to an empty list whenever the stored date isn't today, so the
+// sidebar only ever shows results from the current day.
+function loadTodayResults() {
+  let state;
+  try {
+    state = JSON.parse(localStorage.getItem(TODAY_RESULTS_KEY));
+  } catch (e) {
+    state = null;
+  }
+  if (!state || state.date !== todayDateStr()) state = { date: todayDateStr(), entries: [] };
+  return state;
+}
+
+function addTodayResult(region, correct, total) {
+  const state = loadTodayResults();
+  state.entries.unshift({
+    region: regionLabel(region),
+    correct,
+    total,
+    time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+  });
+  localStorage.setItem(TODAY_RESULTS_KEY, JSON.stringify(state));
+  renderTodayResults();
+}
+
+function renderTodayResults() {
+  const entries = loadTodayResults().entries;
+  todayResultsEmptyEl.style.display = entries.length ? "none" : "block";
+  todayResultsListEl.innerHTML = "";
+  entries.forEach(entry => {
+    const li = document.createElement("li");
+    li.className = entry.correct === entry.total ? "good" : "bad";
+    li.innerHTML = `<div class="result-region">${entry.region}</div>` +
+      `<div class="result-score">${entry.correct} / ${entry.total} · ${entry.time}</div>`;
+    todayResultsListEl.appendChild(li);
+  });
 }
 
 let labelOverrides = {};
@@ -204,6 +250,7 @@ Promise.all(DATA_FILES.map(f => fetch(f, { cache: "no-store" }).then(r => r.json
     countries = results.flat();
     refreshHomeProgress();
   });
+renderTodayResults();
 
 // Rebuilds click/hover/drag handling for whichever SVG is currently loaded.
 // Runs once per successful ensureMapLoaded() — both on first load and every
@@ -1144,6 +1191,7 @@ function finishRound() {
   const correctCount = active.length - missed.size;
   const accuracy = Math.round((correctCount / active.length) * 100);
   resultScoreEl.textContent = `Correct on first try: ${correctCount} / ${active.length} (${accuracy}%)`;
+  addTodayResult(currentRegion, correctCount, active.length);
   rosterListEl.innerHTML = "";
   active.forEach(c => {
     const li = document.createElement("li");

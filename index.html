@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>World Countries Map Quiz</title>
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
   <div id="app">
@@ -19,6 +19,7 @@
     </header>
 
     <div id="home-screen">
+      <div class="home-main">
       <section class="continent-group">
         <h2 class="continent-title">Europe</h2>
         <div class="region-grid">
@@ -209,6 +210,13 @@
           </div>
         </div>
       </section>
+      </div>
+
+      <aside id="today-results">
+        <h2>Today's Results</h2>
+        <p id="today-results-empty">No quizzes completed yet today.</p>
+        <ul id="today-results-list"></ul>
+      </aside>
     </div>
 
     <div id="map-wrap" style="display:none"></div>
@@ -232,6 +240,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=62"></script>
+  <script src="app.js?v=63"></script>
 </body>
 </html>
