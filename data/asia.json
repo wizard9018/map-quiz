@@ -15,7 +15,6 @@
   { "id": "kr", "name": "South Korea", "region": "asia-east" },
   { "id": "tw", "name": "Taiwan", "region": "asia-east" },
 
-  { "id": "bn", "name": "Brunei", "region": "asia-southeast" },
   { "id": "kh", "name": "Cambodia", "region": "asia-southeast" },
   { "id": "id", "name": "Indonesia", "region": "asia-southeast" },
   { "id": "la", "name": "Laos", "region": "asia-southeast" },
@@ -24,7 +23,6 @@
   { "id": "ph", "name": "Philippines", "region": "asia-southeast" },
   { "id": "sg", "name": "Singapore", "region": "asia-southeast" },
   { "id": "th", "name": "Thailand", "region": "asia-southeast" },
-  { "id": "tl", "name": "Timor-Leste", "region": "asia-southeast" },
   { "id": "vn", "name": "Vietnam", "region": "asia-southeast" },
 
   { "id": "af", "name": "Afghanistan", "region": "asia-south" },
