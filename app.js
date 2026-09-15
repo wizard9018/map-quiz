@@ -268,10 +268,12 @@ function makeArrowInteractive(arrow, line, text, trueX, trueY) {
 // can manually correct the cases the automatic placement search can't
 // (dense clusters where every direction lands on some neighbor). Only wired
 // up for leader-line text — inline labels stay auto-placed.
-function makeLeaderLabelInteractive(text, line) {
+function makeLabelInteractive(text, line) {
   // The labels group has pointer-events:none so inline country-name labels
   // never block clicks on the country path underneath — override it back to
-  // "auto" on just this text so it alone stays draggable/scrollable.
+  // "auto" on just this text so it alone stays draggable/scrollable. `line`
+  // is only present for leader-line labels; inline labels pass null and skip
+  // every line-related step below.
   text.style.pointerEvents = "auto";
   text.style.cursor = "move";
   let dragging = null;
@@ -293,11 +295,13 @@ function makeLeaderLabelInteractive(text, line) {
     const ny = dragging.startTy + (e.clientY - dragging.startY) / ctm.d;
     text.setAttribute("x", nx);
     text.setAttribute("y", ny);
-    const halfW = text.getComputedTextLength() / 2;
-    const halfH = parseFloat(text.getAttribute("font-size")) * 1.3 / 2;
-    const edge = trimLineToTextEdge(parseFloat(line.getAttribute("x1")), parseFloat(line.getAttribute("y1")), nx, ny, halfW, halfH);
-    line.setAttribute("x2", edge.x);
-    line.setAttribute("y2", edge.y);
+    if (line) {
+      const halfW = text.getComputedTextLength() / 2;
+      const halfH = parseFloat(text.getAttribute("font-size")) * 1.3 / 2;
+      const edge = trimLineToTextEdge(parseFloat(line.getAttribute("x1")), parseFloat(line.getAttribute("y1")), nx, ny, halfW, halfH);
+      line.setAttribute("x2", edge.x);
+      line.setAttribute("y2", edge.y);
+    }
   });
   const endDrag = e => {
     if (!dragging) return;
@@ -314,6 +318,7 @@ function makeLeaderLabelInteractive(text, line) {
     const next = Math.max(2, cur * (e.deltaY < 0 ? 1.1 : 0.9));
     text.setAttribute("font-size", next);
     text.setAttribute("stroke-width", next * (3 / 22));
+    if (!line) return;
     const halfW = text.getComputedTextLength() / 2;
     const halfH = next * 1.3 / 2;
     const tx = parseFloat(text.getAttribute("x")), ty = parseFloat(text.getAttribute("y"));
@@ -332,11 +337,9 @@ saveLabelsBtn.addEventListener("click", () => {
   if (!labelsGroup || !labelsBuiltFor) return;
   const continent = labelsBuiltFor;
   const bucket = labelOverrides[continent] || (labelOverrides[continent] = {});
-  labelsGroup.querySelectorAll('line[data-leader-line="1"]').forEach(line => {
-    const id = line.dataset.id;
-    const text = labelsGroup.querySelector(`text[data-id="${id}"]`);
+  labelsGroup.querySelectorAll("text").forEach(text => {
+    const id = text.dataset.id;
     const arrow = labelsGroup.querySelector(`polygon[data-id="${id}"]`);
-    if (!text) return;
     bucket[id] = {
       x: parseFloat(text.getAttribute("x")),
       y: parseFloat(text.getAttribute("y")),
@@ -848,7 +851,7 @@ function buildLabels(continent) {
       const ax = override.ax != null ? override.ax : svgPt.x;
       const ay = override.ay != null ? override.ay : svgPt.y;
       const { arrow, line } = placeLeaderMarker(c.id, ax, ay, svgPt.x, svgPt.y, text, override.fontSize, override.scale);
-      makeLeaderLabelInteractive(text, line);
+      makeLabelInteractive(text, line);
       makeArrowInteractive(arrow, line, text, svgPt.x, svgPt.y);
     } else if (isLeader) {
       // Offset the text off the marker dot, in screen space (simpler than
@@ -931,9 +934,19 @@ function buildLabels(continent) {
       text.setAttribute("y", finalTextY);
 
       const { arrow, line } = placeLeaderMarker(c.id, svgPt.x, svgPt.y, svgPt.x, svgPt.y, text, labelFontSize, null);
-      makeLeaderLabelInteractive(text, line);
+      makeLabelInteractive(text, line);
       makeArrowInteractive(arrow, line, text, svgPt.x, svgPt.y);
     } else {
+      const inlineOverride = labelOverrides[continent] && labelOverrides[continent][c.id];
+      if (inlineOverride) {
+        // Same "固定位置" restore path as leader labels — use the saved
+        // position/size verbatim and skip the placement search entirely.
+        text.setAttribute("x", inlineOverride.x);
+        text.setAttribute("y", inlineOverride.y);
+        text.setAttribute("font-size", inlineOverride.fontSize);
+        text.setAttribute("stroke-width", inlineOverride.fontSize * (3 / 22));
+        text.dataset.locked = "1";
+      } else {
       // Clamping only the label's center point isn't enough — a long name
       // (e.g. "Papua New Guinea") anchored just inside the margin can still
       // have its own rendered width spill past the container edge. Clamp
@@ -972,6 +985,8 @@ function buildLabels(continent) {
       // safe position if that happens.
       text.dataset.safeX = clampedX;
       text.dataset.safeY = clampedY;
+      }
+      makeLabelInteractive(text, null);
     }
   });
   labelsGroup = g;
