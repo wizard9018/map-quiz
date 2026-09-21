@@ -1159,6 +1159,9 @@ function showPrompt() {
 function onCountryClick(id) {
   if (suppressNextClick) { suppressNextClick = false; return; } // was a drag, not a tap
   if (locked || order.length === 0) return;
+  // A country outside this round's candidates is a stray tap, not an answer —
+  // ignore it entirely so it neither flashes nor counts as a miss.
+  if (!active.some(c => c.id === id)) return;
   const target = currentTarget();
   if (id === target.id) {
     locked = true;
@@ -1174,7 +1177,7 @@ function onCountryClick(id) {
     locked = true;
     setFill(id, WRONG_FILL);
     setTimeout(() => {
-      setFill(id, answered.has(id) ? ANSWERED_FILL : active.some(c => c.id === id) ? DEFAULT_FILL : DIM_FILL);
+      setFill(id, answered.has(id) ? ANSWERED_FILL : DEFAULT_FILL);
       locked = false;
     }, FLASH_MS);
   }
