@@ -96,6 +96,7 @@ const resultScoreEl = document.getElementById("result-score");
 const rosterListEl = document.getElementById("roster-list");
 const retryBtn = document.getElementById("retry-btn");
 const resultsHomeBtn = document.getElementById("results-home-btn");
+const saveLabelsBtn = document.getElementById("save-labels-btn");
 const todayResultsListEl = document.getElementById("today-results-list");
 const todayResultsEmptyEl = document.getElementById("today-results-empty");
 const zoomControlsEl = document.getElementById("zoom-controls");
@@ -225,6 +226,145 @@ function positionArrow(arrow, ax, ay, trueX, trueY, invScale) {
   arrow.dataset.ay = ay;
 }
 
+// Dragging the arrow moves the near end of the leader line with it (x1/y1)
+// and keeps the arrow pointed at the country's real anchor point (trueX/Y)
+// regardless of where it's dragged; the far end still re-trims to the
+// text's edge since the text may have its own independent position.
+function makeArrowInteractive(arrow, line, text, trueX, trueY) {
+  arrow.style.pointerEvents = "auto";
+  arrow.style.cursor = "move";
+  let dragging = null;
+  arrow.addEventListener("pointerdown", e => {
+    if (mode !== "learn") return;
+    e.stopPropagation();
+    e.preventDefault();
+    try { arrow.setPointerCapture(e.pointerId); } catch (err) { /* unsupported */ }
+    dragging = { startX: e.clientX, startY: e.clientY, startAx: parseFloat(arrow.dataset.ax), startAy: parseFloat(arrow.dataset.ay) };
+  });
+  arrow.addEventListener("pointermove", e => {
+    if (!dragging) return;
+    e.stopPropagation();
+    const ctm = svgRootEl.getScreenCTM();
+    const ax = dragging.startAx + (e.clientX - dragging.startX) / ctm.a;
+    const ay = dragging.startAy + (e.clientY - dragging.startY) / ctm.d;
+    positionArrow(arrow, ax, ay, trueX, trueY, 1 / ctm.a);
+    line.setAttribute("x1", ax);
+    line.setAttribute("y1", ay);
+    const halfW = text.getComputedTextLength() / 2;
+    const halfH = parseFloat(text.getAttribute("font-size")) * 1.3 / 2;
+    const edge = trimLineToTextEdge(ax, ay, parseFloat(text.getAttribute("x")), parseFloat(text.getAttribute("y")), halfW, halfH);
+    line.setAttribute("x2", edge.x);
+    line.setAttribute("y2", edge.y);
+  });
+  const endDrag = e => {
+    if (!dragging) return;
+    dragging = null;
+    try { arrow.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
+  };
+  arrow.addEventListener("pointerup", endDrag);
+  arrow.addEventListener("pointercancel", endDrag);
+  arrow.addEventListener("wheel", e => {
+    if (mode !== "learn") return;
+    e.preventDefault();
+    e.stopPropagation();
+    const cur = parseFloat(arrow.dataset.scaleMult || "1");
+    arrow.dataset.scaleMult = Math.max(0.3, Math.min(4, cur * (e.deltaY < 0 ? 1.1 : 0.9)));
+    const ctm = svgRootEl.getScreenCTM();
+    positionArrow(arrow, parseFloat(arrow.dataset.ax), parseFloat(arrow.dataset.ay), trueX, trueY, 1 / ctm.a);
+  }, { passive: false });
+}
+
+// Drag-to-reposition and wheel-to-resize for leader-line labels, so the user
+// can manually correct the cases the automatic placement search can't
+// (dense clusters where every direction lands on some neighbor). Only wired
+// up for leader-line text — inline labels stay auto-placed.
+function makeLabelInteractive(text, line) {
+  // The labels group has pointer-events:none so inline country-name labels
+  // never block clicks on the country path underneath — override it back to
+  // "auto" on just this text so it alone stays draggable/scrollable. `line`
+  // is only present for leader-line labels; inline labels pass null and skip
+  // every line-related step below.
+  text.style.pointerEvents = "auto";
+  text.style.cursor = "move";
+  let dragging = null;
+  text.addEventListener("pointerdown", e => {
+    if (mode !== "learn") return;
+    e.stopPropagation();
+    e.preventDefault();
+    try { text.setPointerCapture(e.pointerId); } catch (err) { /* unsupported */ }
+    dragging = {
+      startX: e.clientX, startY: e.clientY,
+      startTx: parseFloat(text.getAttribute("x")), startTy: parseFloat(text.getAttribute("y"))
+    };
+  });
+  text.addEventListener("pointermove", e => {
+    if (!dragging) return;
+    e.stopPropagation();
+    const ctm = svgRootEl.getScreenCTM();
+    const nx = dragging.startTx + (e.clientX - dragging.startX) / ctm.a;
+    const ny = dragging.startTy + (e.clientY - dragging.startY) / ctm.d;
+    text.setAttribute("x", nx);
+    text.setAttribute("y", ny);
+    if (line) {
+      const halfW = text.getComputedTextLength() / 2;
+      const halfH = parseFloat(text.getAttribute("font-size")) * 1.3 / 2;
+      const edge = trimLineToTextEdge(parseFloat(line.getAttribute("x1")), parseFloat(line.getAttribute("y1")), nx, ny, halfW, halfH);
+      line.setAttribute("x2", edge.x);
+      line.setAttribute("y2", edge.y);
+    }
+  });
+  const endDrag = e => {
+    if (!dragging) return;
+    dragging = null;
+    try { text.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
+  };
+  text.addEventListener("pointerup", endDrag);
+  text.addEventListener("pointercancel", endDrag);
+  text.addEventListener("wheel", e => {
+    if (mode !== "learn") return;
+    e.preventDefault();
+    e.stopPropagation();
+    const cur = parseFloat(text.getAttribute("font-size"));
+    const next = Math.max(2, cur * (e.deltaY < 0 ? 1.1 : 0.9));
+    text.setAttribute("font-size", next);
+    text.setAttribute("stroke-width", next * (3 / 22));
+    if (!line) return;
+    const halfW = text.getComputedTextLength() / 2;
+    const halfH = next * 1.3 / 2;
+    const tx = parseFloat(text.getAttribute("x")), ty = parseFloat(text.getAttribute("y"));
+    const edge = trimLineToTextEdge(parseFloat(line.getAttribute("x1")), parseFloat(line.getAttribute("y1")), tx, ty, halfW, halfH);
+    line.setAttribute("x2", edge.x);
+    line.setAttribute("y2", edge.y);
+  }, { passive: false });
+}
+
+// Bakes the current on-screen position/size of every leader-line label into
+// localStorage, keyed by continent + country id. buildLabels reads these
+// back on every rebuild and uses them verbatim instead of the computed
+// anchor, and showLabelsFor's collision resolver skips locked labels so it
+// never nudges a manually-placed one again.
+saveLabelsBtn.addEventListener("click", () => {
+  if (!labelsGroup || !labelsBuiltFor) return;
+  const continent = labelsBuiltFor;
+  const bucket = labelOverrides[continent] || (labelOverrides[continent] = {});
+  labelsGroup.querySelectorAll("text").forEach(text => {
+    const id = text.dataset.id;
+    const arrow = labelsGroup.querySelector(`polygon[data-id="${id}"]`);
+    bucket[id] = {
+      x: parseFloat(text.getAttribute("x")),
+      y: parseFloat(text.getAttribute("y")),
+      fontSize: parseFloat(text.getAttribute("font-size")),
+      ax: arrow ? parseFloat(arrow.dataset.ax) : undefined,
+      ay: arrow ? parseFloat(arrow.dataset.ay) : undefined,
+      scale: arrow ? parseFloat(arrow.dataset.scaleMult) : undefined
+    };
+    text.dataset.locked = "1";
+  });
+  localStorage.setItem(LABEL_OVERRIDE_KEY, JSON.stringify(labelOverrides));
+  const original = saveLabelsBtn.textContent;
+  saveLabelsBtn.textContent = "已固定";
+  setTimeout(() => { saveLabelsBtn.textContent = original; }, 1200);
+});
 
 function bumpReview(id) {
   reviewCounts[id] = (reviewCounts[id] || 0) + 1;
@@ -629,6 +769,7 @@ function buildLabels(continent) {
     line.dataset.id = id;
     line.dataset.leaderLine = "1";
     g.appendChild(line);
+    return { arrow, line };
   }
   continentCountries(continent).forEach(c => {
     const unit = units[c.id];
@@ -733,7 +874,9 @@ function buildLabels(continent) {
 
       const ax = override.ax != null ? override.ax : svgPt.x;
       const ay = override.ay != null ? override.ay : svgPt.y;
-      placeLeaderMarker(c.id, ax, ay, svgPt.x, svgPt.y, text, override.fontSize, override.scale);
+      const { arrow, line } = placeLeaderMarker(c.id, ax, ay, svgPt.x, svgPt.y, text, override.fontSize, override.scale);
+      makeLabelInteractive(text, line);
+      makeArrowInteractive(arrow, line, text, svgPt.x, svgPt.y);
     } else if (isLeader) {
       // Offset the text off the marker dot, in screen space (simpler than
       // reasoning about direction in the map's own rotated/scaled coordinate
@@ -814,7 +957,9 @@ function buildLabels(continent) {
       text.setAttribute("x", finalTextX);
       text.setAttribute("y", finalTextY);
 
-      placeLeaderMarker(c.id, svgPt.x, svgPt.y, svgPt.x, svgPt.y, text, labelFontSize, null);
+      const { arrow, line } = placeLeaderMarker(c.id, svgPt.x, svgPt.y, svgPt.x, svgPt.y, text, labelFontSize, null);
+      makeLabelInteractive(text, line);
+      makeArrowInteractive(arrow, line, text, svgPt.x, svgPt.y);
     } else {
       const inlineOverride = labelOverrides[continent] && labelOverrides[continent][c.id];
       if (inlineOverride) {
@@ -865,6 +1010,7 @@ function buildLabels(continent) {
       text.dataset.safeX = clampedX;
       text.dataset.safeY = clampedY;
       }
+      makeLabelInteractive(text, null);
     }
   });
   labelsGroup = g;
@@ -1085,6 +1231,7 @@ function goHome() {
   skipBtn.style.display = "none";
   homeBtn.style.display = "none";
   learnQuizBtn.style.display = "none";
+  saveLabelsBtn.style.display = "none";
 }
 
 async function startLearn(region) {
@@ -1096,6 +1243,7 @@ async function startLearn(region) {
   active = regionCountries(region);
   const activeIds = new Set(active.map(c => c.id));
   enterSession();
+  saveLabelsBtn.style.display = "inline-block";
   applyRegionDimming(activeIds, continent);
   skipBtn.style.display = "none";
   homeBtn.style.display = "inline-block";
@@ -1168,6 +1316,7 @@ async function startRound(region) {
   skipBtn.style.display = "inline-block";
   homeBtn.style.display = "inline-block";
   learnQuizBtn.style.display = "none";
+  saveLabelsBtn.style.display = "none";
   if (labelsGroup) labelsGroup.style.display = "none";
   applyRegionDimming(new Set(active.map(c => c.id)), continent);
   showPrompt();
