@@ -1,0 +1,15 @@
+[
+  { "id": "ca-ab", "name": "Alberta", "region": "ca-1" },
+  { "id": "ca-bc", "name": "British Columbia", "region": "ca-1" },
+  { "id": "ca-mb", "name": "Manitoba", "region": "ca-1" },
+  { "id": "ca-nb", "name": "New Brunswick", "region": "ca-1" },
+  { "id": "ca-nl", "name": "Newfoundland and Labrador", "region": "ca-1" },
+  { "id": "ca-ns", "name": "Nova Scotia", "region": "ca-1" },
+  { "id": "ca-nt", "name": "Northwest Territories", "region": "ca-1" },
+  { "id": "ca-nu", "name": "Nunavut", "region": "ca-1" },
+  { "id": "ca-on", "name": "Ontario", "region": "ca-1" },
+  { "id": "ca-pe", "name": "Prince Edward Island", "region": "ca-1" },
+  { "id": "ca-qc", "name": "Quebec", "region": "ca-1" },
+  { "id": "ca-sk", "name": "Saskatchewan", "region": "ca-1" },
+  { "id": "ca-yt", "name": "Yukon", "region": "ca-1" }
+]

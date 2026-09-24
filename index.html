@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>World Countries Map Quiz</title>
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
   <div id="app">
     <header>
-      <h1>World Countries Quiz</h1>
+      <h1>Geography &amp; Biology Quiz</h1>
       <div id="prompt" style="display:none"></div>
       <div class="header-actions">
         <div id="progress" style="display:none"></div>
@@ -20,6 +20,10 @@
 
     <div id="home-screen">
       <div class="home-main">
+      <div class="tabs">
+        <button class="tab active" data-tab="geo">Geography</button>
+        <button class="tab" data-tab="bio">Biology</button>
+      </div>
       <section class="continent-group">
         <h2 class="continent-title">Europe</h2>
         <div class="region-grid">
@@ -198,6 +202,129 @@
       </section>
 
       <section class="continent-group">
+        <h2 class="continent-title">China</h2>
+        <div class="region-grid">
+          <div class="region-card" data-region="cn-1">
+            <h3>China: North &amp; Central</h3>
+            <p class="region-meta">12 provinces</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="cn-1">Learn</button>
+              <button class="quiz-action" data-region="cn-1">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="cn-2">
+            <h3>China: East &amp; South</h3>
+            <p class="region-meta">11 provinces</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="cn-2">Learn</button>
+              <button class="quiz-action" data-region="cn-2">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="cn-3">
+            <h3>China: West &amp; Southwest</h3>
+            <p class="region-meta">11 provinces</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="cn-3">Learn</button>
+              <button class="quiz-action" data-region="cn-3">Quiz</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="continent-group">
+        <h2 class="continent-title">United States</h2>
+        <div class="region-grid">
+          <div class="region-card" data-region="us-1">
+            <h3>US: Northeast</h3>
+            <p class="region-meta">10 states</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="us-1">Learn</button>
+              <button class="quiz-action" data-region="us-1">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="us-2">
+            <h3>US: Southeast</h3>
+            <p class="region-meta">10 states</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="us-2">Learn</button>
+              <button class="quiz-action" data-region="us-2">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="us-3">
+            <h3>US: Midwest</h3>
+            <p class="region-meta">10 states</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="us-3">Learn</button>
+              <button class="quiz-action" data-region="us-3">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="us-4">
+            <h3>US: Plains &amp; Rockies</h3>
+            <p class="region-meta">10 states</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="us-4">Learn</button>
+              <button class="quiz-action" data-region="us-4">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="us-5">
+            <h3>US: Southwest &amp; West</h3>
+            <p class="region-meta">10 states</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="us-5">Learn</button>
+              <button class="quiz-action" data-region="us-5">Quiz</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="continent-group">
+        <h2 class="continent-title">Canada</h2>
+        <div class="region-grid">
+          <div class="region-card" data-region="ca-1">
+            <h3>Canada</h3>
+            <p class="region-meta">13 provinces &amp; territories</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="ca-1">Learn</button>
+              <button class="quiz-action" data-region="ca-1">Quiz</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="continent-group">
+        <h2 class="continent-title">Biology</h2>
+        <div class="region-grid">
+          <div class="region-card" data-region="body-organs">
+            <h3>Major Organs</h3>
+            <p class="region-meta">10 parts</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="body-organs">Learn</button>
+              <button class="quiz-action" data-region="body-organs">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="body-more">
+            <h3>More Organs</h3>
+            <p class="region-meta">10 parts</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="body-more">Learn</button>
+              <button class="quiz-action" data-region="body-more">Quiz</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="continent-group">
         <h2 class="continent-title">World</h2>
         <div class="region-grid">
           <div class="region-card" data-region="world">
@@ -240,6 +367,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=67"></script>
+  <script src="app.js?v=69"></script>
 </body>
 </html>

@@ -34,9 +34,19 @@ const CONTINENT_SVG = {
   // asia.svg's underlying data is the full world map (see comment above) —
   // reused as-is for the world quiz, just shown at its full extent instead
   // of cropped to Asia's bounding box.
-  world: "maps/asia.svg"
+  world: "maps/asia.svg",
+  body: "maps/body.svg",
+  // Subdivision maps (US states, Chinese provinces, Canadian provinces/territories).
+  us: "maps/us.svg",
+  cn: "maps/cn.svg",
+  ca: "maps/ca.svg"
 };
-const DATA_FILES = ["data/europe.json", "data/africa.json", "data/americas.json", "data/asia.json"];
+const DATA_FILES = ["data/europe.json", "data/africa.json", "data/americas.json", "data/asia.json", "data/body.json",
+  "data/us.json", "data/cn.json", "data/ca.json"];
+// Geography units are two-letter country codes; biology units are "b-<part>";
+// subdivisions are "<country>-<code>" (us-ca, cn-gd, ca-on) so they can't
+// collide with country ids in the shared review counts.
+const UNIT_ID_RE = /^(?:[a-z]{2}|b-[a-z]+|(?:us|cn|ca)-[a-z]{2})$/;
 
 // Some continent SVGs cover far more territory than a single region needs
 // (americas.svg spans Canada down to Chile) — for those regions, crop to a
@@ -253,6 +263,20 @@ Promise.all(DATA_FILES.map(f => fetch(f, { cache: "no-store" }).then(r => r.json
   });
 renderTodayResults();
 
+// Home-screen tabs: every section is geography except the one titled
+// "Biology", so new subjects only need a new section title + tab button.
+const TAB_KEY = "map-quiz-tab";
+function showTab(tab) {
+  document.querySelectorAll(".home-main .continent-group").forEach(section => {
+    const isBio = section.querySelector(".continent-title").textContent === "Biology";
+    section.style.display = (tab === "bio") === isBio ? "" : "none";
+  });
+  document.querySelectorAll(".tabs .tab").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tab));
+  try { localStorage.setItem(TAB_KEY, tab); } catch (e) { /* storage unavailable */ }
+}
+document.querySelectorAll(".tabs .tab").forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
+showTab((() => { try { return localStorage.getItem(TAB_KEY) === "bio" ? "bio" : "geo"; } catch (e) { return "geo"; } })());
+
 // Rebuilds click/hover/drag handling for whichever SVG is currently loaded.
 // Runs once per successful ensureMapLoaded() — both on first load and every
 // time we switch to a different continent's map.
@@ -342,7 +366,7 @@ function setupMap() {
   svgRootEl.addEventListener("pointercancel", endDrag);
 
   svgRootEl.querySelectorAll("[id]").forEach(unit => {
-    if (!/^[a-z]{2}$/.test(unit.id)) return;
+    if (!UNIT_ID_RE.test(unit.id)) return;
     // A country is either a plain <path id="xx"> or a <g id="xx"> wrapping
     // multiple <path> fragments (e.g. exclaves/islands like ru-main + ru-kaliningrad).
     const fillTargets = unit.tagName === "path" ? [unit] : Array.from(unit.querySelectorAll("path"));
@@ -732,7 +756,7 @@ function buildLabels(continent) {
         const el = document.elementFromPoint(x, y);
         let cur = el;
         while (cur && cur.nodeType === 1) {
-          if (cur.id && /^[a-z]{2}$/.test(cur.id)) return cur.id;
+          if (cur.id && UNIT_ID_RE.test(cur.id)) return cur.id;
           cur = cur.parentElement;
         }
         return null;
@@ -873,7 +897,7 @@ function showLabelsFor(activeIds) {
     const el = document.elementFromPoint(screenPt.x, screenPt.y);
     let cur = el, hitId = null;
     while (cur && cur.nodeType === 1) {
-      if (cur.id && /^[a-z]{2}$/.test(cur.id)) { hitId = cur.id; break; }
+      if (cur.id && UNIT_ID_RE.test(cur.id)) { hitId = cur.id; break; }
       cur = cur.parentElement;
     }
     if (hitId !== t.dataset.id) {
@@ -1076,7 +1100,7 @@ async function startLearn(region) {
   skipBtn.style.display = "none";
   homeBtn.style.display = "inline-block";
   learnQuizBtn.style.display = "inline-block";
-  promptEl.textContent = "Click a country to hear it";
+  promptEl.textContent = "Click to hear its name";
   progressEl.textContent = "";
   // map-wrap was just switched from display:none to visible above, and the
   // freshly-injected SVG doesn't get a settled layout (valid
