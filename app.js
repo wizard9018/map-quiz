@@ -44,12 +44,14 @@ const CONTINENT_SVG = {
   brain: "maps/brain.svg",
   acell: "maps/acell.svg",
   pcell: "maps/pcell.svg",
+  // Chemistry: a generated periodic-table grid, elem-N regions = 10 elements each.
+  elem: "maps/elements.svg",
   // Subdivision maps (US states, Chinese provinces, Canadian provinces/territories).
   us: "maps/us.svg",
   cn: "maps/cn.svg",
   ca: "maps/ca.svg"
 };
-const DATA_FILES = ["data/europe.json", "data/africa.json", "data/americas.json", "data/asia.json", "data/body.json", "data/biology.json",
+const DATA_FILES = ["data/europe.json", "data/africa.json", "data/americas.json", "data/asia.json", "data/body.json", "data/biology.json", "data/elements.json",
   "data/us.json", "data/cn.json", "data/ca.json"];
 // Geography units are two-letter country codes; biology units are
 // "<letter>-<part>" (b-heart, n-thalamus, c-vacuole...) with one letter per
@@ -421,14 +423,13 @@ renderTodayResults();
 const TAB_KEY = "map-quiz-tab";
 function showTab(tab) {
   document.querySelectorAll(".home-main .continent-group").forEach(section => {
-    const isBio = section.dataset.tab === "bio";
-    section.style.display = (tab === "bio") === isBio ? "" : "none";
+    section.style.display = (section.dataset.tab || "geo") === tab ? "" : "none";
   });
   document.querySelectorAll(".tabs .tab").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tab));
   try { localStorage.setItem(TAB_KEY, tab); } catch (e) { /* storage unavailable */ }
 }
 document.querySelectorAll(".tabs .tab").forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
-showTab((() => { try { return localStorage.getItem(TAB_KEY) === "bio" ? "bio" : "geo"; } catch (e) { return "geo"; } })());
+showTab((() => { try { const t = localStorage.getItem(TAB_KEY); return t === "bio" || t === "chem" ? t : "geo"; } catch (e) { return "geo"; } })());
 
 // Rebuilds click/hover/drag handling for whichever SVG is currently loaded.
 // Runs once per successful ensureMapLoaded() — both on first load and every
