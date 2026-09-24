@@ -1,0 +1,18 @@
+[
+  { "id": "de-bb", "name": "Brandenburg", "region": "de-1" },
+  { "id": "de-be", "name": "Berlin", "region": "de-1" },
+  { "id": "de-hb", "name": "Bremen", "region": "de-1" },
+  { "id": "de-hh", "name": "Hamburg", "region": "de-1" },
+  { "id": "de-mv", "name": "Mecklenburg-Vorpommern", "region": "de-1" },
+  { "id": "de-ni", "name": "Lower Saxony", "region": "de-1" },
+  { "id": "de-sh", "name": "Schleswig-Holstein", "region": "de-1" },
+  { "id": "de-st", "name": "Saxony-Anhalt", "region": "de-1" },
+  { "id": "de-bw", "name": "Baden-Württemberg", "region": "de-2" },
+  { "id": "de-by", "name": "Bavaria", "region": "de-2" },
+  { "id": "de-he", "name": "Hesse", "region": "de-2" },
+  { "id": "de-nw", "name": "North Rhine-Westphalia", "region": "de-2" },
+  { "id": "de-rp", "name": "Rhineland-Palatinate", "region": "de-2" },
+  { "id": "de-sl", "name": "Saarland", "region": "de-2" },
+  { "id": "de-sn", "name": "Saxony", "region": "de-2" },
+  { "id": "de-th", "name": "Thuringia", "region": "de-2" }
+]

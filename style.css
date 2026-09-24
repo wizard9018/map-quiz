@@ -191,6 +191,7 @@ button:active {
 
 #today-results {
   flex: 0 0 240px;
+  order: -1; /* left of the region cards */
   background: #ffffff;
   border: 2px solid #e5e5e5;
   border-radius: 14px;

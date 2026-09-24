@@ -1,4 +1,4 @@
-const CACHE_NAME = "map-quiz-v4";
+const CACHE_NAME = "map-quiz-v5";
 const ASSETS = [
   "./",
   "index.html",
@@ -12,6 +12,10 @@ const ASSETS = [
   "data/us.json",
   "data/cn.json",
   "data/ca.json",
+  "data/jp.json",
+  "data/de.json",
+  "data/oc.json",
+  "data/rv.json",
   "maps/africa.svg",
   "maps/americas.svg",
   "maps/asia.svg",
@@ -19,7 +23,11 @@ const ASSETS = [
   "maps/body.svg",
   "maps/us.svg",
   "maps/cn.svg",
-  "maps/ca.svg"
+  "maps/ca.svg",
+  "maps/jp.svg",
+  "maps/de.svg",
+  "maps/oc.svg",
+  "maps/rv.svg"
 ];
 
 self.addEventListener("install", e => {
