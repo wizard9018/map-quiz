@@ -322,3 +322,46 @@ button:active {
 }
 #roster-list li.missed { background: #ffdfe0; color: #ea2b2b; }
 #roster-list li.ok { background: #d7ffb8; color: #58a700; }
+
+/* Matching game: terms on the left, answers on the right. Cards are divs (not
+   <button>s) so the global green uppercase button style doesn't apply. */
+#match-wrap {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  overflow: auto;
+  background: #f7f7f7;
+  padding: 16px;
+}
+.match-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.match-col { display: flex; flex-direction: column; gap: 10px; }
+.match-card {
+  display: flex;
+  align-items: center;
+  min-height: 3.2rem;
+  padding: 10px 14px;
+  background: #ffffff;
+  border: 2px solid #e5e5e5;
+  border-radius: 14px;
+  box-shadow: 0 3px 0 #e5e5e5;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #3c3c3c;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.05s ease;
+}
+.match-card:active { transform: translateY(2px); box-shadow: 0 1px 0 #e5e5e5; }
+.match-card.selected { border-color: #1cb0f6; background: #ddf4ff; box-shadow: 0 3px 0 #1899d6; }
+.match-card.matched { border-color: #58cc02; background: #d7ffb8; color: #58a700; box-shadow: none; pointer-events: none; }
+.match-card.wrong { border-color: #ea2b2b; background: #ffdfe0; color: #ea2b2b; }

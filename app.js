@@ -51,7 +51,7 @@ const CONTINENT_SVG = {
   cn: "maps/cn.svg",
   ca: "maps/ca.svg"
 };
-const DATA_FILES = ["data/europe.json", "data/africa.json", "data/americas.json", "data/asia.json", "data/body.json", "data/biology.json", "data/elements.json",
+const DATA_FILES = ["data/europe.json", "data/africa.json", "data/americas.json", "data/asia.json", "data/body.json", "data/biology.json", "data/elements.json", "data/match.json",
   "data/us.json", "data/cn.json", "data/ca.json"];
 // Geography units are two-letter country codes; biology units are
 // "<letter>-<part>" (b-heart, n-thalamus, c-vacuole...) with one letter per
@@ -118,6 +118,9 @@ const zoomControlsEl = document.getElementById("zoom-controls");
 const zoomInBtn = document.getElementById("zoom-in-btn");
 const zoomOutBtn = document.getElementById("zoom-out-btn");
 const zoomResetBtn = document.getElementById("zoom-reset-btn");
+const matchWrapEl = document.getElementById("match-wrap");
+const matchLeftEl = document.getElementById("match-left");
+const matchRightEl = document.getElementById("match-right");
 
 let countries = [];       // [{id, name, region}] every country across all continents
 let active = [];          // countries in the currently selected region
@@ -1249,6 +1252,7 @@ function goHome() {
   promptEl.style.display = "none";
   progressEl.style.display = "none";
   mapWrapEl.style.display = "none";
+  matchWrapEl.style.display = "none";
   zoomControlsEl.style.display = "none";
   resultsEl.style.display = "none";
   skipBtn.style.display = "none";
@@ -1257,7 +1261,103 @@ function goHome() {
   saveLabelsBtn.style.display = "none";
 }
 
+// --- Matching game: region keys "match-*" show two columns of cards (terms on
+// the left, answers on the right) instead of a diagram. Learn lists the pairs
+// side by side; Match shuffles both columns and asks you to pair them up.
+const isMatchRegion = region => region.startsWith("match-");
+let matchSelEl = null; // the card currently selected in the Match game
+
+function makeMatchCard(c, side, text) {
+  const card = document.createElement("div");
+  card.className = "match-card";
+  card.dataset.id = c.id;
+  card.dataset.side = side;
+  card.textContent = text;
+  card.addEventListener("click", () => onMatchClick(card, c));
+  return card;
+}
+
+function startMatch(region, kind) {
+  mode = kind;
+  currentRegion = region;
+  active = regionCountries(region);
+  missed = new Set();
+  answered = new Set();
+  matchSelEl = null;
+  locked = false;
+  titleEl.textContent = regionLabel(region);
+  homeScreenEl.style.display = "none";
+  mapWrapEl.style.display = "none";
+  zoomControlsEl.style.display = "none";
+  resultsEl.style.display = "none";
+  matchWrapEl.style.display = "block";
+  matchWrapEl.scrollTop = 0;
+  promptEl.style.display = "flex";
+  progressEl.style.display = "block";
+  skipBtn.style.display = "none";
+  homeBtn.style.display = "inline-block";
+  learnQuizBtn.style.display = kind === "learn" ? "inline-block" : "none";
+  saveLabelsBtn.style.display = "none";
+  matchLeftEl.innerHTML = "";
+  matchRightEl.innerHTML = "";
+  if (kind === "learn") {
+    promptEl.textContent = "Tap a card to hear it";
+    progressEl.textContent = "";
+    active.forEach(c => {
+      matchLeftEl.appendChild(makeMatchCard(c, "L", c.name));
+      matchRightEl.appendChild(makeMatchCard(c, "R", c.right));
+    });
+  } else {
+    promptEl.textContent = "Match each pair";
+    progressEl.textContent = `0 / ${active.length}`;
+    shuffle(active).forEach(c => matchLeftEl.appendChild(makeMatchCard(c, "L", c.name)));
+    shuffle(active).forEach(c => matchRightEl.appendChild(makeMatchCard(c, "R", c.right)));
+  }
+}
+
+function onMatchClick(card, c) {
+  if (mode === "learn") {
+    speak(c);
+    card.classList.add("selected");
+    setTimeout(() => card.classList.remove("selected"), FLASH_MS * 2);
+    return;
+  }
+  if (mode !== "quiz" || locked) return;
+  if (card.dataset.side === "L") speak(c);
+  // Second tap on the opposite column: judge the pair.
+  if (matchSelEl && matchSelEl.dataset.side !== card.dataset.side) {
+    const first = matchSelEl;
+    matchSelEl = null;
+    first.classList.remove("selected");
+    if (first.dataset.id === card.dataset.id) {
+      first.classList.add("matched");
+      card.classList.add("matched");
+      answered.add(card.dataset.id);
+      progressEl.textContent = `${answered.size} / ${active.length}`;
+      if (answered.size === active.length) finishRound();
+    } else {
+      // Both pairs involved count as a miss for the first-try score.
+      missed.add(first.dataset.id);
+      missed.add(card.dataset.id);
+      locked = true;
+      first.classList.add("wrong");
+      card.classList.add("wrong");
+      setTimeout(() => {
+        first.classList.remove("wrong");
+        card.classList.remove("wrong");
+        locked = false;
+      }, FLASH_MS);
+    }
+    return;
+  }
+  // Same column (or nothing selected yet): (re)select this card.
+  if (matchSelEl) matchSelEl.classList.remove("selected");
+  matchSelEl = card;
+  card.classList.add("selected");
+}
+
 async function startLearn(region) {
+  if (isMatchRegion(region)) return startMatch(region, "learn");
   const continent = continentOf(region);
   await ensureMapLoaded(CONTINENT_SVG[continent]);
   applyRegionViewBox(region);
@@ -1313,6 +1413,7 @@ function currentTarget() {
 }
 
 async function startRound(region) {
+  if (isMatchRegion(region)) return startMatch(region, "quiz");
   const continent = continentOf(region);
   await ensureMapLoaded(CONTINENT_SVG[continent]);
   applyRegionViewBox(region);
