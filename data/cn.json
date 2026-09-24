@@ -20,7 +20,6 @@
   { "id": "cn-sh", "name": "Shanghai", "zh": "上海", "region": "cn-2" },
   { "id": "cn-zj", "name": "Zhejiang", "zh": "浙江", "region": "cn-2" },
   { "id": "cn-tw", "name": "Taiwan", "zh": "台湾", "region": "cn-2" },
-  { "id": "cn-mo", "name": "Macau", "zh": "澳门", "region": "cn-2" },
   { "id": "cn-hk", "name": "Hong Kong", "zh": "香港", "region": "cn-2" },
   { "id": "cn-gs", "name": "Gansu", "zh": "甘肃", "region": "cn-3" },
   { "id": "cn-qh", "name": "Qinghai", "zh": "青海", "region": "cn-3" },
