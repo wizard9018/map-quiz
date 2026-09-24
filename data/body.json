@@ -1,23 +1,23 @@
 [
   { "id": "b-brain", "name": "Brain", "region": "body-organs" },
-  { "id": "b-trachea", "name": "Trachea", "region": "body-organs" },
-  { "id": "b-lungs", "name": "Lungs", "region": "body-organs" },
   { "id": "b-heart", "name": "Heart", "region": "body-organs" },
+  { "id": "b-lungs", "name": "Lungs", "region": "body-organs" },
   { "id": "b-liver", "name": "Liver", "region": "body-organs" },
   { "id": "b-stomach", "name": "Stomach", "region": "body-organs" },
   { "id": "b-pancreas", "name": "Pancreas", "region": "body-organs" },
   { "id": "b-kidneys", "name": "Kidneys", "region": "body-organs" },
   { "id": "b-smallint", "name": "Small Intestine", "region": "body-organs" },
   { "id": "b-largeint", "name": "Large Intestine", "region": "body-organs" },
+  { "id": "b-bladder", "name": "Bladder", "region": "body-organs" },
 
-  { "id": "b-thyroid", "name": "Thyroid", "region": "body-more" },
   { "id": "b-esophagus", "name": "Esophagus", "region": "body-more" },
-  { "id": "b-bronchi", "name": "Bronchi", "region": "body-more" },
-  { "id": "b-aorta", "name": "Aorta", "region": "body-more" },
+  { "id": "b-thyroid", "name": "Thyroid", "region": "body-more" },
   { "id": "b-diaphragm", "name": "Diaphragm", "region": "body-more" },
   { "id": "b-spleen", "name": "Spleen", "region": "body-more" },
   { "id": "b-gallbladder", "name": "Gallbladder", "region": "body-more" },
   { "id": "b-appendix", "name": "Appendix", "region": "body-more" },
   { "id": "b-rectum", "name": "Rectum", "region": "body-more" },
-  { "id": "b-bladder", "name": "Bladder", "region": "body-more" }
+  { "id": "b-adrenal", "name": "Adrenal Gland", "region": "body-more" },
+  { "id": "b-aorta", "name": "Aorta", "region": "body-more" },
+  { "id": "b-bronchi", "name": "Bronchi", "region": "body-more" }
 ]

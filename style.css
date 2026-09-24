@@ -206,6 +206,8 @@ button:active {
   font-weight: 800;
   margin: 0 0 10px;
 }
+#today-results .credit { margin: 14px 0 0; font-size: 0.65rem; color: #afafaf; line-height: 1.4; }
+#today-results .credit a { color: #afafaf; }
 #today-results-empty { color: #afafaf; font-size: 0.8rem; margin: 0; }
 #today-results-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
 #today-results-list li {
