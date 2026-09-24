@@ -597,15 +597,24 @@ skipBtn.addEventListener("click", () => {
 homeBtn.addEventListener("click", goHome);
 learnQuizBtn.addEventListener("click", () => startRound(currentRegion));
 
-function speak(text) {
+// Entries with a Chinese name (China provinces) are spoken in Mandarin,
+// preferring Microsoft's neural "Natural" voices (Edge), then any Online one.
+function speak(c) {
   if (!("speechSynthesis" in window)) return;
   speechSynthesis.cancel(); // stop any clip still playing so clicks don't queue up
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = "en-US";
-  const enVoices = speechSynthesis.getVoices().filter(v => v.lang.startsWith("en"));
-  if (enVoices.length) utter.voice = enVoices[Math.floor(Math.random() * enVoices.length)];
+  const zh = !!c.zh;
+  const utter = new SpeechSynthesisUtterance(zh ? c.zh : c.name);
+  utter.lang = zh ? "zh-CN" : "en-US";
+  let voices = speechSynthesis.getVoices().filter(v => v.lang.replace("_", "-").startsWith(zh ? "zh-CN" : "en"));
+  if (zh) {
+    const natural = voices.filter(v => /Natural/i.test(v.name));
+    const online = voices.filter(v => /Online/i.test(v.name));
+    voices = natural.length ? natural : online.length ? online : voices;
+  }
+  if (voices.length) utter.voice = voices[Math.floor(Math.random() * voices.length)];
   speechSynthesis.speak(utter);
 }
+const displayName = c => (c.zh ? `${c.zh} ${c.name}` : c.name);
 
 const LABEL_ANCHOR_DIRS = [
   [1, 0], [-1, 0], [0, 1], [0, -1],
@@ -1270,9 +1279,9 @@ function onLearnClick(id) {
   if (suppressNextClick) { suppressNextClick = false; return; } // was a drag, not a tap
   const country = active.find(c => c.id === id);
   if (!country) return; // clicked a country outside the selected region
-  speak(country.name);
+  speak(country);
   setFill(id, CORRECT_FILL);
-  promptEl.textContent = country.name;
+  promptEl.textContent = displayName(country);
   setTimeout(() => setFill(id, DEFAULT_FILL), FLASH_MS);
 }
 
@@ -1324,9 +1333,9 @@ async function startRound(region) {
 
 function showPrompt() {
   const t = currentTarget();
-  promptEl.innerHTML = `Click <span class="target">${t.name}</span>`;
+  promptEl.innerHTML = `Click <span class="target">${displayName(t)}</span>`;
   progressEl.textContent = `${cursor} / ${active.length}`;
-  speak(t.name);
+  speak(t);
 }
 
 function onCountryClick(id) {

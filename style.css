@@ -223,8 +223,8 @@ button:active {
 #today-results-list li.bad .result-score { color: #ea2b2b; }
 
 @media (max-width: 800px) {
-  #home-screen { flex-direction: column; }
-  #today-results { position: static; width: 100%; flex: none; }
+  #home-screen { gap: 12px; }
+  #today-results { flex-basis: 150px; padding: 10px 10px; }
 }
 .continent-group + .continent-group { margin-top: 28px; }
 .continent-title {
