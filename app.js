@@ -107,6 +107,13 @@ function continentOf(regionKey) {
 const titleEl = document.querySelector("header h1");
 const DEFAULT_TITLE = titleEl.textContent;
 
+// Which home-page tab a region's card sits under (sections without data-tab are geography).
+const SUBJECTS = { bio: "Biology", chem: "Chemistry" };
+function subjectOf(region) {
+  const section = document.querySelector(`.region-card[data-region="${region}"]`)?.closest(".continent-group");
+  return SUBJECTS[section?.dataset.tab] || "Geography";
+}
+
 function regionLabel(region) {
   const card = document.querySelector(`.region-card[data-region="${region}"] h3`);
   return card ? card.textContent : region;
@@ -192,6 +199,7 @@ function addTodayResult(region, correct, total) {
   const state = loadTodayResults();
   state.entries.unshift({
     region: regionLabel(region),
+    subject: subjectOf(region),
     correct,
     total,
     time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
@@ -208,7 +216,7 @@ function renderTodayResults() {
     const li = document.createElement("li");
     li.className = entry.correct === entry.total ? "good" : "bad";
     li.innerHTML = `<div class="result-region">${entry.region}</div>` +
-      `<div class="result-score">${entry.correct} / ${entry.total} · ${entry.time}</div>`;
+      `<div class="result-score">${entry.subject ? entry.subject + " · " : ""}${entry.correct} / ${entry.total} · ${entry.time}</div>`;
     todayResultsListEl.appendChild(li);
   });
 }
