@@ -37,10 +37,7 @@ const CONTINENT_SVG = {
   world: "maps/asia.svg",
   body: "maps/body.svg",
   // Biology diagrams (CC BY 4.0, see credits in index.html). Each region key's
-  // prefix picks its SVG: plant-*, flower-*, seed-*, brain-*, acell-*, pcell-*.
-  plant: "maps/plant.svg",
-  flower: "maps/flower.svg",
-  seed: "maps/seed.svg",
+  // prefix picks its SVG: brain-*, acell-*, pcell-*.
   brain: "maps/brain.svg",
   acell: "maps/acell.svg",
   pcell: "maps/pcell.svg",

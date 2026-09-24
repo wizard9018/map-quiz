@@ -1,26 +1,4 @@
 [
-  { "id": "p-leaf", "name": "Leaf", "region": "plant-organs" },
-  { "id": "p-flowerbud", "name": "Flower Bud", "region": "plant-organs" },
-  { "id": "p-flower", "name": "Flower", "region": "plant-organs" },
-  { "id": "p-fruit", "name": "Fruit", "region": "plant-organs" },
-  { "id": "p-root", "name": "Root", "region": "plant-organs" },
-
-  { "id": "f-stigma", "name": "Stigma", "region": "flower-parts" },
-  { "id": "f-style", "name": "Style", "region": "flower-parts" },
-  { "id": "f-ovary", "name": "Ovary", "region": "flower-parts" },
-  { "id": "f-anther", "name": "Anther", "region": "flower-parts" },
-  { "id": "f-pericarp", "name": "Pericarp", "region": "flower-parts" },
-  { "id": "f-seed", "name": "Seed", "region": "flower-parts" },
-
-  { "id": "s-caryopsis", "name": "Whole Grain", "region": "seed-parts" },
-  { "id": "s-endosperm", "name": "Endosperm", "region": "seed-parts" },
-  { "id": "s-embryo", "name": "Embryo", "region": "seed-parts" },
-  { "id": "s-pericarp", "name": "Pericarp", "region": "seed-parts" },
-  { "id": "s-coleoptile", "name": "Coleoptile", "region": "seed-parts" },
-  { "id": "s-radicle", "name": "Radicle", "region": "seed-parts" },
-  { "id": "s-anther", "name": "Anther", "region": "seed-parts" },
-  { "id": "s-carpel", "name": "Carpel", "region": "seed-parts" },
-
   { "id": "n-frontal", "name": "Frontal Lobe", "region": "brain-lobes" },
   { "id": "n-parietal", "name": "Parietal Lobe", "region": "brain-lobes" },
   { "id": "n-occipital", "name": "Occipital Lobe", "region": "brain-lobes" },
