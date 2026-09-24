@@ -300,8 +300,8 @@
         </div>
       </section>
 
-      <section class="continent-group">
-        <h2 class="continent-title">Biology</h2>
+      <section class="continent-group" data-tab="bio">
+        <h2 class="continent-title">Human Body</h2>
         <div class="region-grid">
           <div class="region-card" data-region="body-organs">
             <h3>Major Organs</h3>
@@ -319,6 +319,96 @@
             <div class="card-actions">
               <button class="learn-action" data-region="body-more">Learn</button>
               <button class="quiz-action" data-region="body-more">Quiz</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="continent-group" data-tab="bio">
+        <h2 class="continent-title">Brain</h2>
+        <div class="region-grid">
+          <div class="region-card" data-region="brain-lobes">
+            <h3>Lobes</h3>
+            <p class="region-meta">7 parts</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="brain-lobes">Learn</button>
+              <button class="quiz-action" data-region="brain-lobes">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="brain-inner">
+            <h3>Inner Brain</h3>
+            <p class="region-meta">7 parts</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="brain-inner">Learn</button>
+              <button class="quiz-action" data-region="brain-inner">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="brain-basal">
+            <h3>Basal Ganglia</h3>
+            <p class="region-meta">3 parts</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="brain-basal">Learn</button>
+              <button class="quiz-action" data-region="brain-basal">Quiz</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="continent-group" data-tab="bio">
+        <h2 class="continent-title">Cells</h2>
+        <div class="region-grid">
+          <div class="region-card" data-region="acell-organelles">
+            <h3>Animal Cell</h3>
+            <p class="region-meta">10 parts</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="acell-organelles">Learn</button>
+              <button class="quiz-action" data-region="acell-organelles">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="pcell-organelles">
+            <h3>Plant Cell</h3>
+            <p class="region-meta">10 parts</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="pcell-organelles">Learn</button>
+              <button class="quiz-action" data-region="pcell-organelles">Quiz</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="continent-group" data-tab="bio">
+        <h2 class="continent-title">Plants</h2>
+        <div class="region-grid">
+          <div class="region-card" data-region="plant-organs">
+            <h3>Plant Organs</h3>
+            <p class="region-meta">5 parts</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="plant-organs">Learn</button>
+              <button class="quiz-action" data-region="plant-organs">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="flower-parts">
+            <h3>Flower &amp; Fruit</h3>
+            <p class="region-meta">6 parts</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="flower-parts">Learn</button>
+              <button class="quiz-action" data-region="flower-parts">Quiz</button>
+            </div>
+          </div>
+          <div class="region-card" data-region="seed-parts">
+            <h3>Wheat Grain</h3>
+            <p class="region-meta">8 parts</p>
+            <p class="region-progress"></p>
+            <div class="card-actions">
+              <button class="learn-action" data-region="seed-parts">Learn</button>
+              <button class="quiz-action" data-region="seed-parts">Quiz</button>
             </div>
           </div>
         </div>
@@ -343,7 +433,7 @@
         <h2>Today's Results</h2>
         <p id="today-results-empty">No quizzes completed yet today.</p>
         <ul id="today-results-list"></ul>
-        <p class="credit">Human anatomy diagram: <a href="https://github.com/ebi-gene-expression-group/anatomogram" target="_blank" rel="noopener">Expression Atlas Anatomogram</a> (EMBL-EBI), <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>.</p>
+        <p class="credit">Body, brain and plant diagrams: <a href="https://github.com/ebi-gene-expression-group/anatomogram" target="_blank" rel="noopener">Expression Atlas Anatomogram</a> (EMBL-EBI). Cell diagrams: <a href="https://www.swissbiopics.org/" target="_blank" rel="noopener">SwissBioPics</a> (SIB Swiss Institute of Bioinformatics) via <a href="https://github.com/duerrsimon/bioicons" target="_blank" rel="noopener">bioicons</a>. All <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>, trimmed and recolored.</p>
       </aside>
     </div>
 
@@ -369,6 +459,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=71"></script>
+  <script src="app.js?v=72"></script>
 </body>
 </html>

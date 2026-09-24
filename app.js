@@ -36,17 +36,26 @@ const CONTINENT_SVG = {
   // of cropped to Asia's bounding box.
   world: "maps/asia.svg",
   body: "maps/body.svg",
+  // Biology diagrams (CC BY 4.0, see credits in index.html). Each region key's
+  // prefix picks its SVG: plant-*, flower-*, seed-*, brain-*, acell-*, pcell-*.
+  plant: "maps/plant.svg",
+  flower: "maps/flower.svg",
+  seed: "maps/seed.svg",
+  brain: "maps/brain.svg",
+  acell: "maps/acell.svg",
+  pcell: "maps/pcell.svg",
   // Subdivision maps (US states, Chinese provinces, Canadian provinces/territories).
   us: "maps/us.svg",
   cn: "maps/cn.svg",
   ca: "maps/ca.svg"
 };
-const DATA_FILES = ["data/europe.json", "data/africa.json", "data/americas.json", "data/asia.json", "data/body.json",
+const DATA_FILES = ["data/europe.json", "data/africa.json", "data/americas.json", "data/asia.json", "data/body.json", "data/biology.json",
   "data/us.json", "data/cn.json", "data/ca.json"];
-// Geography units are two-letter country codes; biology units are "b-<part>";
-// subdivisions are "<country>-<code>" (us-ca, cn-gd, ca-on) so they can't
-// collide with country ids in the shared review counts.
-const UNIT_ID_RE = /^(?:[a-z]{2}|b-[a-z]+|(?:us|cn|ca)-[a-z]{2})$/;
+// Geography units are two-letter country codes; biology units are
+// "<letter>-<part>" (b-heart, n-thalamus, c-vacuole...) with one letter per
+// diagram; subdivisions are "<country>-<code>" (us-ca, cn-gd, ca-on). The
+// distinct shapes keep ids from colliding in the shared review counts.
+const UNIT_ID_RE = /^(?:[a-z]{2}|[a-z]-[a-z]+|(?:us|cn|ca)-[a-z]{2})$/;
 
 // Some continent SVGs cover far more territory than a single region needs
 // (americas.svg spans Canada down to Chile) — for those regions, crop to a
@@ -59,7 +68,11 @@ const REGION_VIEWBOX = {
   // Live-measured union bbox of all 232 country paths in asia.svg (see
   // CONTINENT_SVG.world), with ~2% padding — the file's own viewBox
   // attribute is still the Asia-only crop.
-  "world": "-7 7 948 451"
+  "world": "-7 7 948 451",
+  // brain.svg packs four views into one file; each round shows one of them.
+  "brain-lobes": "76 68 70 54",
+  "brain-inner": "-2 68 64 55",
+  "brain-basal": "94 8 38 30"
 };
 
 function applyRegionViewBox(region) {
@@ -403,12 +416,12 @@ Promise.all(DATA_FILES.map(f => fetch(f, { cache: "no-store" }).then(r => r.json
   });
 renderTodayResults();
 
-// Home-screen tabs: every section is geography except the one titled
-// "Biology", so new subjects only need a new section title + tab button.
+// Home-screen tabs: every section is geography unless it carries
+// data-tab="bio", so a new biology topic is just another tagged section.
 const TAB_KEY = "map-quiz-tab";
 function showTab(tab) {
   document.querySelectorAll(".home-main .continent-group").forEach(section => {
-    const isBio = section.querySelector(".continent-title").textContent === "Biology";
+    const isBio = section.dataset.tab === "bio";
     section.style.display = (tab === "bio") === isBio ? "" : "none";
   });
   document.querySelectorAll(".tabs .tab").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tab));
