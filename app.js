@@ -195,11 +195,11 @@ function loadTodayResults() {
   return state;
 }
 
-function addTodayResult(region, correct, total) {
+function addTodayResult(region, correct, total, label = regionLabel(region), subject = subjectOf(region)) {
   const state = loadTodayResults();
   state.entries.unshift({
-    region: regionLabel(region),
-    subject: subjectOf(region),
+    region: label,
+    subject,
     correct,
     total,
     time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
@@ -453,7 +453,14 @@ function showTab(tab) {
   try { localStorage.setItem(TAB_KEY, tab); } catch (e) { /* storage unavailable */ }
 }
 document.querySelectorAll(".tabs .tab").forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
-showTab((() => { try { const t = localStorage.getItem(TAB_KEY); return t === "bio" || t === "chem" ? t : "geo"; } catch (e) { return "geo"; } })());
+showTab((() => { try { const t = localStorage.getItem(TAB_KEY); return ["bio", "chem", "typing"].includes(t) ? t : "geo"; } catch (e) { return "geo"; } })());
+
+// The Typing tab embeds typing.html, which posts a result when a level ends.
+window.addEventListener("message", e => {
+  const d = e.data;
+  if (e.origin !== location.origin || !d || d.type !== "typing-result") return;
+  addTodayResult(null, d.correct, d.total, `Level ${d.level}`, "Typing");
+});
 
 // Rebuilds click/hover/drag handling for whichever SVG is currently loaded.
 // Runs once per successful ensureMapLoaded() — both on first load and every

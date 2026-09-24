@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Typing Trainer — Easy Levels</title>
+  <style>
+    :root{--bg:#0b1222;--panel:#0f172a;--soft:#101826;--muted:#8ea0b5;--text:#e8eef6;--accent:#7dd3fc;--ok:#34d399;--warn:#fbbf24;--ring:#60a5fa}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:radial-gradient(1400px 900px at 10% -10%, #1e293b 0, #0b1222 55%, #070b14 100%);color:var(--text)}
+    .wrap{max-width:1000px;margin:28px auto;padding:16px}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    h1{margin:0;font-size:22px}
+    .stats{display:flex;gap:10px;align-items:center}
+    .pill{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:8px 10px;border-radius:999px}
+
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:16px; box-shadow:0 10px 25px rgba(0,0,0,.35); margin-bottom:16px}
+    .btn{background:var(--accent); color:#062431; border:0; padding:10px 14px; border-radius:12px; font-weight:700; cursor:pointer}
+    .btn.ghost{background:transparent; border:1px solid rgba(255,255,255,.25); color:var(--text)}
+    .btn.level{min-width:120px}
+    .btn.level.active{outline:2px solid var(--ring);outline-offset:2px;box-shadow:0 0 0 4px rgba(96,165,250,.15)}
+
+    .target{font-size:48px; line-height:1.25; letter-spacing:.04em; text-align:center}
+    .char{padding:2px 1px;border-radius:6px}
+    .next{outline:none; outline-offset:0; box-shadow:none}
+    .typed-ok{background:rgba(52,211,153,.18); color:#bbf7d0}
+    .typed-bad{background:rgba(248,113,113,.18); color:#fecaca; text-decoration:line-through}
+    #typingInput{width:100%; background:var(--soft); border-radius:12px; border:1px solid rgba(255,255,255,.1); padding:12px; font-size:20px}
+    .progress{height:10px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin:10px 0}
+    .progress>span{display:block;height:100%;width:0;background:linear-gradient(90deg, #60a5fa, #34d399)}
+
+    .hands{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .hand{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;background:var(--panel);padding:14px;border-radius:16px;border:1px solid rgba(255,255,255,.08)}
+    .hand .label{grid-column:1/-1;font-size:12px;color:var(--muted);margin-bottom:4px}
+    .finger{height:64px;border-radius:14px;background:linear-gradient(180deg,#0f172a,#0b1222);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;color:#cbd5e1;position:relative;font-weight:700}
+    .finger.small{height:44px}
+    .finger .fname{position:absolute;bottom:6px;font-size:11px;color:#fff;opacity:.9}
+    .finger.active{border-color:var(--warn);box-shadow:0 0 0 2px rgba(251,191,36,.9), 0 6px 24px rgba(251,191,36,.25)}
+
+    .keyboard{user-select:none;background:var(--panel);padding:16px;border-radius:16px;border:1px solid rgba(255,255,255,.08)}
+    .kb-row{display:flex;gap:8px;justify-content:center;margin:6px 0}
+    .key{min-width:44px;height:44px;border-radius:10px;background:linear-gradient(180deg,#0f172a,#0b1222);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:700;color:#cbd5e1;position:relative;box-shadow:inset 0 -4px 0 rgba(255,255,255,.03);padding:0 8px}
+    .key.space{min-width:60%;max-width:540px}
+    .key.active{outline:2px solid var(--ring); outline-offset:2px; color:#fff; box-shadow:0 0 0 4px rgba(96,165,250,.25)}
+    .key.pressed{background:#0b1222; transform:translateY(1px)}
+
+    .toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:#0b3a24;color:#c7ffdf;border:1px solid rgba(255,255,255,.12);padding:10px 14px;border-radius:12px;display:none;z-index:60}
+    .toast.show{display:block}
+
+    /* Big celebration animation */
+    .big-gg{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%) scale(.6);font-size:clamp(48px,9vw,110px);font-weight:900;letter-spacing:.03em;color:#fff;text-shadow:0 10px 40px rgba(96,165,250,.35);opacity:0;pointer-events:none;z-index:80;animation:popIn .85s cubic-bezier(.22,.9,.18,1) forwards}
+    @keyframes popIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.6) rotate(-6deg)}35%{opacity:1;transform:translate(-50%,-52%) scale(1.08)}100%{opacity:0;transform:translate(-50%,-64%) scale(1)}}
+    .particle{position:fixed;left:50%;top:42%;width:10px;height:10px;border-radius:2px;transform:translate(-50%,-50%);pointer-events:none;z-index:79;animation:fly .9s ease-out forwards}
+    @keyframes fly{to{transform:translate(var(--dx),var(--dy));opacity:0}}
+
+    /* Hide accidental duplicate renders in some preview hosts */
+    
+
+
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50}
+    .overlay.show{display:flex}
+    .modal{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); border:1px solid rgba(255,255,255,.12); border-radius:16px; padding:24px; max-width:520px; width:92%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Typing Trainer — Easy Levels</h1>
+      <div class="stats">
+        <span class="pill">Level: <b id="levelMeta">—</b></span>
+        <span class="pill">Score: <b id="scoreMeta">0/0</b></span>
+      </div>
+    </header>
+
+    <section class="card">
+      <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+        <button class="btn level active" id="lv1Btn">Level 1 — Random Letters</button>
+        <button class="btn level" id="lv2Btn">Level 2 — Common Words</button>
+        <button class="btn level" id="lv3Btn">Level 3 — A→Z Order</button>
+        <button class="btn ghost" id="restartBtn" style="margin-left:auto">Restart Level</button>
+        <label class="pill" style="display:flex; align-items:center; gap:6px; margin-left:8px">
+          <input type="checkbox" id="soundToggle" checked /> Sound
+        </label>
+      </div>
+      <div class="progress"><span id="progBar"></span></div>
+      <div id="target" class="target"></div>
+      <input type="text" id="typingInput" placeholder="Click here and type…" autocomplete="off" spellcheck="false" />
+      <div class="hint" style="color:var(--muted);margin-top:8px">Letters are case‑insensitive. Punctuation is ignored by design on these levels.</div>
+    </section>
+
+    <!-- Hands & keyboard -->
+    <section class="hands">
+      <div class="hand" id="leftHand">
+        <div class="label">Left Hand</div>
+        <div class="finger" id="l-pinky"><span class="fname">Left Pinky</span></div>
+        <div class="finger" id="l-ring"><span class="fname">Left Ring</span></div>
+        <div class="finger" id="l-middle"><span class="fname">Left Middle</span></div>
+        <div class="finger" id="l-index"><span class="fname">Left Index</span></div>
+        <div class="finger small" id="l-thumb"><span class="fname">Left Thumb</span></div>
+      </div>
+      <div class="hand" id="rightHand">
+        <div class="label">Right Hand</div>
+        <div class="finger small" id="r-thumb"><span class="fname">Right Thumb</span></div>
+        <div class="finger" id="r-index"><span class="fname">Right Index</span></div>
+        <div class="finger" id="r-middle"><span class="fname">Right Middle</span></div>
+        <div class="finger" id="r-ring"><span class="fname">Right Ring</span></div>
+        <div class="finger" id="r-pinky"><span class="fname">Right Pinky</span></div>
+      </div>
+    </section>
+
+    <section class="keyboard card">
+      <div class="kb-row" id="row1"></div>
+      <div class="kb-row" id="row2"></div>
+      <div class="kb-row" id="row3"></div>
+      <div class="kb-row" id="rowSpace"></div>
+      <div class="hint" style="color:var(--muted)">Next key and finger are highlighted; matching is case‑insensitive.</div>
+    </section>
+
+    <div class="overlay" id="congrats">
+      <div class="modal">
+        <h2>🎉 Nice work!</h2>
+        <p id="congratsMsg">Level complete.</p>
+        <div style="display:flex; gap:8px; justify-content:center; margin-top:8px">
+          <button class="btn ghost" id="closeCongrats">Close</button>
+          <button class="btn" id="nextLevel">Next Level</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast">Great!</div>
+  </div>
+
+  <script>
+  // Single-run boot guard disabled for stability in this host
+  window.__TT_RUNNING__ = true;
+
+    
+    // --- Keyboard (letters + space only to avoid punctuation issues)
+    const keyIdMap={};
+    function makeKey(label,id){ const el=document.createElement('div'); el.className='key'; el.id=id; el.dataset.key=label; el.textContent=label===' ' ? 'space' : label; return el; }
+    function buildKeyboard(){
+      const row1=['q','w','e','r','t','y','u','i','o','p'];
+      const row2=['a','s','d','f','g','h','j','k','l'];
+      const row3=['z','x','c','v','b','n','m'];
+      const add=(row,parent)=>row.forEach(ch=>{ const id='key-'+ch; parent.appendChild(makeKey(ch,id)); keyIdMap[ch]=id; keyIdMap[ch.toUpperCase()]=id; });
+      add(row1,document.getElementById('row1'));
+      add(row2,document.getElementById('row2'));
+      add(row3,document.getElementById('row3'));
+      const s=document.createElement('div'); s.className='key space'; s.id='key-space'; s.dataset.key=' '; s.textContent=''; document.getElementById('rowSpace').appendChild(s); keyIdMap[' '] = 'key-space';
+    }
+
+    // --- Finger map (letters + space)
+    const fingerMap={
+      'q':'l-pinky','a':'l-pinky','z':'l-pinky',
+      'w':'l-ring','s':'l-ring','x':'l-ring',
+      'e':'l-middle','d':'l-middle','c':'l-middle',
+      'r':'l-index','t':'l-index','f':'l-index','g':'l-index','v':'l-index','b':'l-index',
+      'y':'r-index','u':'r-index','h':'r-index','j':'r-index','n':'r-index','m':'r-index',
+      'i':'r-middle','k':'r-middle',
+      'o':'r-ring','l':'r-ring',
+      'p':'r-pinky',
+      ' ':'thumbs'
+    };
+
+    // --- Elements
+    const levelMeta=document.getElementById('levelMeta');
+    const scoreMeta=document.getElementById('scoreMeta');
+    const progBar=document.getElementById('progBar');
+    const targetEl=document.getElementById('target');
+    const inputEl=document.getElementById('typingInput');
+
+    const lv1Btn=document.getElementById('lv1Btn');
+    const lv2Btn=document.getElementById('lv2Btn');
+    const lv3Btn=document.getElementById('lv3Btn');
+    const restartBtn=document.getElementById('restartBtn');
+
+    const toast=document.getElementById('toast');
+
+    // Sound toggle
+    const soundToggle = document.getElementById('soundToggle');
+    let soundOn = true;
+    if(soundToggle){ soundToggle.checked = true; soundToggle.addEventListener('change', ()=>{ soundOn = soundToggle.checked; }); }
+
+    // Praise words
+    const praiseWords = ["Great!","Nice!","Perfect!"];
+    function pickPraise(){ return praiseWords[Math.floor(Math.random()*praiseWords.length)]; }
+
+    // Simple ding using WebAudio
+    function playDing(){
+      if(!soundOn) return;
+      try{
+        const Ctx = window.AudioContext || window.webkitAudioContext; const ctx = new Ctx();
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.type='sine'; o.frequency.setValueAtTime(880, ctx.currentTime);
+        o.connect(g); g.connect(ctx.destination);
+        g.gain.setValueAtTime(0.0001, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime+0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.15);
+        o.start(); o.stop(ctx.currentTime+0.16);
+        o.onended = ()=> ctx.close();
+      }catch(e){}
+    }
+
+    const fingerEls={'l-pinky':document.getElementById('l-pinky'),'l-ring':document.getElementById('l-ring'),'l-middle':document.getElementById('l-middle'),'l-index':document.getElementById('l-index'),'l-thumb':document.getElementById('l-thumb'),'r-thumb':document.getElementById('r-thumb'),'r-index':document.getElementById('r-index'),'r-middle':document.getElementById('r-middle'),'r-ring':document.getElementById('r-ring'),'r-pinky':document.getElementById('r-pinky')};
+
+    function clearKeys(){ document.querySelectorAll('.key.active').forEach(k=>k.classList.remove('active')); }
+    function clearFingers(){ Object.values(fingerEls).forEach(el=>el.classList.remove('active')); }
+
+    function highlightNext(){ clearKeys(); clearFingers(); const next=targetText[index]; if(next==null) return; [...targetEl.children].forEach((el,i)=>el.classList.toggle('next',i===index)); const id=keyIdMap[next]||keyIdMap[next?.toLowerCase?.()]; if(id) document.getElementById(id)?.classList.add('active'); const low=next.toLowerCase?.(); const f=fingerMap[low]; if(f==='thumbs'){ fingerEls['l-thumb'].classList.add('active'); fingerEls['r-thumb'].classList.add('active'); } else if(f){ fingerEls[f].classList.add('active'); } }
+
+    function renderTarget(){ targetEl.innerHTML=''; [...targetText].forEach((ch,i)=>{ const span=document.createElement('span'); span.className='char'+(i===index?' next':''); span.textContent=ch; targetEl.appendChild(span); }); }
+
+    function flash(msg){ toast.textContent=msg||'Great!'; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),700); }
+
+    function celebrateBig(text){ playDing();
+      const fx=document.createElement('div');
+      fx.className='big-gg';
+      fx.textContent=text||'Great!';
+      document.body.appendChild(fx);
+      fx.addEventListener('animationend',()=>fx.remove());
+      // confetti burst
+      const colors=['#60a5fa','#34d399','#fbbf24','#f472b6','#a78bfa'];
+      for(let i=0;i<22;i++){
+        const p=document.createElement('i');
+        p.className='particle';
+        const dx=(Math.random()*2-1)*240;
+        const dy=(-Math.random()*200-100);
+        p.style.setProperty('--dx',dx+'px');
+        p.style.setProperty('--dy',dy+'px');
+        p.style.background=colors[i%colors.length];
+        document.body.appendChild(p);
+        p.addEventListener('animationend',()=>p.remove());
+      }
+    }
+
+    // --- Level logic
+    const commonWords=["the","be","to","of","and","a","in","that","have","I","it","for","not","on","with","he","as","you","do","at","this","but","his","by","from","they","we","say","her","she","or","an","will","my","one","all","would","there","their","what","so","up","out","if","about","who","get","which","go","me","when","make","can","like","time","no","just","him","know","take","people","into","year","your","good","some","could","them","see","other","than","then","now","look","only","come","its","over","think","also","back","after","use","two","how","our","work","first","well","way","even","new","want","because","any","these","give","day","most","us"];
+
+    let level=1; let goal=30; let score=0; let index=0; let targetText=''; let started=false; let alphabetIndex=0; let levelStartTime=0; let correctKeys=0; let totalKeys=0;
+
+    function setLevel(lv){
+      level = lv;
+      document.querySelectorAll('.btn.level').forEach(b=>b.classList.remove('active'));
+      (lv===1?lv1Btn:lv===2?lv2Btn:lv3Btn).classList.add('active');
+      if(lv===1){
+        goal = 30;
+      } else if(lv===2){
+        goal = 20;
+      } else {
+        goal = 26;
+        alphabetIndex = 0;
+      }
+      // reset session counters
+      score = 0; index = 0; correctKeys = 0; totalKeys = 0; levelStartTime = Date.now();
+      scoreMeta.textContent = score+"/"+goal;
+      levelMeta.textContent = lv;
+      newTarget();
+      updateProgress();
+      inputEl.focus();
+    }
+
+    function updateProgress(){ const p = goal? Math.round((score/goal)*100):0; progBar.style.width=p+"%"; scoreMeta.textContent=score+"/"+goal; }
+
+    function newTarget(){ index=0; if(level===1){ // random letter
+        const letters="abcdefghijklmnopqrstuvwxyz"; targetText=letters[Math.floor(Math.random()*letters.length)];
+      } else if(level===2){ // random common word
+        targetText = commonWords[Math.floor(Math.random()*commonWords.length)];
+      } else { // level 3 A->Z
+        const letters="abcdefghijklmnopqrstuvwxyz"; targetText = letters[alphabetIndex%26];
+      }
+      renderTarget(); highlightNext(); inputEl.value=''; started=false; }
+
+    function finishItem(){ score++; flash('Nice!'); updateProgress(); if(level===3){ alphabetIndex++; }
+      if(score>=goal){ showCongrats(); } else { newTarget(); } }
+
+    function showCongrats(){
+      const overlay=document.getElementById('congrats');
+      overlay.classList.add('show');
+      const secs=Math.max(0,((Date.now()-levelStartTime)/1000));
+      const acc = totalKeys>0 ? (correctKeys/totalKeys*100) : 100;
+      const msg=document.getElementById('congratsMsg');
+      msg.innerHTML = `Level ${level} complete!<br>Time: <b>${secs.toFixed(1)}s</b> · Accuracy: <b>${acc.toFixed(1)}%</b><br>Score: ${score}/${goal}`;
+      // Tell the map-quiz home page (when embedded there) so it can list this result.
+      try{ parent.postMessage({type:'typing-result', level, correct:correctKeys, total:totalKeys}, location.origin); }catch(e){}
+    }
+
+    // --- Events
+    lv1Btn.addEventListener('click',()=>setLevel(1));
+    lv2Btn.addEventListener('click',()=>setLevel(2));
+    lv3Btn.addEventListener('click',()=>setLevel(3));
+    restartBtn.addEventListener('click',()=>setLevel(level));
+    document.getElementById('closeCongrats').addEventListener('click',()=>document.getElementById('congrats').classList.remove('show'));
+    document.getElementById('nextLevel').addEventListener('click',()=>{ document.getElementById('congrats').classList.remove('show'); setLevel(level===3?1:level+1); });
+
+    inputEl.addEventListener('keydown',(e)=>{
+      if(e.key==='Backspace'){
+        if(index>0){ index--; const span=targetEl.children[index]; span.classList.remove('typed-ok','typed-bad'); highlightNext(); }
+        return;
+      }
+      if(e.key.length!==1) return;
+      totalKeys++;
+      const expected=targetText[index] || targetText; // single-letter levels use [0]
+      const ok = expected.toLowerCase() === e.key.toLowerCase();
+      if(level===2){ const span=targetEl.children[index]; span.classList.add(ok?'typed-ok':'typed-bad'); }
+      if(ok){
+        correctKeys++;
+        index++;
+        if(level!==2){
+          celebrateBig(pickPraise());
+          finishItem();
+        } else {
+          if(index>=targetText.length){
+            celebrateBig(pickPraise());
+            finishItem();
+          }
+        }
+      }
+      const pid=keyIdMap[e.key]||keyIdMap[e.key.toUpperCase?.()]; if(pid){ const keyEl=document.getElementById(pid); keyEl?.classList.add('pressed'); setTimeout(()=>keyEl?.classList.remove('pressed'),120); }
+      highlightNext();
+    });
+
+    // Init
+    buildKeyboard();
+    setLevel(1);
+    // expose for re-inits on duplicate mounts
+    window.buildKeyboard = buildKeyboard;
+    window.setLevel = setLevel;
+
+    // Fallback: if a preview host delays hydration, make sure UI is built
+    window.addEventListener('load', ()=>{
+      try{
+        const r1=document.getElementById('row1');
+        if(r1 && r1.children.length===0) buildKeyboard();
+        const t=document.getElementById('target');
+        if(t && t.textContent.trim().length===0) setLevel(1);
+      }catch(e){}
+    });
+  </script>
+</body>
+</html>

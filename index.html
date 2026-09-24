@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>World Countries Map Quiz</title>
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
   <div id="app">
@@ -24,6 +24,7 @@
         <button class="tab active" data-tab="geo">Geography</button>
         <button class="tab" data-tab="bio">Biology</button>
         <button class="tab" data-tab="chem">Chemistry</button>
+        <button class="tab" data-tab="typing">Typing</button>
       </div>
       <section class="continent-group">
         <h2 class="continent-title">Europe</h2>
@@ -739,6 +740,10 @@
         </div>
       </section>
 
+      <section class="continent-group" data-tab="typing">
+        <iframe class="typing-frame" src="typing.html" title="Typing trainer" loading="lazy"></iframe>
+      </section>
+
       <section class="continent-group">
         <h2 class="continent-title">World</h2>
         <div class="region-grid">
@@ -791,6 +796,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=87"></script>
+  <script src="app.js?v=88"></script>
 </body>
 </html>
