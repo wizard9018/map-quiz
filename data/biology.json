@@ -37,10 +37,6 @@
   { "id": "n-medulla", "name": "Medulla Oblongata", "region": "brain-inner" },
   { "id": "n-amygdala", "name": "Amygdala", "region": "brain-inner" },
 
-  { "id": "n-caudate", "name": "Caudate Nucleus", "region": "brain-basal" },
-  { "id": "n-putamen", "name": "Putamen", "region": "brain-basal" },
-  { "id": "n-pallidus", "name": "Globus Pallidus", "region": "brain-basal" },
-
   { "id": "a-nucleus", "name": "Nucleus", "region": "acell-organelles" },
   { "id": "a-mitochondrion", "name": "Mitochondrion", "region": "acell-organelles" },
   { "id": "a-rougher", "name": "Rough ER", "region": "acell-organelles" },

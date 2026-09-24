@@ -73,8 +73,7 @@ const REGION_VIEWBOX = {
   "world": "-7 7 948 451",
   // brain.svg packs four views into one file; each round shows one of them.
   "brain-lobes": "76 68 70 54",
-  "brain-inner": "-2 68 64 55",
-  "brain-basal": "94 8 38 30"
+  "brain-inner": "-2 68 64 55"
 };
 
 function applyRegionViewBox(region) {
@@ -1248,7 +1247,7 @@ function goHome() {
   if (labelsGroup) labelsGroup.style.display = "none";
   if (continent) (continent === "world" ? countries : continentCountries(continent)).forEach(c => setFill(c.id, DEFAULT_FILL));
   refreshHomeProgress();
-  homeScreenEl.style.display = "block";
+  homeScreenEl.style.display = "flex"; // "block" would drop the results panel below the cards
   promptEl.style.display = "none";
   progressEl.style.display = "none";
   mapWrapEl.style.display = "none";
