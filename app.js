@@ -221,6 +221,16 @@ function renderTodayResults() {
   });
 }
 
+// Continents whose label positions are final and shipped with the site
+// (data/label-overrides.json): they always win over anything saved in the
+// browser, have no "固定位置" button, and can't be dragged.
+let fixedLabels = {};
+let labelsFixed = false; // true while building labels for a continent in fixedLabels
+fetch("data/label-overrides.json", { cache: "no-store" })
+  .then(r => r.json())
+  .then(fixed => { fixedLabels = fixed; Object.assign(labelOverrides, fixed); })
+  .catch(() => { /* offline without the file cached: fall back to browser-saved positions */ });
+
 let labelOverrides = {};
 try {
   labelOverrides = JSON.parse(localStorage.getItem(LABEL_OVERRIDE_KEY)) || {};
@@ -270,6 +280,7 @@ function positionArrow(arrow, ax, ay, trueX, trueY, invScale) {
 // regardless of where it's dragged; the far end still re-trims to the
 // text's edge since the text may have its own independent position.
 function makeArrowInteractive(arrow, line, text, trueX, trueY) {
+  if (labelsFixed) return;
   arrow.style.pointerEvents = "auto";
   arrow.style.cursor = "move";
   let dragging = null;
@@ -318,6 +329,7 @@ function makeArrowInteractive(arrow, line, text, trueX, trueY) {
 // (dense clusters where every direction lands on some neighbor). Only wired
 // up for leader-line text — inline labels stay auto-placed.
 function makeLabelInteractive(text, line) {
+  if (labelsFixed) return;
   // The labels group has pointer-events:none so inline country-name labels
   // never block clicks on the country path underneath — override it back to
   // "auto" on just this text so it alone stays draggable/scrollable. `line`
@@ -766,6 +778,7 @@ function buildLabels(continent) {
   if (!svgRootEl || typeof svgRootEl.getScreenCTM !== "function") return;
   const ctm = svgRootEl.getScreenCTM();
   if (!ctm) return; // map not laid out yet, try again next time startLearn runs
+  labelsFixed = !!fixedLabels[continent];
   const inverse = ctm.inverse();
   // A country's getBoundingClientRect() covers its full path geometry,
   // including any offshore islands/exclaves — for a country near the edge of
@@ -1398,7 +1411,7 @@ async function startLearn(region) {
   active = regionCountries(region);
   const activeIds = new Set(active.map(c => c.id));
   enterSession();
-  saveLabelsBtn.style.display = "inline-block";
+  saveLabelsBtn.style.display = fixedLabels[continent] ? "none" : "inline-block";
   applyRegionDimming(activeIds, continent);
   skipBtn.style.display = "none";
   homeBtn.style.display = "inline-block";
