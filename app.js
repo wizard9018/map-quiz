@@ -399,9 +399,13 @@ saveLabelsBtn.addEventListener("click", () => {
     };
     text.dataset.locked = "1";
   });
-  localStorage.setItem(LABEL_OVERRIDE_KEY, JSON.stringify(labelOverrides));
+  const json = JSON.stringify(labelOverrides);
+  localStorage.setItem(LABEL_OVERRIDE_KEY, json);
+  // Also copy the data so it can be sent along and baked into the repo.
+  const copied = navigator.clipboard ? navigator.clipboard.writeText(json).then(() => true, () => false) : Promise.resolve(false);
+  copied.then(ok => { if (!ok) prompt("复制下面这段文字：", json); });
   const original = saveLabelsBtn.textContent;
-  saveLabelsBtn.textContent = "已固定";
+  saveLabelsBtn.textContent = "已固定，已复制";
   setTimeout(() => { saveLabelsBtn.textContent = original; }, 1200);
 });
 
