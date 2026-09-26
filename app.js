@@ -49,17 +49,15 @@ const CONTINENT_SVG = {
   ca: "maps/ca.svg",
   // Japan prefectures, German states, oceans & seas, major rivers.
   jp: "maps/jp.svg",
-  de: "maps/de.svg",
-  oc: "maps/oc.svg",
-  rv: "maps/rv.svg"
+  de: "maps/de.svg"
 };
 const DATA_FILES = ["data/europe.json", "data/africa.json", "data/americas.json", "data/asia.json", "data/body.json", "data/biology.json", "data/elements.json", "data/match.json",
-  "data/us.json", "data/cn.json", "data/ca.json", "data/jp.json", "data/de.json", "data/oc.json", "data/rv.json"];
+  "data/us.json", "data/cn.json", "data/ca.json", "data/jp.json", "data/de.json"];
 // Geography units are two-letter country codes; biology units are
 // "<letter>-<part>" (b-heart, n-thalamus, c-vacuole...) with one letter per
 // diagram; subdivisions are "<country>-<code>" (us-ca, cn-gd, ca-on). The
 // distinct shapes keep ids from colliding in the shared review counts.
-const UNIT_ID_RE = /^(?:[a-z]{2}|[a-z]-[a-z]+|(?:us|cn|ca|jp|de|oc|rv)-[a-z0-9]{2,3})$/;
+const UNIT_ID_RE = /^(?:[a-z]{2}|[a-z]-[a-z]+|(?:us|cn|ca|jp|de)-[a-z0-9]{2})$/;
 
 // Some continent SVGs cover far more territory than a single region needs
 // (americas.svg spans Canada down to Chile) — for those regions, crop to a
@@ -73,12 +71,6 @@ const REGION_VIEWBOX = {
   // CONTINENT_SVG.world), with ~2% padding — the file's own viewBox
   // attribute is still the Asia-only crop.
   "world": "-7 7 948 451",
-  // rv.svg is a whole-world map; each river round zooms to its own area.
-  "rv-1": "682 60 249 260",
-  "rv-2": "474 124 201 279",
-  "rv-3": "33 65 375 410",
-  // oc.svg is a whole-world map; the Europe/Middle East seas zoom in.
-  "oc-2": "467 43 274 306",
   // jp.svg holds all of Japan; each group zooms to its own area.
   "jp-1": "641 -38 419 603",
   "jp-2": "546 350 255 257",
