@@ -1,10 +1,13 @@
-const CACHE_NAME = "map-quiz-v9";
+const CACHE_NAME = "map-quiz-v10";
 const ASSETS = [
   "./",
   "index.html",
   "app.js",
   "style.css",
   "typing.html",
+  "focus.html",
+  "focus.css",
+  "focus.js",
   "data/africa.json",
   "data/americas.json",
   "data/asia.json",

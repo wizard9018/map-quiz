@@ -100,7 +100,7 @@ const titleEl = document.querySelector("header h1");
 const DEFAULT_TITLE = titleEl.textContent;
 
 // Which home-page tab a region's card sits under (sections without data-tab are geography).
-const SUBJECTS = { bio: "Biology", chem: "Chemistry" };
+const SUBJECTS = { bio: "Biology", chem: "Chemistry", typing: "Typing", focus: "Focus 专注力" };
 function subjectOf(region) {
   const section = document.querySelector(`.region-card[data-region="${region}"]`)?.closest(".continent-group");
   return SUBJECTS[section?.dataset.tab] || "Geography";
@@ -461,7 +461,7 @@ function showTab(tab) {
   try { localStorage.setItem(TAB_KEY, tab); } catch (e) { /* storage unavailable */ }
 }
 document.querySelectorAll(".tabs .tab").forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
-showTab((() => { try { const t = localStorage.getItem(TAB_KEY); return ["bio", "chem", "typing"].includes(t) ? t : "geo"; } catch (e) { return "geo"; } })());
+showTab((() => { try { const t = localStorage.getItem(TAB_KEY); return ["bio", "chem", "typing", "focus"].includes(t) ? t : "geo"; } catch (e) { return "geo"; } })());
 
 // The Typing tab embeds typing.html, which posts a result when a level ends.
 window.addEventListener("message", e => {

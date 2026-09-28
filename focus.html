@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>K12 专注力 50 款小游戏测试工作台</title>
+  <link rel="stylesheet" href="focus.css">
+</head>
+<body>
+  <!-- 顶部交互式测试导航与学堂筛选栏 -->
+  <header class="top-toolbar">
+    <div class="toolbar-left">
+      <div class="brand-title" id="brand-title">
+        <span>🧠</span>
+        <span>专注力 50 款小游戏测试站</span>
+      </div>
+      <div class="academy-pills" id="academy-pills">
+        <button class="pill-btn active" data-academy="all">全部 (50)</button>
+        <button class="pill-btn" data-academy="memory">🧠 工作记忆 (14)</button>
+        <button class="pill-btn" data-academy="focus">🎯 深度专注 (8)</button>
+        <button class="pill-btn" data-academy="control">🛡️ 前额叶自控 (14)</button>
+        <button class="pill-btn" data-academy="agility">⚡ 视觉敏捷 (14)</button>
+      </div>
+    </div>
+
+    <div class="toolbar-right">
+      <button class="tool-btn" id="prev-btn" title="上一个游戏">◀ 上一款</button>
+      <select class="game-select" id="game-select" aria-label="选择游戏"></select>
+      <button class="tool-btn" id="next-btn" title="下一个游戏">下一款 ▶</button>
+
+      <select class="level-select" id="level-select" aria-label="选择关卡">
+        <option value="1">第 1 关 (初阶)</option>
+        <option value="2">第 2 关</option>
+        <option value="3">第 3 关</option>
+        <option value="4">第 4 关</option>
+        <option value="5">第 5 关 (中阶)</option>
+        <option value="6">第 6 关</option>
+        <option value="7">第 7 关</option>
+        <option value="8">第 8 关 (高阶)</option>
+        <option value="9">第 9 关</option>
+        <option value="10">第 10 关 (极限)</option>
+      </select>
+    </div>
+  </header>
+
+  <!-- 主游戏试玩工作台 -->
+  <main class="main-workspace">
+    <div id="phone-container">
+      <!-- 顶部实时状态栏 -->
+      <div class="game-header">
+        <div class="level-badge" id="level-badge">第 1 关 · L1</div>
+        <div class="lives-box" id="lives-box">
+          <span class="heart active">❤️</span>
+          <span class="heart active">❤️</span>
+          <span class="heart active">❤️</span>
+        </div>
+        <div class="timer-badge" id="timer-badge">⏱️ 15.0s</div>
+      </div>
+
+      <!-- 游戏标题与导引 -->
+      <div class="game-info">
+        <h2 id="game-title">游戏加载中...</h2>
+        <div class="prompt-chip" id="game-prompt">游戏规则提示</div>
+      </div>
+
+      <!-- 主视界刺激舞台 -->
+      <section id="game-stage" class="stage-container">
+        <!-- 动态生成游戏刺激内容 -->
+      </section>
+
+      <!-- 底部专属操作手势区 -->
+      <footer id="game-controls" class="controls-container">
+        <!-- 动态生成手势操作按钮 -->
+      </footer>
+
+      <!-- 瞬时视觉反馈浮层 -->
+      <div id="feedback-toast" class="feedback-toast hidden"></div>
+
+      <!-- 结算报告模态弹窗 -->
+      <div id="report-modal" class="report-modal hidden">
+        <div class="report-card">
+          <div class="report-grade-circle" id="report-grade">A</div>
+          <h3 class="report-title" id="report-title">挑战完成</h3>
+          <p class="report-subtitle">专注力认知潜能诊断分析</p>
+
+          <div class="report-stats-grid">
+            <div class="stat-item">
+              <div class="stat-val" id="stat-level">第 1 关</div>
+              <div class="stat-lbl">通关最高难度</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-val" id="stat-acc">100%</div>
+              <div class="stat-lbl">全场正确率</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-val" id="stat-rt">260ms</div>
+              <div class="stat-lbl">平均反应时</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-val" id="stat-score">100分</div>
+              <div class="stat-lbl">脑力综合得分</div>
+            </div>
+          </div>
+
+          <div class="report-advice" id="report-advice">
+            测评建议生成中...
+          </div>
+
+          <div class="report-actions">
+            <button class="duo-btn duo-btn-blue" id="btn-retry">🔄 再试一次</button>
+            <button class="duo-btn" id="btn-next-game">🎮 下一款游戏</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="focus.js"></script>
+</body>
+</html>
