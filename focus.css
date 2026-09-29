@@ -458,6 +458,50 @@ body {
   animation: shake 0.3s;
 }
 
+/* 空间 2-Back 状态板与动态高亮 */
+.nback-status-box {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto 10px;
+  text-align: center;
+}
+
+.nback-step-tag {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0369a1;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 12px;
+  padding: 5px 12px;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+
+.nback-progress-bar-wrap {
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.nback-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #0284c7);
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+.grid-cell.nback-active {
+  background: linear-gradient(135deg, #0284c7, #0369a1) !important;
+  border-color: #0c4a6e !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 18px rgba(2, 132, 199, 0.65) !important;
+  transform: scale(1.06);
+  font-size: 26px !important;
+}
+
 .grid-noise {
   background-image: radial-gradient(#d1d5db 1px, transparent 1px);
   background-size: 8px 8px;

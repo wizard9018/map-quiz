@@ -35,7 +35,7 @@
       title: "2-back 空间记忆挑战",
       academy: "memory",
       prompt: "九宫格连续闪现，比对当前位置与2步前是否相同",
-      modality: "matrix_grid",
+      modality: "spatial_nback",
       gesture: "2way_same_diff",
       layout: "grid_3x3",
       stimulus: "spatial_blocks",
@@ -1102,6 +1102,9 @@
     el.levelBadge.innerText = `第 ${lvl} 关 · L${lvl}`;
     el.stage.innerHTML = '';
     el.controls.innerHTML = '';
+    if (state.subState && state.subState.timerHandle) {
+      clearTimeout(state.subState.timerHandle);
+    }
     state.subState = { startStamp: Date.now() };
 
     const g = REGISTRY[state.gameId];
@@ -1109,6 +1112,8 @@
     if (state.gameId === 'schulte_classic') {
       const cfg = SCHULTE_LEVEL_CONFIG[lvl] || { cols: 5, time: 20 };
       duration = cfg.time;
+    } else if (state.gameId === 'nback_spatial') {
+      duration = 25.0; // 空间 2-Back 给予充足的反应时间
     } else {
       duration = Math.max(5.0, 16.0 - (lvl * 0.9)); // 关卡越高，限时越短
     }
@@ -1199,8 +1204,14 @@
 
   // 渲染主舞台刺激物
   function renderStageForModality(modality, layout, lvl) {
-    // 1. 舒尔特家族方格
-    if (modality === 'matrix_grid' || modality === 'letter_matrix_grid' || modality === 'chinese_num_matrix_grid' || modality === 'roman_matrix_grid') {
+    const g = REGISTRY[state.gameId];
+
+    // 0. 空间 2-Back 九宫格位置记忆 (第 2 款游戏: nback_spatial)
+    if (state.gameId === 'nback_spatial' || modality === 'spatial_nback') {
+      renderSpatialNBack(lvl);
+    }
+    // 1. 舒尔特家族方格 (仅限真正的舒尔特系列游戏)
+    else if (g && g.engine === 'schulte') {
       renderSchulteFamily(modality, layout, lvl);
     }
     // 2. 双色优先级瞬记
@@ -1258,6 +1269,133 @@
   }
 
   // ---------------- 具体模态渲染器 ----------------
+
+  // 0. 空间 2-Back 九宫格位置记忆挑战 (第 2 款游戏)
+  function renderSpatialNBack(lvl) {
+    el.stage.innerHTML = '';
+
+    // 状态板与进度指示
+    const statusBox = document.createElement('div');
+    statusBox.className = 'nback-status-box';
+    statusBox.innerHTML = `
+      <div class="nback-step-tag" id="nback-step-tag">准备开始：请专注观察九宫格</div>
+      <div class="nback-progress-bar-wrap">
+        <div class="nback-progress-bar" id="nback-progress-bar" style="width: 0%;"></div>
+      </div>
+    `;
+    el.stage.appendChild(statusBox);
+
+    // 3x3 九宫格舞台
+    const grid = document.createElement('div');
+    grid.className = 'grid-stage grid-3x3';
+    const cells = [];
+    for (let i = 0; i < 9; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'grid-cell';
+      cell.dataset.index = i;
+      grid.appendChild(cell);
+      cells.push(cell);
+    }
+    el.stage.appendChild(grid);
+
+    // 目标达标正确判定次数 (第1关需4次正确判定，随关卡递增至6次)
+    const requiredMatches = Math.min(6, 3 + Math.floor(lvl / 2));
+    // 刺激物停留时间随关卡递减：从 1100ms 到 750ms
+    const flashDuration = Math.max(700, 1100 - lvl * 40);
+
+    state.subState = {
+      cells: cells,
+      history: [],
+      stepIndex: 0,
+      correctCount: 0,
+      requiredMatches: requiredMatches,
+      isMatch: false,
+      awaitingAnswer: false,
+      timerHandle: null,
+      flashDuration: flashDuration,
+      showNext: null
+    };
+
+    function updateStepUI() {
+      const tag = document.getElementById('nback-step-tag');
+      const bar = document.getElementById('nback-progress-bar');
+      const cur = state.subState.correctCount;
+      const total = state.subState.requiredMatches;
+      const pct = Math.min(100, Math.round((cur / total) * 100));
+      if (bar) bar.style.width = `${pct}%`;
+
+      if (state.subState.stepIndex === 0) {
+        if (tag) tag.innerHTML = `第 1 步：👀 记住当前位置（1秒后出现第2步）`;
+        el.gamePrompt.innerText = `第 1 步：瞬记当前方块位置 (无需操作)`;
+      } else if (state.subState.stepIndex === 1) {
+        if (tag) tag.innerHTML = `第 2 步：👀 记住当前位置（下一步开始比对！）`;
+        el.gamePrompt.innerText = `第 2 步：瞬记当前方块位置 (准备 2-Back 比对)`;
+      } else {
+        if (tag) tag.innerHTML = `第 ${state.subState.stepIndex + 1} 步：当前与【2步前】是否相同？ (达标进度: ${cur}/${total})`;
+        el.gamePrompt.innerText = `第 ${lvl} 关 · 当前位置与【2步前】相同吗？点击下方【相同】或【不同】`;
+      }
+    }
+
+    function showNextStimulus() {
+      if (state.lives <= 0) return;
+      clearTimeout(state.subState.timerHandle);
+
+      // 清空所有格子高亮
+      cells.forEach(c => {
+        c.innerText = '';
+        c.classList.remove('nback-active');
+      });
+
+      const k = state.subState.stepIndex;
+      let nextPos;
+
+      if (k < 2) {
+        // 前两步：随机挑选一个格子
+        nextPos = Math.floor(Math.random() * 9);
+        state.subState.history.push(nextPos);
+        state.subState.isMatch = false;
+        state.subState.awaitingAnswer = false;
+
+        // 点亮格子
+        cells[nextPos].classList.add('nback-active');
+        cells[nextPos].innerText = '●';
+        playTone(440 + nextPos * 40, 'sine', 0.12, 0.1);
+        updateStepUI();
+
+        // 自动推进到下一步
+        state.subState.timerHandle = setTimeout(() => {
+          cells[nextPos].innerText = '';
+          cells[nextPos].classList.remove('nback-active');
+          state.subState.stepIndex++;
+          state.subState.timerHandle = setTimeout(showNextStimulus, 300);
+        }, state.subState.flashDuration);
+      } else {
+        // 第 3 步起 (k >= 2)：可进行 2-Back 判定
+        const twoStepsAgo = state.subState.history[k - 2];
+        const shouldMatch = Math.random() < 0.45; // 45% 概率相同
+
+        if (shouldMatch) {
+          nextPos = twoStepsAgo;
+        } else {
+          // 挑选一个不同于 2 步前的位置
+          const others = [0,1,2,3,4,5,6,7,8].filter(x => x !== twoStepsAgo);
+          nextPos = others[Math.floor(Math.random() * others.length)];
+        }
+
+        state.subState.history.push(nextPos);
+        state.subState.isMatch = (nextPos === twoStepsAgo);
+        state.subState.awaitingAnswer = true;
+
+        cells[nextPos].classList.add('nback-active');
+        cells[nextPos].innerText = '●';
+        playTone(440 + nextPos * 40, 'sine', 0.12, 0.1);
+        updateStepUI();
+      }
+    }
+
+    state.subState.showNext = showNextStimulus;
+    state.subState.timerHandle = setTimeout(showNextStimulus, 400);
+  }
 
   // 1. 舒尔特家族 (数字 / 字母 / 中文 / 罗马 / 旋转 / 倒序)
   function renderSchulteFamily(modality, layout, lvl) {
@@ -1494,6 +1632,52 @@
   }
 
   function handleTwoWayChoice(chosenSame) {
+    // 1. 如果当前是空间 2-back (第 2 款游戏)
+    if (state.gameId === 'nback_spatial') {
+      if (!state.subState.awaitingAnswer) {
+        showToast('👀 前两步为瞬时记忆阶段，第三步起开始比对！', 1000);
+        return;
+      }
+      state.subState.awaitingAnswer = false;
+      const isCorrect = (chosenSame === !!state.subState.isMatch);
+
+      if (isCorrect) {
+        soundSuccess();
+        state.stats.correct++;
+        state.subState.correctCount++;
+        showToast(`✨ 判断正确！进度: ${state.subState.correctCount}/${state.subState.requiredMatches}`);
+
+        if (state.subState.correctCount >= state.subState.requiredMatches) {
+          clearTimeout(state.subState.timerHandle);
+          setTimeout(nextLevel, 400);
+          return;
+        }
+      } else {
+        soundError();
+        const correctStr = state.subState.isMatch ? '相同' : '不同';
+        deductLife(`判断失误，正确应为【${correctStr}】`);
+      }
+
+      // 如果未耗尽心数，短暂间隔后继续出下一题
+      if (state.lives > 0) {
+        if (state.subState.cells) {
+          state.subState.cells.forEach(c => {
+            c.innerText = '';
+            c.classList.remove('nback-active');
+          });
+        }
+        state.subState.stepIndex++;
+        clearTimeout(state.subState.timerHandle);
+        state.subState.timerHandle = setTimeout(() => {
+          if (typeof state.subState.showNext === 'function') {
+            state.subState.showNext();
+          }
+        }, 350);
+      }
+      return;
+    }
+
+    // 2. 其他通用 2way 题目逻辑
     const isCorrect = (chosenSame === !!state.subState.isMatch);
     if (isCorrect) {
       soundSuccess();
