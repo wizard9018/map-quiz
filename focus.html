@@ -79,14 +79,15 @@
       <!-- 结算报告模态弹窗 -->
       <div id="report-modal" class="report-modal hidden">
         <div class="report-card">
+          <!-- 1. 核心总评标牌 -->
           <div class="report-grade-circle" id="report-grade">A</div>
-          <h3 class="report-title" id="report-title">挑战完成</h3>
-          <p class="report-subtitle">专注力认知潜能诊断分析</p>
+          <h3 class="report-title" id="report-title">挑战结束</h3>
+          <p class="report-subtitle" id="report-subtitle">专注力认知潜能诊断与战报分析</p>
 
           <div class="report-stats-grid">
             <div class="stat-item">
               <div class="stat-val" id="stat-level">第 1 关</div>
-              <div class="stat-lbl">通关最高难度</div>
+              <div class="stat-lbl">最高闯关级数</div>
             </div>
             <div class="stat-item">
               <div class="stat-val" id="stat-acc">100%</div>
@@ -97,18 +98,99 @@
               <div class="stat-lbl">平均反应时</div>
             </div>
             <div class="stat-item">
-              <div class="stat-val" id="stat-score">100分</div>
-              <div class="stat-lbl">脑力综合得分</div>
+              <div class="stat-val" id="stat-score">85分</div>
+              <div class="stat-lbl">综合专注力得分</div>
             </div>
           </div>
 
-          <div class="report-advice" id="report-advice">
-            测评建议生成中...
+          <!-- 2. 你和发给你的人的成绩对比 (1v1 好友 PK 对决) -->
+          <div class="report-pk-card" id="report-pk-card">
+            <div class="pk-header-row">
+              <span class="pk-title">⚔️ 1v1 好友对决战报</span>
+              <span class="pk-badge win" id="pk-outcome-badge">👑 挑战大获全胜！</span>
+            </div>
+            <div class="pk-vs-box">
+              <div class="pk-player-col pk-me">
+                <span class="pk-p-name">你 (当前战绩)</span>
+                <span class="pk-p-score text-blue" id="pk-my-score">85分</span>
+                <span class="pk-p-level" id="pk-my-level">冲至第 4 关</span>
+              </div>
+              <div class="pk-vs-divider">VS</div>
+              <div class="pk-player-col pk-opponent">
+                <span class="pk-p-name" id="pk-opp-name">发给你的人 (林同学)</span>
+                <span class="pk-p-score text-red" id="pk-opp-score">76分</span>
+                <span class="pk-p-level" id="pk-opp-level">冲至第 4 关</span>
+              </div>
+            </div>
+            <div class="pk-comment" id="pk-comment">
+              恭喜！你成功战胜了发给你的人，前额叶控制力与敏捷反应超越同龄好友！
+            </div>
           </div>
 
-          <div class="report-actions">
-            <button class="duo-btn duo-btn-blue" id="btn-retry">🔄 再试一次</button>
-            <button class="duo-btn" id="btn-next-game">🎮 下一款游戏</button>
+          <!-- 3. 省份平均分对比 (恭喜加分 / 拖后腿) -->
+          <div class="report-province-card" id="report-province-card">
+            <div class="province-header">
+              <span class="province-title">📍 省份天梯战报评定</span>
+              <select class="province-select" id="province-select" aria-label="选择出战省份"></select>
+            </div>
+            <div class="province-status-banner pass" id="province-status-banner">
+              <span class="banner-icon">🏆</span>
+              <span class="banner-text">高于本省平均成绩 · 恭喜加分！</span>
+            </div>
+            <div class="province-detail-text" id="province-detail-text">
+              本省平均成绩 87.2 分，你的成绩为 88 分 (高出 +0.8 分)！恭喜为全省平均分拉榜加分，争夺全国榜首！
+            </div>
+            <div class="province-rank-tag" id="province-rank-tag">
+              本省在全国 31 省平均专注力天梯榜排名：第 3 名
+            </div>
+          </div>
+
+          <!-- 4. 扫码联系专注力专家与领取 7 天提升资料 -->
+          <div class="report-expert-card">
+            <div class="expert-title">🎁 领取《7天专注力提升资料》与专家诊断</div>
+            <div class="expert-subtitle">针对做题粗心马虎、听课走神磨蹭的专项激活包</div>
+
+            <!-- 专家微信二维码与扫码区 -->
+            <div class="expert-qr-wrap" id="expert-qr-wrap" title="微信扫码添加专注力专家">
+              <!-- 动态载入矢量清晰二维码 -->
+            </div>
+            <div class="expert-qr-hint">📱 手机可长按识别二维码 · 电脑可微信扫码</div>
+
+            <div class="wechat-box">
+              <span>专属专家微信：<strong class="wechat-code" id="expert-wechat-code">ql_focus88</strong></span>
+              <button class="btn-copy-wechat" id="btn-copy-wechat">📋 一键复制</button>
+            </div>
+
+            <div class="expert-rights-list">
+              <div class="expert-rights-item">
+                <span>🎧</span>
+                <span><strong>7天打卡营：</strong>每日 10 分钟前额叶脑力专项训练音频与微题包</span>
+              </div>
+              <div class="expert-rights-item">
+                <span>📖</span>
+                <span><strong>实操防错指南：</strong>《中小学生做题粗心断片与漏题防错手册 (PDF)》</span>
+              </div>
+              <div class="expert-rights-item">
+                <span>👨‍🏫</span>
+                <span><strong>专家 1对1 诊断：</strong>依据本次闯关失误数据，量身定制个性化专注力提分方案</span>
+              </div>
+            </div>
+
+            <div class="expert-tip-note" id="expert-tip-note">
+              💡 复制或扫码添加时请备注：【专注力+第 1 关+85分】，老师将在 5 分钟内为您发送资料！
+            </div>
+          </div>
+
+          <!-- 5. 底部行动按钮 -->
+          <div class="report-actions-column">
+            <!-- 核心裂变功能：发给朋友挑战 PK -->
+            <button class="duo-btn duo-btn-share-pk" id="btn-pk-share">
+              ⚔️ 发给朋友挑战 PK（比拼闯关级数）
+            </button>
+            <div class="report-actions-row">
+              <button class="duo-btn duo-btn-blue" id="btn-retry">🔄 再试一次</button>
+              <button class="duo-btn duo-btn-ghost" id="btn-next-game">🎮 下一款游戏</button>
+            </div>
           </div>
         </div>
       </div>

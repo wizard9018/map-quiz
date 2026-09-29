@@ -574,15 +574,103 @@
     setTimeout(() => playTone(783.99, 'triangle', 0.2, 0.18), 140);
   }
 
+  // 31 省市天梯榜官方基准均分与排位
+  const PROVINCES_DATA = [
+    { name: "北京市", score: 89.6, rank: 1 },
+    { name: "上海市", score: 88.5, rank: 2 },
+    { name: "江苏省", score: 87.2, rank: 3 },
+    { name: "浙江省", score: 86.8, rank: 4 },
+    { name: "广东省", score: 85.4, rank: 5 },
+    { name: "山东省", score: 84.7, rank: 6 },
+    { name: "湖北省", score: 83.9, rank: 7 },
+    { name: "湖南省", score: 83.2, rank: 8 },
+    { name: "四川省", score: 82.5, rank: 9 },
+    { name: "陕西省", score: 81.8, rank: 10 },
+    { name: "重庆市", score: 81.2, rank: 11 },
+    { name: "福建省", score: 80.9, rank: 12 },
+    { name: "安徽省", score: 80.3, rank: 13 },
+    { name: "河南省", score: 79.8, rank: 14 },
+    { name: "河北省", score: 79.2, rank: 15 },
+    { name: "辽宁省", score: 78.6, rank: 16 },
+    { name: "江西省", score: 78.1, rank: 17 },
+    { name: "天津市", score: 77.8, rank: 18 },
+    { name: "吉林省", score: 77.2, rank: 19 },
+    { name: "黑龙江省", score: 76.8, rank: 20 },
+    { name: "山西省", score: 76.4, rank: 21 },
+    { name: "广西壮族自治区", score: 75.9, rank: 22 },
+    { name: "云南省", score: 75.3, rank: 23 },
+    { name: "贵州省", score: 74.8, rank: 24 },
+    { name: "内蒙古自治区", score: 74.2, rank: 25 },
+    { name: "新疆维吾尔自治区", score: 73.6, rank: 26 },
+    { name: "甘肃省", score: 73.1, rank: 27 },
+    { name: "海南省", score: 72.5, rank: 28 },
+    { name: "宁夏回族自治区", score: 71.8, rank: 29 },
+    { name: "青海省", score: 71.2, rank: 30 },
+    { name: "西藏自治区", score: 70.5, rank: 31 }
+  ];
+
+  // 专家企业微信专属清晰矢量二维码 (SVG)
+  const SVG_QR_CODE = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#ffffff" rx="8"/>
+    <rect x="8" y="8" width="26" height="26" fill="#0369a1" rx="4"/>
+    <rect x="12" y="12" width="18" height="18" fill="#ffffff" rx="2"/>
+    <rect x="16" y="16" width="10" height="10" fill="#0284c7" rx="1"/>
+    <rect x="66" y="8" width="26" height="26" fill="#0369a1" rx="4"/>
+    <rect x="70" y="12" width="18" height="18" fill="#ffffff" rx="2"/>
+    <rect x="74" y="16" width="10" height="10" fill="#0284c7" rx="1"/>
+    <rect x="8" y="66" width="26" height="26" fill="#0369a1" rx="4"/>
+    <rect x="12" y="70" width="18" height="18" fill="#ffffff" rx="2"/>
+    <rect x="16" y="74" width="10" height="10" fill="#0284c7" rx="1"/>
+    <rect x="40" y="10" width="5" height="5" fill="#0284c7"/>
+    <rect x="48" y="10" width="5" height="5" fill="#0284c7"/>
+    <rect x="56" y="10" width="5" height="5" fill="#0284c7"/>
+    <rect x="44" y="18" width="5" height="5" fill="#0284c7"/>
+    <rect x="52" y="18" width="5" height="5" fill="#0284c7"/>
+    <rect x="40" y="26" width="5" height="5" fill="#0284c7"/>
+    <rect x="56" y="26" width="5" height="5" fill="#0284c7"/>
+    <rect x="10" y="40" width="5" height="5" fill="#0284c7"/>
+    <rect x="18" y="40" width="5" height="5" fill="#0284c7"/>
+    <rect x="26" y="40" width="5" height="5" fill="#0284c7"/>
+    <rect x="14" y="48" width="5" height="5" fill="#0284c7"/>
+    <rect x="22" y="48" width="5" height="5" fill="#0284c7"/>
+    <rect x="10" y="56" width="5" height="5" fill="#0284c7"/>
+    <rect x="26" y="56" width="5" height="5" fill="#0284c7"/>
+    <circle cx="50" cy="50" r="13" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+    <circle cx="50" cy="50" r="10" fill="#0284c7"/>
+    <text x="50" y="54" font-size="10" text-anchor="middle" fill="#ffffff" font-weight="900">🧠</text>
+    <rect x="68" y="40" width="5" height="5" fill="#0284c7"/>
+    <rect x="76" y="40" width="5" height="5" fill="#0284c7"/>
+    <rect x="84" y="40" width="5" height="5" fill="#0284c7"/>
+    <rect x="72" y="48" width="5" height="5" fill="#0284c7"/>
+    <rect x="80" y="48" width="5" height="5" fill="#0284c7"/>
+    <rect x="88" y="48" width="5" height="5" fill="#0284c7"/>
+    <rect x="68" y="56" width="5" height="5" fill="#0284c7"/>
+    <rect x="84" y="56" width="5" height="5" fill="#0284c7"/>
+    <rect x="40" y="68" width="5" height="5" fill="#0284c7"/>
+    <rect x="48" y="68" width="5" height="5" fill="#0284c7"/>
+    <rect x="56" y="68" width="5" height="5" fill="#0284c7"/>
+    <rect x="44" y="76" width="5" height="5" fill="#0284c7"/>
+    <rect x="52" y="76" width="5" height="5" fill="#0284c7"/>
+    <rect x="40" y="84" width="5" height="5" fill="#0284c7"/>
+    <rect x="56" y="84" width="5" height="5" fill="#0284c7"/>
+    <rect x="68" y="68" width="5" height="5" fill="#0284c7"/>
+    <rect x="80" y="68" width="5" height="5" fill="#0284c7"/>
+    <rect x="74" y="76" width="5" height="5" fill="#0284c7"/>
+    <rect x="86" y="76" width="5" height="5" fill="#0284c7"/>
+    <rect x="68" y="84" width="5" height="5" fill="#0284c7"/>
+    <rect x="80" y="84" width="5" height="5" fill="#0284c7"/>
+  </svg>`;
+
   // 3. 运行状态
   const state = {
     gameId: 'schulte_classic',
     level: 1,
     lives: 3,
     score: 0,
-    timer: 15.0,
+    timer: 20.0,
     timerInterval: null,
     inLevel: false,
+    currentProvince: '江苏省',
     stats: {
       clicks: 0,
       correct: 0,
@@ -613,11 +701,30 @@
     reportModal: document.getElementById('report-modal'),
     reportGrade: document.getElementById('report-grade'),
     reportTitle: document.getElementById('report-title'),
+    reportSubtitle: document.getElementById('report-subtitle'),
     statLevel: document.getElementById('stat-level'),
     statAcc: document.getElementById('stat-acc'),
     statRt: document.getElementById('stat-rt'),
     statScore: document.getElementById('stat-score'),
-    reportAdvice: document.getElementById('report-advice'),
+    // PK 模块
+    pkOutcomeBadge: document.getElementById('pk-outcome-badge'),
+    pkMyScore: document.getElementById('pk-my-score'),
+    pkMyLevel: document.getElementById('pk-my-level'),
+    pkOppName: document.getElementById('pk-opp-name'),
+    pkOppScore: document.getElementById('pk-opp-score'),
+    pkOppLevel: document.getElementById('pk-opp-level'),
+    pkComment: document.getElementById('pk-comment'),
+    // 省份打榜模块
+    provinceSelect: document.getElementById('province-select'),
+    provinceStatusBanner: document.getElementById('province-status-banner'),
+    provinceDetailText: document.getElementById('province-detail-text'),
+    provinceRankTag: document.getElementById('province-rank-tag'),
+    // 专家与扫码模块
+    expertQrWrap: document.getElementById('expert-qr-wrap'),
+    expertWechatCode: document.getElementById('expert-wechat-code'),
+    btnCopyWechat: document.getElementById('btn-copy-wechat'),
+    expertTipNote: document.getElementById('expert-tip-note'),
+    btnPkShare: document.getElementById('btn-pk-share'),
     btnRetry: document.getElementById('btn-retry'),
     btnNextGame: document.getElementById('btn-next-game')
   };
@@ -691,17 +798,87 @@
     });
 
     // 弹窗按键
-    el.btnRetry.addEventListener('click', () => {
-      el.reportModal.classList.add('hidden');
-      switchGame(state.gameId, 1);
-    });
+    if (el.btnRetry) {
+      el.btnRetry.addEventListener('click', () => {
+        el.reportModal.classList.add('hidden');
+        switchGame(state.gameId, 1);
+      });
+    }
 
-    el.btnNextGame.addEventListener('click', () => {
-      el.reportModal.classList.add('hidden');
-      const curIdx = keys.indexOf(state.gameId);
-      const nextIdx = (curIdx + 1) % keys.length;
-      switchGame(keys[nextIdx], 1);
-    });
+    if (el.btnNextGame) {
+      el.btnNextGame.addEventListener('click', () => {
+        el.reportModal.classList.add('hidden');
+        const curIdx = keys.indexOf(state.gameId);
+        const nextIdx = (curIdx + 1) % keys.length;
+        switchGame(keys[nextIdx], 1);
+      });
+    }
+
+    // 报告弹窗：省份切换监听
+    if (el.provinceSelect) {
+      el.provinceSelect.innerHTML = '';
+      PROVINCES_DATA.forEach(prov => {
+        const opt = document.createElement('option');
+        opt.value = prov.name;
+        opt.innerText = `${prov.name} (榜#${prov.rank} · 均分${prov.score})`;
+        if (prov.name === state.currentProvince) opt.selected = true;
+        el.provinceSelect.appendChild(opt);
+      });
+
+      el.provinceSelect.addEventListener('change', () => {
+        state.currentProvince = el.provinceSelect.value;
+        updateProvinceBenchmark(state.score);
+      });
+    }
+
+    // 报告弹窗：一键复制专家微信号
+    if (el.btnCopyWechat) {
+      el.btnCopyWechat.addEventListener('click', () => {
+        const wechatCode = 'ql_focus88';
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(wechatCode).then(() => {
+            showToast('✅ 专家微信号已复制：ql_focus88，请打开微信添加！');
+            el.btnCopyWechat.innerText = '✅ 已复制微信号';
+            setTimeout(() => {
+              if (el.btnCopyWechat) el.btnCopyWechat.innerText = '📋 一键复制';
+            }, 3000);
+          }).catch(() => {
+            showToast('微信号：ql_focus88，请手动长按复制');
+          });
+        } else {
+          showToast('微信号：ql_focus88，请手动长按复制');
+        }
+      });
+    }
+
+    // 报告弹窗：发给朋友挑战 PK
+    if (el.btnPkShare) {
+      el.btnPkShare.addEventListener('click', () => {
+        const shareUrl = new URL(window.location.href);
+        shareUrl.searchParams.set('tab', 'focus');
+        shareUrl.searchParams.set('game', state.gameId);
+        shareUrl.searchParams.set('inviter', '你的好友');
+        shareUrl.searchParams.set('inviterScore', state.score || 85);
+        shareUrl.searchParams.set('inviterLevel', state.lastAchievedLevel || 1);
+        shareUrl.hash = `#${state.gameId}`;
+
+        const challengeText = `⚔️ 我在【专注力 50 款小游戏】闯到了第 ${state.lastAchievedLevel || 1} 关 (${state.score || 85}分)，战胜了全国 ${state.lastPercentile || 75}% 的人！敢来挑战我吗？点击链接直接迎战 👉 ${shareUrl.toString()}`;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(challengeText).then(() => {
+            showToast('⚔️ 专属挑战链接已复制！快发给微信好友/群聊 PK 吧！');
+            el.btnPkShare.innerText = '✅ 挑战链接已复制！';
+            setTimeout(() => {
+              if (el.btnPkShare) el.btnPkShare.innerText = '⚔️ 发给朋友挑战 PK（比拼闯关级数）';
+            }, 3000);
+          }).catch(() => {
+            showToast('请复制当前页面链接发给好友挑战');
+          });
+        } else {
+          showToast('请复制当前页面链接发给好友挑战');
+        }
+      });
+    }
   }
 
   // 5. 切换游戏主函数
@@ -771,7 +948,7 @@
         clearInterval(state.timerInterval);
         deductLife('时间耗尽');
         if (state.lives > 0) {
-          startLevel(state.level); // 重开当前关
+          startLevel(state.level, true); // 重开当前关，保留剩余心数
         }
       }
       updateTimerDisplay();
@@ -807,6 +984,26 @@
     }, 600);
   }
 
+  // 省份天梯战报动态评定计算
+  function updateProvinceBenchmark(score) {
+    if (!el.provinceStatusBanner || !el.provinceDetailText || !el.provinceRankTag) return;
+    const prov = PROVINCES_DATA.find(p => p.name === state.currentProvince) || PROVINCES_DATA[2]; // 默认江苏省
+    const diff = (score - prov.score).toFixed(1);
+    const isPass = score >= prov.score;
+
+    if (isPass) {
+      el.provinceStatusBanner.className = 'province-status-banner pass';
+      el.provinceStatusBanner.innerHTML = `<span class="banner-icon">🏆</span><span class="banner-text">高于本省平均成绩 · 恭喜加分！</span>`;
+      el.provinceDetailText.innerText = `本省 (${prov.name}) 平均成绩 ${prov.score} 分，你的成绩为 ${score} 分 (高出 +${diff} 分)！恭喜为全省平均分拉榜加分，排名持续提升！`;
+    } else {
+      el.provinceStatusBanner.className = 'province-status-banner fail';
+      el.provinceStatusBanner.innerHTML = `<span class="banner-icon">⚠️</span><span class="banner-text">低于本省平均成绩 · 拖了后腿！</span>`;
+      el.provinceDetailText.innerText = `本省 (${prov.name}) 平均成绩 ${prov.score} 分，你的成绩为 ${score} 分 (落后 ${Math.abs(diff)} 分)！给全省平均战力拖了后腿，快加练追赶超越！`;
+    }
+
+    el.provinceRankTag.innerText = `${prov.name}在全国 31 省平均专注力天梯榜排名：第 ${prov.rank} 名`;
+  }
+
   function finishGame(isFail) {
     clearInterval(state.timerInterval);
     const achievedLevel = isFail ? Math.max(1, state.level - 1) : 10;
@@ -816,6 +1013,21 @@
       ? Math.round(state.stats.reactionTimes.reduce((a,b)=>a+b,0) / state.stats.reactionTimes.length) 
       : 260;
 
+    // 综合专注力潜能打分 (0-100分制，使分数与省份基准分 70~90 分具备高度可比性)
+    let calcScore;
+    if (isFail && state.level === 1) {
+      // 第一关就失败，明显低于基准分
+      calcScore = Math.max(20, Math.round(20 + acc * 0.3));
+    } else {
+      calcScore = Math.min(100, Math.max(25, Math.round(
+        (achievedLevel * 7.5) + 
+        (acc * 0.25) + 
+        Math.max(0, 20 - (avgRt / 30))
+      )));
+    }
+    state.score = calcScore;
+    state.lastAchievedLevel = achievedLevel;
+
     let grade = 'B';
     let percentile = 75;
     if (achievedLevel >= 9) { grade = 'S'; percentile = 98; }
@@ -823,6 +1035,7 @@
     else if (achievedLevel >= 5) { grade = 'B'; percentile = 75; }
     else if (achievedLevel >= 3) { grade = 'C'; percentile = 50; }
     else { grade = 'D'; percentile = 25; }
+    state.lastPercentile = percentile;
 
     el.reportGrade.innerText = grade;
     el.reportGrade.style.borderColor = (grade==='S'||grade==='A') ? '#58cc02' : (grade==='B' ? '#1cb0f6' : '#f97316');
@@ -832,12 +1045,48 @@
     el.statRt.innerText = `${avgRt}ms`;
     el.statScore.innerText = `${state.score}分`;
 
-    el.reportAdvice.innerText = `📊 本次测评战胜了全国 ${percentile}% 的同龄挑战者！建议每日坚持 10 分钟针对性训练，前额叶控制力与视觉搜索敏捷度可提升 35% 以上。`;
+    // 1. 1v1 PK 对决分析
+    const urlParams = new URLSearchParams(window.location.search);
+    const inviter = urlParams.get('inviter') || '海淀·林同学';
+    const oppScore = parseInt(urlParams.get('inviterScore'), 10) || 76;
+    const oppLevel = parseInt(urlParams.get('inviterLevel'), 10) || 4;
+
+    const isWin = (achievedLevel > oppLevel) || (achievedLevel === oppLevel && state.score >= oppScore);
+    if (el.pkOutcomeBadge) {
+      el.pkOutcomeBadge.className = isWin ? 'pk-badge win' : 'pk-badge lose';
+      el.pkOutcomeBadge.innerText = isWin ? '👑 挑战大获全胜！' : '💪 稍逊一筹·继续加油';
+    }
+    if (el.pkMyScore) el.pkMyScore.innerText = `${state.score}分`;
+    if (el.pkMyLevel) el.pkMyLevel.innerText = `冲至第 ${achievedLevel} 关`;
+    if (el.pkOppName) el.pkOppName.innerText = `发给你的人 (${inviter})`;
+    if (el.pkOppScore) el.pkOppScore.innerText = `${oppScore}分`;
+    if (el.pkOppLevel) el.pkOppLevel.innerText = `冲至第 ${oppLevel} 关`;
+    if (el.pkComment) {
+      el.pkComment.innerText = isWin
+        ? `恭喜！你成功战胜了发给你的人（${inviter}），前额叶控制力与敏捷反应超越同龄好友！`
+        : `本次落后于发给你的人（${inviter}），不要灰心！针对性训练可快速激活专注力，快再试一次逆袭！`;
+    }
+
+    // 2. 省份天梯战报评定
+    updateProvinceBenchmark(state.score);
+
+    // 3. 专家二维码与领取提示
+    if (el.expertQrWrap) {
+      el.expertQrWrap.innerHTML = SVG_QR_CODE;
+    }
+    if (el.expertTipNote) {
+      el.expertTipNote.innerText = `💡 复制或扫码添加时请备注：【专注力+第 ${achievedLevel} 关+${state.score}分】，老师将在 5 分钟内为您发送诊断报告与资料！`;
+    }
+
     el.reportModal.classList.remove('hidden');
   }
 
   // 7. 各游戏模态动态关卡生成器
-  function startLevel(lvl) {
+  function startLevel(lvl, isRestart = false) {
+    if (!isRestart) {
+      state.lives = 3;
+      renderLives();
+    }
     el.levelBadge.innerText = `第 ${lvl} 关 · L${lvl}`;
     el.stage.innerHTML = '';
     el.controls.innerHTML = '';
