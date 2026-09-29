@@ -461,7 +461,11 @@ function showTab(tab) {
   try { localStorage.setItem(TAB_KEY, tab); } catch (e) { /* storage unavailable */ }
 }
 document.querySelectorAll(".tabs .tab").forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
-showTab((() => { try { const t = localStorage.getItem(TAB_KEY); return ["bio", "chem", "typing", "focus"].includes(t) ? t : "geo"; } catch (e) { return "geo"; } })());
+showTab((() => {
+  const urlTab = new URLSearchParams(location.search).get("tab");
+  if (["bio", "chem", "typing", "focus", "geo"].includes(urlTab)) return urlTab;
+  try { const t = localStorage.getItem(TAB_KEY); return ["bio", "chem", "typing", "focus"].includes(t) ? t : "geo"; } catch (e) { return "geo"; }
+})());
 
 // The Typing tab embeds typing.html, which posts a result when a level ends.
 window.addEventListener("message", e => {
