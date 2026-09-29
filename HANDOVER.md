@@ -29,7 +29,8 @@ C:\Users\wizar\Others\map-quiz/
 ├── focus.js                 # 核心运行引擎（50款注册表、关卡控制、Web Audio音效、战报计算）
 ├── start_server.js          # 本地静态文件极简 HTTP 服务器脚本 (端口 8080)
 ├── 启动本地测试.bat          # Windows 一键启动脚本（启动 node 服务并自动打开浏览器）
-└── HANDOVER.md              # 本技术交接文档
+├── HANDOVER.md              # 本技术交接文档
+└── K12_ATTENTION_107_VIDEOS_GAME_SPECIFICATION.md # 全量107个短视频聚合51款小游戏的超详细玩法与实现规格说明书
 ```
 
 ---
