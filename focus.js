@@ -1307,56 +1307,23 @@
     return 3;
   }
 
-  function getStimulusPool(lvl) {
-    if (lvl <= 3) {
-      return [
-        { id: 'rocket', type: 'emoji', icon: '🚀', label: '火箭' },
-        { id: 'star', type: 'emoji', icon: '⭐', label: '星星' },
-        { id: 'cat', type: 'emoji', icon: '🐱', label: '小猫' },
-        { id: 'apple', type: 'emoji', icon: '🍎', label: '苹果' },
-        { id: 'ball', type: 'emoji', icon: '⚽', label: '足球' },
-        { id: 'diamond', type: 'emoji', icon: '💎', label: '钻石' }
-      ];
-    } else if (lvl <= 7) {
-      const items = [];
-      const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4'];
-      for (let pos = 0; pos < 9; pos++) {
-        items.push({
-          id: `grid_${pos}`,
-          type: 'grid',
-          pos: pos,
-          color: colors[pos % colors.length]
-        });
-      }
-      return items;
-    } else {
-      const shapes = ['square', 'circle', 'triangle', 'diamond', 'cross'];
-      const modes = ['normal', 'inverted', 'grayscale'];
-      const items = [];
-      shapes.forEach(s => {
-        modes.forEach(m => {
-          items.push({
-            id: `geom_${s}_${m}`,
-            type: 'geometry',
-            shape: s,
-            mode: m
-          });
-        });
-      });
-      return items;
-    }
-  }
+  const NBACK_ICONS = [
+    { id: 'rocket', icon: '🚀', label: '火箭' },
+    { id: 'star', icon: '⭐', label: '星星' },
+    { id: 'cat', icon: '🐱', label: '小猫' },
+    { id: 'apple', icon: '🍎', label: '苹果' },
+    { id: 'ball', icon: '⚽', label: '足球' },
+    { id: 'diamond', icon: '💎', label: '钻石' }
+  ];
 
-  function isStimulusEqual(a, b, lvl) {
+  function isStimulusEqual(a, b) {
     if (!a || !b) return false;
-    if (lvl <= 3) return a.id === b.id;
-    if (lvl <= 7) return a.pos === b.pos;
-    return a.shape === b.shape; // L8-10 顶内沟特征提取：比对形状核心，抑制反色/灰度干扰
+    // 双重特征绑定：九宫格坐标 pos 和 图标 id 必须两者同时完全相同！
+    return a.pos === b.pos && a.id === b.id;
   }
 
   function generateNBackSequence(lvl, totalSteps = 12, targetRatio = 0.35) {
     const n = getNForLevel(lvl);
-    const pool = getStimulusPool(lvl);
     const sequence = [];
 
     for (let i = 0; i < totalSteps; i++) {
@@ -1364,23 +1331,39 @@
       let expectedMatch = false;
 
       if (i < n) {
-        item = pool[Math.floor(Math.random() * pool.length)];
+        const ic = NBACK_ICONS[Math.floor(Math.random() * NBACK_ICONS.length)];
+        const p = Math.floor(Math.random() * 9);
+        item = { pos: p, icon: ic.icon, id: ic.id };
         expectedMatch = false;
       } else {
+        const prev = sequence[i - n].item;
         const matchPrev = Math.random() < targetRatio;
+
         if (matchPrev) {
-          const prev = sequence[i - n].item;
-          if (lvl <= 7) {
-            item = Object.assign({}, prev);
-          } else {
-            const randomMode = ['normal', 'inverted', 'grayscale'][Math.floor(Math.random() * 3)];
-            item = { id: `geom_${prev.shape}_${randomMode}`, type: 'geometry', shape: prev.shape, mode: randomMode };
-          }
+          // 真匹配：位置与图标均完全相同！
+          item = { pos: prev.pos, icon: prev.icon, id: prev.id };
           expectedMatch = true;
         } else {
-          const prev = sequence[i - n].item;
-          let candidates = pool.filter(cand => !isStimulusEqual(cand, prev, lvl));
-          item = candidates[Math.floor(Math.random() * candidates.length)];
+          // 干扰诱饵项 (Lure)：测试前额叶空间-客体绑定，防止单维度偷懒
+          const lureType = Math.random();
+          if (lureType < 0.35) {
+            // 同位置，不同图标 (考验符号抗扰)
+            const others = NBACK_ICONS.filter(x => x.id !== prev.id);
+            const pick = others[Math.floor(Math.random() * others.length)];
+            item = { pos: prev.pos, icon: pick.icon, id: pick.id };
+          } else if (lureType < 0.70) {
+            // 不同位置，相同图标 (考验空间抗扰)
+            const otherPos = [0, 1, 2, 3, 4, 5, 6, 7, 8].filter(x => x !== prev.pos);
+            const pickPos = otherPos[Math.floor(Math.random() * otherPos.length)];
+            item = { pos: pickPos, icon: prev.icon, id: prev.id };
+          } else {
+            // 位置与图标均不同
+            const otherPos = [0, 1, 2, 3, 4, 5, 6, 7, 8].filter(x => x !== prev.pos);
+            const others = NBACK_ICONS.filter(x => x.id !== prev.id);
+            const pickPos = otherPos[Math.floor(Math.random() * otherPos.length)];
+            const pick = others[Math.floor(Math.random() * others.length)];
+            item = { pos: pickPos, icon: pick.icon, id: pick.id };
+          }
           expectedMatch = false;
         }
       }
@@ -1393,29 +1376,6 @@
     }
 
     return { n, sequence };
-  }
-
-  function getShapeSVG(shape, mode) {
-    let color = '#3b82f6';
-    if (shape === 'circle') color = '#ec4899';
-    if (shape === 'triangle') color = '#f59e0b';
-    if (shape === 'diamond') color = '#8b5cf6';
-    if (shape === 'cross') color = '#10b981';
-
-    let inner = '';
-    if (shape === 'square') {
-      inner = `<rect x="15" y="15" width="70" height="70" rx="14" fill="${color}" stroke="#1e293b" stroke-width="4"/>`;
-    } else if (shape === 'circle') {
-      inner = `<circle cx="50" cy="50" r="35" fill="${color}" stroke="#1e293b" stroke-width="4"/>`;
-    } else if (shape === 'triangle') {
-      inner = `<polygon points="50,15 85,82 15,82" fill="${color}" stroke="#1e293b" stroke-width="4"/>`;
-    } else if (shape === 'diamond') {
-      inner = `<polygon points="50,12 86,50 50,88 14,50" fill="${color}" stroke="#1e293b" stroke-width="4"/>`;
-    } else if (shape === 'cross') {
-      inner = `<path d="M38,15 h24 v23 h23 v24 h-23 v23 h-24 v-23 h-23 v-24 h23 z" fill="${color}" stroke="#1e293b" stroke-width="4"/>`;
-    }
-
-    return `<svg class="nback-geom-shape ${mode}" viewBox="0 0 100 100">${inner}</svg>`;
   }
 
   function renderNBackFlow(lvl) {
@@ -1441,33 +1401,20 @@
     el.stage.appendChild(wrap);
 
     const card = document.getElementById('nback-stage-card');
-    let gridCells = [];
-    let symDisplay = null;
-    let geomBox = null;
 
-    // 2. 根据学段模态预先挂载容器（容器常驻，仅内部元素改变）
-    if (lvl <= 3) {
-      symDisplay = document.createElement('div');
-      symDisplay.className = 'nback-symbol-display';
-      symDisplay.id = 'nback-symbol-display';
-      card.appendChild(symDisplay);
-    } else if (lvl <= 7) {
-      const grid = document.createElement('div');
-      grid.className = 'nback-grid-matrix';
-      grid.id = 'nback-grid-matrix';
-      for (let p = 0; p < 9; p++) {
-        const cell = document.createElement('div');
-        cell.className = 'nback-grid-cell';
-        cell.dataset.pos = p;
-        grid.appendChild(cell);
-        gridCells.push(cell);
-      }
-      card.appendChild(grid);
-    } else {
-      geomBox = document.createElement('div');
-      geomBox.id = 'nback-geom-box';
-      card.appendChild(geomBox);
+    // 2. 统一九宫格架构：开局挂载 3×3 矩阵，永久常驻
+    const grid = document.createElement('div');
+    grid.className = 'nback-grid-matrix';
+    grid.id = 'nback-grid-matrix';
+    const gridCells = [];
+    for (let p = 0; p < 9; p++) {
+      const cell = document.createElement('div');
+      cell.className = 'nback-grid-cell';
+      cell.dataset.pos = p;
+      grid.appendChild(cell);
+      gridCells.push(cell);
     }
+    card.appendChild(grid);
 
     const warmupNotice = document.createElement('div');
     warmupNotice.className = 'nback-warmup-notice';
@@ -1496,8 +1443,6 @@
       falseAlarms: 0,
       misses: 0,
       gridCells: gridCells,
-      symDisplay: symDisplay,
-      geomBox: geomBox,
       warmupNotice: warmupNotice
     };
 
@@ -1527,28 +1472,13 @@
 
       const btnMatch = document.getElementById('btn-nback-match');
 
-      // 仅亮起对应方块/符号，外框与未亮起方块保持静止
-      if (lvl <= 3) {
-        if (sub.symDisplay) {
-          sub.symDisplay.innerText = curStep.item.icon;
-          sub.symDisplay.style.opacity = '1';
-        }
-        playTone(400 + (curStep.item.label.charCodeAt(0) % 200), 'sine', 0.1, 0.1);
-      } else if (lvl <= 7) {
-        if (sub.gridCells && sub.gridCells[curStep.item.pos]) {
-          const targetCell = sub.gridCells[curStep.item.pos];
-          targetCell.classList.add('active-lit');
-          targetCell.style.backgroundColor = curStep.item.color;
-          targetCell.style.borderColor = curStep.item.color;
-        }
-        playTone(440 + curStep.item.pos * 35, 'triangle', 0.12, 0.12);
-      } else {
-        if (sub.geomBox) {
-          sub.geomBox.innerHTML = getShapeSVG(curStep.item.shape, curStep.item.mode);
-          sub.geomBox.style.opacity = '1';
-        }
-        playTone(500, 'sine', 0.1, 0.12);
+      // 仅激活目标坐标方格并填入图符，棋盘和其他方格保持静止
+      if (sub.gridCells && sub.gridCells[curStep.item.pos]) {
+        const targetCell = sub.gridCells[curStep.item.pos];
+        targetCell.classList.add('active-lit');
+        targetCell.innerText = curStep.item.icon;
       }
+      playTone(440 + curStep.item.pos * 35, 'triangle', 0.12, 0.12);
 
       if (sub.stepIdx < sub.n) {
         // 瞬记预热阶段 (前 N 项只需观察记忆，无需点击)
@@ -1558,11 +1488,11 @@
 
         if (sub.warmupNotice) {
           sub.warmupNotice.style.display = 'block';
-          sub.warmupNotice.innerText = `👀 瞬记中... (${sub.stepIdx + 1}/${sub.n})`;
+          sub.warmupNotice.innerText = `👀 观察瞬记 [位置+图标]... (${sub.stepIdx + 1}/${sub.n})`;
         }
         if (btnMatch) {
           btnMatch.disabled = true;
-          btnMatch.innerHTML = `👀 观察瞬记中... (${sub.stepIdx + 1}/${sub.n})`;
+          btnMatch.innerHTML = `👀 观察记忆中... (${sub.stepIdx + 1}/${sub.n})`;
         }
 
         sub.stepTimerHandle = setTimeout(() => {
@@ -1581,7 +1511,7 @@
         sub.awaitingAnswer = true;
         sub.userResponded = false;
         sub.stepStartStamp = Date.now();
-        el.gamePrompt.innerText = `第 ${lvl} 关 · 与【${sub.n} 步前】相同时点击【相同】（不同无需点击）`;
+        el.gamePrompt.innerText = `第 ${lvl} 关 · 【位置与图标】均与【${sub.n} 步前】相同时点击【相同】（不同无需点击）`;
 
         sub.stepTimerHandle = setTimeout(() => {
           // 步进时间耗尽：若玩家未点击，检查是否为漏报
@@ -1591,7 +1521,7 @@
             if (curStep.expectedMatch) {
               // 实际相同却漏报
               sub.misses++;
-              deductLife(`超时漏报：此方块与 ${sub.n} 步前相同！`);
+              deductLife(`超时漏报：此方块【位置与图标】均与 ${sub.n} 步前相同！`);
               if (stageCard) {
                 stageCard.classList.add('shake-error');
                 setTimeout(() => stageCard.classList.remove('shake-error'), 400);
@@ -1611,19 +1541,12 @@
       const sub = state.subState;
       if (!sub) return;
 
-      // 仅熄灭当前方块，棋盘框架绝对不重新渲染，彻底告别全屏闪烁
-      if (lvl <= 3) {
-        if (sub.symDisplay) sub.symDisplay.style.opacity = '0';
-      } else if (lvl <= 7) {
-        if (sub.gridCells) {
-          sub.gridCells.forEach(c => {
-            c.classList.remove('active-lit');
-            c.style.backgroundColor = '';
-            c.style.borderColor = '';
-          });
-        }
-      } else {
-        if (sub.geomBox) sub.geomBox.style.opacity = '0';
+      // 仅熄灭当前方格并清空图标，棋盘绝对不动
+      if (sub.gridCells) {
+        sub.gridCells.forEach(c => {
+          c.classList.remove('active-lit');
+          c.innerText = '';
+        });
       }
 
       sub.isiTimerHandle = setTimeout(() => {
@@ -1665,7 +1588,7 @@
       sub.correctHits++;
       state.stats.correct++;
       soundSuccess();
-      showToast(`🎯 精准命中！与 ${sub.n} 步前相同 (+${15 * sub.lvl}分)`, 400);
+      showToast(`🎯 精准命中！位置与图标均完全一致 (+${15 * sub.lvl}分)`, 400);
 
       if (card) {
         card.classList.add('hit-pulse');
@@ -1674,7 +1597,7 @@
     } else {
       // 虚报手抖 (False Alarm)
       sub.falseAlarms++;
-      deductLife(`虚报手抖：此项与 ${sub.n} 步前不同！`);
+      deductLife(`虚报手抖：位置或图标与 ${sub.n} 步前不同！`);
       if (card) {
         card.classList.add('shake-error');
         setTimeout(() => card.classList.remove('shake-error'), 400);
