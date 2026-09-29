@@ -1164,6 +1164,169 @@ body {
   transform: translateY(4px);
 }
 
+/* ==================== 母版 01: N-Back 工作记忆刷新流 ==================== */
+.nback-flow-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  gap: 14px;
+}
+
+.nback-meta-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 320px;
+}
+
+.nback-mode-pill {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid #bae6fd;
+}
+
+.nback-step-counter {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.nback-progress-track {
+  width: 100%;
+  max-width: 320px;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.nback-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #10b981);
+  transition: width 0.25s ease-out;
+}
+
+.nback-stage-card {
+  width: 240px;
+  height: 220px;
+  background: #ffffff;
+  border: 3px solid var(--line);
+  border-radius: 24px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.15s, box-shadow 0.15s;
+  overflow: hidden;
+}
+
+.nback-stage-card.pop-in {
+  animation: nbackPop 0.18s ease-out;
+}
+
+@keyframes nbackPop {
+  0% { transform: scale(0.85); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.nback-stage-card.isi-mask {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.nback-stage-card.shake-error {
+  animation: nbackShake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.35) !important;
+}
+
+@keyframes nbackShake {
+  10%, 90% { transform: translate3d(-3px, 0, 0); }
+  20%, 80% { transform: translate3d(5px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+  40%, 60% { transform: translate3d(6px, 0, 0); }
+}
+
+.nback-stage-card.hit-pulse {
+  border-color: #22c55e !important;
+  box-shadow: 0 0 22px rgba(34, 197, 94, 0.45) !important;
+  transform: scale(1.04);
+}
+
+.nback-symbol-display {
+  font-size: 72px;
+  user-select: none;
+  line-height: 1;
+}
+
+.nback-grid-matrix {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: 170px;
+  height: 170px;
+}
+
+.nback-grid-cell {
+  background: #f1f5f9;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.15s;
+}
+
+.nback-grid-cell.active-lit {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  transform: scale(1.08);
+}
+
+.nback-geom-shape {
+  width: 90px;
+  height: 90px;
+  transition: all 0.2s;
+}
+
+.nback-geom-shape.inverted {
+  filter: invert(1);
+}
+
+.nback-geom-shape.grayscale {
+  filter: grayscale(1) contrast(1.2);
+}
+
+.nback-warmup-notice {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0284c7;
+  text-align: center;
+  background: #e0f2fe;
+  padding: 6px 14px;
+  border-radius: 12px;
+}
+
+.key-badge {
+  display: inline-block;
+  background: rgba(0,0,0,0.15);
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+
 /* 响应式自适应 */
 @media (max-width: 600px) {
   .top-toolbar {

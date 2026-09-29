@@ -16,8 +16,23 @@
     10: { cols: 6, time: 20 }
   };
 
-  // 1. 50 款游戏完整注册表与科学范式
+  // 1. 专注力认知训练系统 · 核心母版矩阵与衍生游戏注册表
   const REGISTRY = {
+    // ==================== 21 款纯种认知母版核心矩阵 ====================
+    // 母版 01: N-Back 工作记忆刷新流
+    nback_flow: {
+      masterId: 1,
+      title: "母版 01 · N-Back 工作记忆刷新流",
+      academy: "memory",
+      brainCircuit: "背外侧前额叶 (DLPFC) + 顶内沟 (IPS)",
+      prompt: "L1-L3 1-Back启蒙，L4-L7 2-Back高频刷新，L8-L10 3-Back极限抗扰；快速判断当前项与N步前是否相同",
+      modality: "nback_flow",
+      gesture: "2way_same_diff",
+      layout: "nback_flow_stage",
+      stimulus: "adaptive_multimodal",
+      engine: "nback_flow"
+    },
+
     // 第一个游戏：舒尔特方格注意力阶梯训练
     schulte_classic: {
       title: "舒尔特方格注意力训练",
@@ -742,16 +757,24 @@
 
   // 4. 初始化下拉列表与学堂标签
   function initToolbar() {
-    // 填充游戏下拉列表
-    el.gameSelect.innerHTML = '';
     const keys = Object.keys(REGISTRY);
-    keys.forEach((gid, idx) => {
-      const g = REGISTRY[gid];
-      const opt = document.createElement('option');
-      opt.value = gid;
-      opt.innerText = `[${idx + 1}/50] ${g.title}`;
-      el.gameSelect.appendChild(opt);
-    });
+
+    function populateSelect(ac = 'all') {
+      el.gameSelect.innerHTML = '';
+      keys.forEach((gid, idx) => {
+        const g = REGISTRY[gid];
+        const match = (ac === 'all') || (ac === 'master' && g.masterId) || (g.academy === ac);
+        if (match) {
+          const opt = document.createElement('option');
+          opt.value = gid;
+          const prefix = g.masterId ? `🌟 [母版 ${String(g.masterId).padStart(2, '0')}]` : `[#${idx + 1}]`;
+          opt.innerText = `${prefix} ${g.title}`;
+          el.gameSelect.appendChild(opt);
+        }
+      });
+    }
+
+    populateSelect('all');
 
     el.gameSelect.addEventListener('change', () => {
       switchGame(el.gameSelect.value, 1);
@@ -780,18 +803,7 @@
         el.academyPills.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const ac = btn.dataset.academy;
-        
-        // 筛选下拉列表中的选项
-        el.gameSelect.innerHTML = '';
-        keys.forEach((gid, idx) => {
-          const g = REGISTRY[gid];
-          if (ac === 'all' || g.academy === ac) {
-            const opt = document.createElement('option');
-            opt.value = gid;
-            opt.innerText = `[${idx + 1}/50] ${g.title}`;
-            el.gameSelect.appendChild(opt);
-          }
-        });
+        populateSelect(ac);
         if (el.gameSelect.options.length > 0) {
           switchGame(el.gameSelect.value, 1);
         }
@@ -1109,7 +1121,11 @@
 
     const g = REGISTRY[state.gameId];
     let duration;
-    if (state.gameId === 'schulte_classic') {
+    if (state.gameId === 'nback_flow') {
+      const totalSteps = (lvl <= 3) ? 10 : (lvl <= 7 ? 14 : 18);
+      const stepDuration = Math.max(0.9, 1.6 - (lvl * 0.07));
+      duration = Math.ceil(totalSteps * (stepDuration + 0.35)) + 6;
+    } else if (state.gameId === 'schulte_classic') {
       const cfg = SCHULTE_LEVEL_CONFIG[lvl] || { cols: 5, time: 20 };
       duration = cfg.time;
     } else if (state.gameId === 'nback_spatial') {
@@ -1129,14 +1145,15 @@
   // 渲染操作按键
   function renderControlsForGesture(gesture) {
     if (gesture === '2way_same_diff') {
+      const isNBackFlow = (state.gameId === 'nback_flow');
       const btnSame = document.createElement('button');
       btnSame.className = 'duo-btn duo-btn-blue';
-      btnSame.innerText = '🟢 相同 (Match)';
+      btnSame.innerHTML = isNBackFlow ? '🟢 相同 (Match) <span class="key-badge">F / ←</span>' : '🟢 相同 (Match)';
       btnSame.onclick = () => handleTwoWayChoice(true);
 
       const btnDiff = document.createElement('button');
       btnDiff.className = 'duo-btn duo-btn-red';
-      btnDiff.innerText = '🔴 不同 (Diff)';
+      btnDiff.innerHTML = isNBackFlow ? '🔴 不同 (Diff) <span class="key-badge">J / →</span>' : '🔴 不同 (Diff)';
       btnDiff.onclick = () => handleTwoWayChoice(false);
 
       el.controls.appendChild(btnSame);
@@ -1206,8 +1223,12 @@
   function renderStageForModality(modality, layout, lvl) {
     const g = REGISTRY[state.gameId];
 
+    // 00. 母版 01: N-Back 工作记忆刷新流 (自适应 1~3 Back)
+    if (state.gameId === 'nback_flow' || modality === 'nback_flow') {
+      renderNBackFlow(lvl);
+    }
     // 0. 空间 2-Back 九宫格位置记忆 (第 2 款游戏: nback_spatial)
-    if (state.gameId === 'nback_spatial' || modality === 'spatial_nback') {
+    else if (state.gameId === 'nback_spatial' || modality === 'spatial_nback') {
       renderSpatialNBack(lvl);
     }
     // 1. 舒尔特家族方格 (仅限真正的舒尔特系列游戏)
@@ -1269,6 +1290,328 @@
   }
 
   // ---------------- 具体模态渲染器 ----------------
+
+  // ==================== 母版 01: N-Back 工作记忆刷新流 引擎 ====================
+  function getNForLevel(lvl) {
+    if (lvl <= 3) return 1;
+    if (lvl <= 7) return 2;
+    return 3;
+  }
+
+  function getStimulusPool(lvl) {
+    if (lvl <= 3) {
+      return [
+        { id: 'rocket', type: 'emoji', icon: '🚀', label: '火箭' },
+        { id: 'star', type: 'emoji', icon: '⭐', label: '星星' },
+        { id: 'cat', type: 'emoji', icon: '🐱', label: '小猫' },
+        { id: 'apple', type: 'emoji', icon: '🍎', label: '苹果' },
+        { id: 'ball', type: 'emoji', icon: '⚽', label: '足球' },
+        { id: 'diamond', type: 'emoji', icon: '💎', label: '钻石' }
+      ];
+    } else if (lvl <= 7) {
+      const items = [];
+      const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4'];
+      for (let pos = 0; pos < 9; pos++) {
+        items.push({
+          id: `grid_${pos}`,
+          type: 'grid',
+          pos: pos,
+          color: colors[pos % colors.length]
+        });
+      }
+      return items;
+    } else {
+      const shapes = ['square', 'circle', 'triangle', 'diamond', 'cross'];
+      const modes = ['normal', 'inverted', 'grayscale'];
+      const items = [];
+      shapes.forEach(s => {
+        modes.forEach(m => {
+          items.push({
+            id: `geom_${s}_${m}`,
+            type: 'geometry',
+            shape: s,
+            mode: m
+          });
+        });
+      });
+      return items;
+    }
+  }
+
+  function isStimulusEqual(a, b, lvl) {
+    if (!a || !b) return false;
+    if (lvl <= 3) return a.id === b.id;
+    if (lvl <= 7) return a.pos === b.pos;
+    return a.shape === b.shape; // L8-10 顶内沟特征提取：比对形状核心，抑制反色/灰度干扰
+  }
+
+  function generateNBackSequence(lvl, totalSteps = 12, targetRatio = 0.35) {
+    const n = getNForLevel(lvl);
+    const pool = getStimulusPool(lvl);
+    const sequence = [];
+
+    for (let i = 0; i < totalSteps; i++) {
+      let item;
+      let expectedMatch = false;
+
+      if (i < n) {
+        item = pool[Math.floor(Math.random() * pool.length)];
+        expectedMatch = false;
+      } else {
+        const matchPrev = Math.random() < targetRatio;
+        if (matchPrev) {
+          const prev = sequence[i - n].item;
+          if (lvl <= 7) {
+            item = Object.assign({}, prev);
+          } else {
+            const randomMode = ['normal', 'inverted', 'grayscale'][Math.floor(Math.random() * 3)];
+            item = { id: `geom_${prev.shape}_${randomMode}`, type: 'geometry', shape: prev.shape, mode: randomMode };
+          }
+          expectedMatch = true;
+        } else {
+          const prev = sequence[i - n].item;
+          let candidates = pool.filter(cand => !isStimulusEqual(cand, prev, lvl));
+          item = candidates[Math.floor(Math.random() * candidates.length)];
+          expectedMatch = false;
+        }
+      }
+
+      sequence.push({
+        step: i,
+        item: item,
+        expectedMatch: expectedMatch
+      });
+    }
+
+    return { n, sequence };
+  }
+
+  function getShapeSVG(shape, mode) {
+    let color = '#3b82f6';
+    if (shape === 'circle') color = '#ec4899';
+    if (shape === 'triangle') color = '#f59e0b';
+    if (shape === 'diamond') color = '#8b5cf6';
+    if (shape === 'cross') color = '#10b981';
+
+    let inner = '';
+    if (shape === 'square') {
+      inner = `<rect x="15" y="15" width="70" height="70" rx="14" fill="${color}" stroke="#1e293b" stroke-width="4"/>`;
+    } else if (shape === 'circle') {
+      inner = `<circle cx="50" cy="50" r="35" fill="${color}" stroke="#1e293b" stroke-width="4"/>`;
+    } else if (shape === 'triangle') {
+      inner = `<polygon points="50,15 85,82 15,82" fill="${color}" stroke="#1e293b" stroke-width="4"/>`;
+    } else if (shape === 'diamond') {
+      inner = `<polygon points="50,12 86,50 50,88 14,50" fill="${color}" stroke="#1e293b" stroke-width="4"/>`;
+    } else if (shape === 'cross') {
+      inner = `<path d="M38,15 h24 v23 h23 v24 h-23 v23 h-24 v-23 h-23 v-24 h23 z" fill="${color}" stroke="#1e293b" stroke-width="4"/>`;
+    }
+
+    return `<svg class="nback-geom-shape ${mode}" viewBox="0 0 100 100">${inner}</svg>`;
+  }
+
+  function renderNBackFlow(lvl) {
+    el.stage.innerHTML = '';
+    const n = getNForLevel(lvl);
+    const totalSteps = (lvl <= 3) ? 10 : (lvl <= 7 ? 14 : 18);
+    const stepDuration = Math.max(0.9, 1.6 - (lvl * 0.07));
+    const { sequence } = generateNBackSequence(lvl, totalSteps, 0.35);
+
+    // 构建舞台外壳
+    const wrap = document.createElement('div');
+    wrap.className = 'nback-flow-wrap';
+    wrap.innerHTML = `
+      <div class="nback-meta-bar">
+        <span class="nback-mode-pill" id="nback-mode-pill">🌟 ${n}-Back 刷新流</span>
+        <span class="nback-step-counter" id="nback-step-counter">0 / ${totalSteps}</span>
+      </div>
+      <div class="nback-progress-track">
+        <div class="nback-progress-fill" id="nback-progress-fill" style="width: 0%;"></div>
+      </div>
+      <div class="nback-stage-card pop-in" id="nback-stage-card"></div>
+    `;
+    el.stage.appendChild(wrap);
+
+    state.subState = {
+      n: n,
+      lvl: lvl,
+      totalSteps: totalSteps,
+      stepDuration: stepDuration,
+      sequence: sequence,
+      stepIdx: 0,
+      awaitingAnswer: false,
+      userAnswered: false,
+      stepTimerHandle: null,
+      isiTimerHandle: null,
+      stepStartStamp: 0,
+      correctHits: 0,
+      correctRejections: 0,
+      falseAlarms: 0,
+      misses: 0
+    };
+
+    function updateHeaderUI(curStep) {
+      const counterEl = document.getElementById('nback-step-counter');
+      const fillEl = document.getElementById('nback-progress-fill');
+      if (counterEl) counterEl.innerText = `${curStep + 1} / ${totalSteps}`;
+      if (fillEl) {
+        const pct = Math.round(((curStep) / totalSteps) * 100);
+        fillEl.style.width = `${pct}%`;
+      }
+    }
+
+    function renderStimulusContent(card, item, curLvl) {
+      card.innerHTML = '';
+      if (item.type === 'emoji') {
+        const s = document.createElement('div');
+        s.className = 'nback-symbol-display';
+        s.innerText = item.icon;
+        card.appendChild(s);
+        playTone(400 + (item.label.charCodeAt(0) % 200), 'sine', 0.1, 0.1);
+      } else if (item.type === 'grid') {
+        const grid = document.createElement('div');
+        grid.className = 'nback-grid-matrix';
+        for (let p = 0; p < 9; p++) {
+          const cell = document.createElement('div');
+          cell.className = 'nback-grid-cell';
+          if (p === item.pos) {
+            cell.classList.add('active-lit');
+            cell.style.backgroundColor = item.color;
+            cell.style.borderColor = item.color;
+          }
+          grid.appendChild(cell);
+        }
+        card.appendChild(grid);
+        playTone(440 + item.pos * 35, 'triangle', 0.12, 0.12);
+      } else if (item.type === 'geometry') {
+        card.innerHTML = getShapeSVG(item.shape, item.mode);
+        playTone(500, 'sine', 0.1, 0.12);
+      }
+    }
+
+    function advanceToNext() {
+      if (state.lives <= 0) return;
+      clearTimeout(state.subState.stepTimerHandle);
+
+      const sub = state.subState;
+      if (sub.stepIdx >= sub.totalSteps) {
+        showToast(`🏆 第 ${lvl} 关通关！背外侧前额叶高频刷新达标`, 800);
+        setTimeout(nextLevel, 400);
+        return;
+      }
+
+      const curStep = sub.sequence[sub.stepIdx];
+      updateHeaderUI(sub.stepIdx);
+
+      const card = document.getElementById('nback-stage-card');
+      if (!card) return;
+
+      // 呈现刺激物
+      card.className = 'nback-stage-card pop-in';
+      renderStimulusContent(card, curStep.item, lvl);
+
+      if (sub.stepIdx < sub.n) {
+        // 热身瞬记阶段
+        sub.awaitingAnswer = false;
+        sub.userAnswered = false;
+        el.gamePrompt.innerText = `第 ${sub.stepIdx + 1} 项：👀 瞬记当前刺激，无需操作（第 ${sub.n + 1} 项起比对）`;
+
+        const notice = document.createElement('div');
+        notice.className = 'nback-warmup-notice';
+        notice.style.marginTop = '12px';
+        notice.innerText = `👀 观察记忆中... (${sub.stepIdx + 1}/${sub.n})`;
+        card.appendChild(notice);
+
+        sub.stepTimerHandle = setTimeout(() => {
+          doISITransition();
+        }, sub.stepDuration * 1000);
+      } else {
+        // 正式比对阶段
+        sub.awaitingAnswer = true;
+        sub.userAnswered = false;
+        sub.stepStartStamp = Date.now();
+        el.gamePrompt.innerText = `第 ${lvl} 关 · 当前项与【${sub.n} 步前】相同吗？按 🟢相同 或 🔴不同`;
+
+        sub.stepTimerHandle = setTimeout(() => {
+          // 超时处理
+          if (!sub.userAnswered && sub.awaitingAnswer) {
+            sub.awaitingAnswer = false;
+            if (curStep.expectedMatch) {
+              sub.misses++;
+              deductLife(`超时漏报：此项与 ${sub.n} 步前相同！`);
+              if (card) card.classList.add('shake-error');
+            } else {
+              sub.correctRejections++;
+              state.stats.correct++;
+            }
+          }
+          doISITransition();
+        }, sub.stepDuration * 1000);
+      }
+    }
+
+    function doISITransition() {
+      const card = document.getElementById('nback-stage-card');
+      if (card) {
+        card.className = 'nback-stage-card isi-mask';
+        card.innerHTML = `<div style="font-size:24px;color:#94a3b8;">⏳</div>`;
+      }
+      state.subState.isiTimerHandle = setTimeout(() => {
+        state.subState.stepIdx++;
+        advanceToNext();
+      }, 150); // 150ms 科学 ISI 屏蔽期
+    }
+
+    state.subState.advanceToNext = advanceToNext;
+    state.subState.doISITransition = doISITransition;
+
+    // 启动第一步
+    setTimeout(advanceToNext, 300);
+  }
+
+  function handleNBackFlowChoice(chosenSame) {
+    const sub = state.subState;
+    if (!sub || !sub.awaitingAnswer || sub.userAnswered) return;
+
+    sub.userAnswered = true;
+    sub.awaitingAnswer = false;
+    clearTimeout(sub.stepTimerHandle);
+
+    const rt = Date.now() - sub.stepStartStamp;
+    state.stats.reactionTimes.push(rt);
+
+    const curStep = sub.sequence[sub.stepIdx];
+    const card = document.getElementById('nback-stage-card');
+    const isCorrect = (chosenSame === curStep.expectedMatch);
+
+    if (isCorrect) {
+      soundSuccess();
+      state.stats.correct++;
+      if (curStep.expectedMatch) {
+        sub.correctHits++;
+        if (card) card.classList.add('hit-pulse');
+        showToast(`🎯 精准击中！与 ${sub.n} 步前相同 (+${15 * sub.lvl}分)`, 400);
+      } else {
+        sub.correctRejections++;
+        showToast(`👍 正确鉴别！与 ${sub.n} 步前不同`, 350);
+      }
+    } else {
+      if (chosenSame && !curStep.expectedMatch) {
+        sub.falseAlarms++;
+        deductLife(`虚报：与 ${sub.n} 步前不同！`);
+      } else {
+        sub.misses++;
+        deductLife(`漏判：与 ${sub.n} 步前相同！`);
+      }
+      if (card) card.classList.add('shake-error');
+    }
+
+    // 短暂留存后进入 ISI 并推进下一步
+    setTimeout(() => {
+      if (typeof sub.doISITransition === 'function') {
+        sub.doISITransition();
+      }
+    }, 280);
+  }
 
   // 0. 空间 2-Back 九宫格位置记忆挑战 (第 2 款游戏)
   function renderSpatialNBack(lvl) {
@@ -1632,6 +1975,12 @@
   }
 
   function handleTwoWayChoice(chosenSame) {
+    // 0. 母版 01: N-Back 工作记忆刷新流
+    if (state.gameId === 'nback_flow') {
+      handleNBackFlowChoice(chosenSame);
+      return;
+    }
+
     // 1. 如果当前是空间 2-back (第 2 款游戏)
     if (state.gameId === 'nback_spatial') {
       if (!state.subState.awaitingAnswer) {
@@ -2015,9 +2364,24 @@
     // 检测 URL hash 或 query param
     const hash = window.location.hash.replace('#', '');
     const urlParams = new URLSearchParams(window.location.search);
-    const initialGame = hash || urlParams.get('game') || 'schulte_classic';
+    const initialGame = hash || urlParams.get('game') || 'nback_flow';
 
     switchGame(initialGame, 1);
+  });
+
+  // 9. 全局键盘快捷键响应 (支持母版 01 N-Back 等高频神经反应游戏)
+  window.addEventListener('keydown', (e) => {
+    if (el.reportModal && !el.reportModal.classList.contains('hidden')) return;
+
+    if (state.gameId === 'nback_flow') {
+      if (e.key === 'f' || e.key === 'F' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        handleTwoWayChoice(true);
+      } else if (e.key === 'j' || e.key === 'J' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        handleTwoWayChoice(false);
+      }
+    }
   });
 
 })();
