@@ -25,9 +25,9 @@
       title: "母版 01 · N-Back 工作记忆刷新流",
       academy: "memory",
       brainCircuit: "背外侧前额叶 (DLPFC) + 顶内沟 (IPS)",
-      prompt: "L1-L3 1-Back启蒙，L4-L7 2-Back高频刷新，L8-L10 3-Back极限抗扰；快速判断当前项与N步前是否相同",
+      prompt: "👀 当刺激与【N 步前】相同时点击【相同】（不同则无需点击，自动通过）",
       modality: "nback_flow",
-      gesture: "2way_same_diff",
+      gesture: "single_match_tap",
       layout: "nback_flow_stage",
       stimulus: "adaptive_multimodal",
       engine: "nback_flow"
@@ -1144,7 +1144,16 @@
 
   // 渲染操作按键
   function renderControlsForGesture(gesture) {
-    if (gesture === '2way_same_diff') {
+    if (gesture === 'single_match_tap') {
+      const n = (state.subState && state.subState.n) ? state.subState.n : (state.level <= 3 ? 1 : (state.level <= 7 ? 2 : 3));
+      const btnMatch = document.createElement('button');
+      btnMatch.className = 'duo-btn-match-single';
+      btnMatch.id = 'btn-nback-match';
+      btnMatch.innerHTML = `🎯 与【${n} 步前】相同 (Match) <span class="key-badge">空格 / F / 点击</span>`;
+      btnMatch.onclick = () => handleNBackMatchTap();
+      el.controls.appendChild(btnMatch);
+    }
+    else if (gesture === '2way_same_diff') {
       const isNBackFlow = (state.gameId === 'nback_flow');
       const btnSame = document.createElement('button');
       btnSame.className = 'duo-btn duo-btn-blue';
@@ -1416,7 +1425,7 @@
     const stepDuration = Math.max(0.9, 1.6 - (lvl * 0.07));
     const { sequence } = generateNBackSequence(lvl, totalSteps, 0.35);
 
-    // 构建舞台外壳
+    // 1. 构建主舞台（骨架常驻，绝不整体闪烁）
     const wrap = document.createElement('div');
     wrap.className = 'nback-flow-wrap';
     wrap.innerHTML = `
@@ -1427,9 +1436,48 @@
       <div class="nback-progress-track">
         <div class="nback-progress-fill" id="nback-progress-fill" style="width: 0%;"></div>
       </div>
-      <div class="nback-stage-card pop-in" id="nback-stage-card"></div>
+      <div class="nback-stage-card" id="nback-stage-card"></div>
     `;
     el.stage.appendChild(wrap);
+
+    const card = document.getElementById('nback-stage-card');
+    let gridCells = [];
+    let symDisplay = null;
+    let geomBox = null;
+
+    // 2. 根据学段模态预先挂载容器（容器常驻，仅内部元素改变）
+    if (lvl <= 3) {
+      symDisplay = document.createElement('div');
+      symDisplay.className = 'nback-symbol-display';
+      symDisplay.id = 'nback-symbol-display';
+      card.appendChild(symDisplay);
+    } else if (lvl <= 7) {
+      const grid = document.createElement('div');
+      grid.className = 'nback-grid-matrix';
+      grid.id = 'nback-grid-matrix';
+      for (let p = 0; p < 9; p++) {
+        const cell = document.createElement('div');
+        cell.className = 'nback-grid-cell';
+        cell.dataset.pos = p;
+        grid.appendChild(cell);
+        gridCells.push(cell);
+      }
+      card.appendChild(grid);
+    } else {
+      geomBox = document.createElement('div');
+      geomBox.id = 'nback-geom-box';
+      card.appendChild(geomBox);
+    }
+
+    const warmupNotice = document.createElement('div');
+    warmupNotice.className = 'nback-warmup-notice';
+    warmupNotice.id = 'nback-warmup-notice';
+    warmupNotice.style.display = 'none';
+    warmupNotice.style.marginTop = '12px';
+    card.appendChild(warmupNotice);
+
+    // 点击舞台卡片也可触发命中判定
+    card.onclick = () => handleNBackMatchTap();
 
     state.subState = {
       n: n,
@@ -1439,14 +1487,18 @@
       sequence: sequence,
       stepIdx: 0,
       awaitingAnswer: false,
-      userAnswered: false,
+      userResponded: false,
       stepTimerHandle: null,
       isiTimerHandle: null,
       stepStartStamp: 0,
       correctHits: 0,
       correctRejections: 0,
       falseAlarms: 0,
-      misses: 0
+      misses: 0,
+      gridCells: gridCells,
+      symDisplay: symDisplay,
+      geomBox: geomBox,
+      warmupNotice: warmupNotice
     };
 
     function updateHeaderUI(curStep) {
@@ -1454,37 +1506,8 @@
       const fillEl = document.getElementById('nback-progress-fill');
       if (counterEl) counterEl.innerText = `${curStep + 1} / ${totalSteps}`;
       if (fillEl) {
-        const pct = Math.round(((curStep) / totalSteps) * 100);
+        const pct = Math.round((curStep / totalSteps) * 100);
         fillEl.style.width = `${pct}%`;
-      }
-    }
-
-    function renderStimulusContent(card, item, curLvl) {
-      card.innerHTML = '';
-      if (item.type === 'emoji') {
-        const s = document.createElement('div');
-        s.className = 'nback-symbol-display';
-        s.innerText = item.icon;
-        card.appendChild(s);
-        playTone(400 + (item.label.charCodeAt(0) % 200), 'sine', 0.1, 0.1);
-      } else if (item.type === 'grid') {
-        const grid = document.createElement('div');
-        grid.className = 'nback-grid-matrix';
-        for (let p = 0; p < 9; p++) {
-          const cell = document.createElement('div');
-          cell.className = 'nback-grid-cell';
-          if (p === item.pos) {
-            cell.classList.add('active-lit');
-            cell.style.backgroundColor = item.color;
-            cell.style.borderColor = item.color;
-          }
-          grid.appendChild(cell);
-        }
-        card.appendChild(grid);
-        playTone(440 + item.pos * 35, 'triangle', 0.12, 0.12);
-      } else if (item.type === 'geometry') {
-        card.innerHTML = getShapeSVG(item.shape, item.mode);
-        playTone(500, 'sine', 0.1, 0.12);
       }
     }
 
@@ -1502,44 +1525,79 @@
       const curStep = sub.sequence[sub.stepIdx];
       updateHeaderUI(sub.stepIdx);
 
-      const card = document.getElementById('nback-stage-card');
-      if (!card) return;
+      const btnMatch = document.getElementById('btn-nback-match');
 
-      // 呈现刺激物
-      card.className = 'nback-stage-card pop-in';
-      renderStimulusContent(card, curStep.item, lvl);
+      // 仅亮起对应方块/符号，外框与未亮起方块保持静止
+      if (lvl <= 3) {
+        if (sub.symDisplay) {
+          sub.symDisplay.innerText = curStep.item.icon;
+          sub.symDisplay.style.opacity = '1';
+        }
+        playTone(400 + (curStep.item.label.charCodeAt(0) % 200), 'sine', 0.1, 0.1);
+      } else if (lvl <= 7) {
+        if (sub.gridCells && sub.gridCells[curStep.item.pos]) {
+          const targetCell = sub.gridCells[curStep.item.pos];
+          targetCell.classList.add('active-lit');
+          targetCell.style.backgroundColor = curStep.item.color;
+          targetCell.style.borderColor = curStep.item.color;
+        }
+        playTone(440 + curStep.item.pos * 35, 'triangle', 0.12, 0.12);
+      } else {
+        if (sub.geomBox) {
+          sub.geomBox.innerHTML = getShapeSVG(curStep.item.shape, curStep.item.mode);
+          sub.geomBox.style.opacity = '1';
+        }
+        playTone(500, 'sine', 0.1, 0.12);
+      }
 
       if (sub.stepIdx < sub.n) {
-        // 热身瞬记阶段
+        // 瞬记预热阶段 (前 N 项只需观察记忆，无需点击)
         sub.awaitingAnswer = false;
-        sub.userAnswered = false;
-        el.gamePrompt.innerText = `第 ${sub.stepIdx + 1} 项：👀 瞬记当前刺激，无需操作（第 ${sub.n + 1} 项起比对）`;
+        sub.userResponded = false;
+        el.gamePrompt.innerText = `👀 第 ${sub.stepIdx + 1} 项瞬记中（无需操作，第 ${sub.n + 1} 项起开始比对）`;
 
-        const notice = document.createElement('div');
-        notice.className = 'nback-warmup-notice';
-        notice.style.marginTop = '12px';
-        notice.innerText = `👀 观察记忆中... (${sub.stepIdx + 1}/${sub.n})`;
-        card.appendChild(notice);
+        if (sub.warmupNotice) {
+          sub.warmupNotice.style.display = 'block';
+          sub.warmupNotice.innerText = `👀 瞬记中... (${sub.stepIdx + 1}/${sub.n})`;
+        }
+        if (btnMatch) {
+          btnMatch.disabled = true;
+          btnMatch.innerHTML = `👀 观察瞬记中... (${sub.stepIdx + 1}/${sub.n})`;
+        }
 
         sub.stepTimerHandle = setTimeout(() => {
           doISITransition();
         }, sub.stepDuration * 1000);
       } else {
-        // 正式比对阶段
+        // 正式比对阶段 (只点相同，不点默认为不同)
+        if (sub.warmupNotice) {
+          sub.warmupNotice.style.display = 'none';
+        }
+        if (btnMatch) {
+          btnMatch.disabled = false;
+          btnMatch.innerHTML = `🎯 相同：与【${sub.n} 步前】一致 <span class="key-badge">空格 / F / 点击</span>`;
+        }
+
         sub.awaitingAnswer = true;
-        sub.userAnswered = false;
+        sub.userResponded = false;
         sub.stepStartStamp = Date.now();
-        el.gamePrompt.innerText = `第 ${lvl} 关 · 当前项与【${sub.n} 步前】相同吗？按 🟢相同 或 🔴不同`;
+        el.gamePrompt.innerText = `第 ${lvl} 关 · 与【${sub.n} 步前】相同时点击【相同】（不同无需点击）`;
 
         sub.stepTimerHandle = setTimeout(() => {
-          // 超时处理
-          if (!sub.userAnswered && sub.awaitingAnswer) {
+          // 步进时间耗尽：若玩家未点击，检查是否为漏报
+          if (!sub.userResponded && sub.awaitingAnswer) {
             sub.awaitingAnswer = false;
+            const stageCard = document.getElementById('nback-stage-card');
             if (curStep.expectedMatch) {
+              // 实际相同却漏报
               sub.misses++;
-              deductLife(`超时漏报：此项与 ${sub.n} 步前相同！`);
-              if (card) card.classList.add('shake-error');
+              deductLife(`超时漏报：此方块与 ${sub.n} 步前相同！`);
+              if (stageCard) {
+                stageCard.classList.add('shake-error');
+                setTimeout(() => stageCard.classList.remove('shake-error'), 400);
+              }
             } else {
+              // 实际不同且未按：正确放行克制
               sub.correctRejections++;
               state.stats.correct++;
             }
@@ -1550,15 +1608,28 @@
     }
 
     function doISITransition() {
-      const card = document.getElementById('nback-stage-card');
-      if (card) {
-        card.className = 'nback-stage-card isi-mask';
-        card.innerHTML = `<div style="font-size:24px;color:#94a3b8;">⏳</div>`;
+      const sub = state.subState;
+      if (!sub) return;
+
+      // 仅熄灭当前方块，棋盘框架绝对不重新渲染，彻底告别全屏闪烁
+      if (lvl <= 3) {
+        if (sub.symDisplay) sub.symDisplay.style.opacity = '0';
+      } else if (lvl <= 7) {
+        if (sub.gridCells) {
+          sub.gridCells.forEach(c => {
+            c.classList.remove('active-lit');
+            c.style.backgroundColor = '';
+            c.style.borderColor = '';
+          });
+        }
+      } else {
+        if (sub.geomBox) sub.geomBox.style.opacity = '0';
       }
-      state.subState.isiTimerHandle = setTimeout(() => {
-        state.subState.stepIdx++;
+
+      sub.isiTimerHandle = setTimeout(() => {
+        sub.stepIdx++;
         advanceToNext();
-      }, 150); // 150ms 科学 ISI 屏蔽期
+      }, 180); // 180ms 间歇期，只有亮块熄灭
     }
 
     state.subState.advanceToNext = advanceToNext;
@@ -1568,11 +1639,18 @@
     setTimeout(advanceToNext, 300);
   }
 
-  function handleNBackFlowChoice(chosenSame) {
+  function handleNBackMatchTap() {
     const sub = state.subState;
-    if (!sub || !sub.awaitingAnswer || sub.userAnswered) return;
+    if (!sub) return;
 
-    sub.userAnswered = true;
+    if (sub.stepIdx < sub.n) {
+      showToast(`👀 观察瞬记前 ${sub.n} 项，第 ${sub.n + 1} 项开始比对`, 600);
+      return;
+    }
+
+    if (!sub.awaitingAnswer || sub.userResponded) return;
+
+    sub.userResponded = true;
     sub.awaitingAnswer = false;
     clearTimeout(sub.stepTimerHandle);
 
@@ -1581,36 +1659,34 @@
 
     const curStep = sub.sequence[sub.stepIdx];
     const card = document.getElementById('nback-stage-card');
-    const isCorrect = (chosenSame === curStep.expectedMatch);
 
-    if (isCorrect) {
-      soundSuccess();
+    if (curStep.expectedMatch) {
+      // 命中 (Hit)
+      sub.correctHits++;
       state.stats.correct++;
-      if (curStep.expectedMatch) {
-        sub.correctHits++;
-        if (card) card.classList.add('hit-pulse');
-        showToast(`🎯 精准击中！与 ${sub.n} 步前相同 (+${15 * sub.lvl}分)`, 400);
-      } else {
-        sub.correctRejections++;
-        showToast(`👍 正确鉴别！与 ${sub.n} 步前不同`, 350);
+      soundSuccess();
+      showToast(`🎯 精准命中！与 ${sub.n} 步前相同 (+${15 * sub.lvl}分)`, 400);
+
+      if (card) {
+        card.classList.add('hit-pulse');
+        setTimeout(() => card.classList.remove('hit-pulse'), 300);
       }
     } else {
-      if (chosenSame && !curStep.expectedMatch) {
-        sub.falseAlarms++;
-        deductLife(`虚报：与 ${sub.n} 步前不同！`);
-      } else {
-        sub.misses++;
-        deductLife(`漏判：与 ${sub.n} 步前相同！`);
+      // 虚报手抖 (False Alarm)
+      sub.falseAlarms++;
+      deductLife(`虚报手抖：此项与 ${sub.n} 步前不同！`);
+      if (card) {
+        card.classList.add('shake-error');
+        setTimeout(() => card.classList.remove('shake-error'), 400);
       }
-      if (card) card.classList.add('shake-error');
     }
 
-    // 短暂留存后进入 ISI 并推进下一步
+    // 短暂留存后熄灭方块并推进下一步
     setTimeout(() => {
       if (typeof sub.doISITransition === 'function') {
         sub.doISITransition();
       }
-    }, 280);
+    }, 200);
   }
 
   // 0. 空间 2-Back 九宫格位置记忆挑战 (第 2 款游戏)
@@ -2374,12 +2450,9 @@
     if (el.reportModal && !el.reportModal.classList.contains('hidden')) return;
 
     if (state.gameId === 'nback_flow') {
-      if (e.key === 'f' || e.key === 'F' || e.key === 'ArrowLeft') {
+      if (e.key === ' ' || e.key === 'f' || e.key === 'F' || e.key === 'Enter') {
         e.preventDefault();
-        handleTwoWayChoice(true);
-      } else if (e.key === 'j' || e.key === 'J' || e.key === 'ArrowRight') {
-        e.preventDefault();
-        handleTwoWayChoice(false);
+        handleNBackMatchTap();
       }
     }
   });
