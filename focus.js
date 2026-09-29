@@ -726,7 +726,8 @@
     expertTipNote: document.getElementById('expert-tip-note'),
     btnPkShare: document.getElementById('btn-pk-share'),
     btnRetry: document.getElementById('btn-retry'),
-    btnNextGame: document.getElementById('btn-next-game')
+    btnNextGame: document.getElementById('btn-next-game'),
+    btnTestFail: document.getElementById('btn-test-fail')
   };
 
   function showToast(text, duration = 1200) {
@@ -877,6 +878,17 @@
         } else {
           showToast('请复制当前页面链接发给好友挑战');
         }
+      });
+    }
+
+    // 测试专用：直接失败按钮
+    if (el.btnTestFail) {
+      el.btnTestFail.addEventListener('click', () => {
+        soundError();
+        state.lives = 0;
+        renderLives();
+        showToast('💥 已触发测试直接失败！', 1000);
+        finishGame(true);
       });
     }
   }
