@@ -1218,18 +1218,18 @@ body {
 
 .nback-stage-card {
   width: 250px;
-  height: 230px;
+  height: 250px;
   background: #ffffff;
   border: 3px solid var(--line);
   border-radius: 24px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
   transition: border-color 0.15s, box-shadow 0.15s;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .nback-stage-card.shake-error {
@@ -1259,13 +1259,20 @@ body {
 
 .nback-grid-matrix {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
   gap: 10px;
-  width: 210px;
-  height: 210px;
+  width: 216px;
+  height: 216px;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .nback-grid-cell {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
   background: #f8fafc;
   border-radius: 14px;
   border: 2px solid #e2e8f0;
@@ -1275,14 +1282,15 @@ body {
   font-size: 32px;
   user-select: none;
   line-height: 1;
-  transition: background-color 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+  min-width: 0;
+  min-height: 0;
+  transition: background-color 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
 }
 
 .nback-grid-cell.active-lit {
   background: #e0f2fe;
   border-color: #0284c7;
-  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
-  transform: scale(1.08);
+  box-shadow: 0 0 0 2px #0284c7, 0 4px 12px rgba(2, 132, 199, 0.25);
 }
 
 .duo-btn-match-single {

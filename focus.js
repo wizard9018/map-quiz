@@ -1421,7 +1421,7 @@
     warmupNotice.id = 'nback-warmup-notice';
     warmupNotice.style.display = 'none';
     warmupNotice.style.marginTop = '12px';
-    card.appendChild(warmupNotice);
+    wrap.appendChild(warmupNotice);
 
     // 点击舞台卡片也可触发命中判定
     card.onclick = () => handleNBackMatchTap();
