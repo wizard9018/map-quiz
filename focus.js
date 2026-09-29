@@ -2,8 +2,34 @@
 (function() {
   'use strict';
 
+  // 舒尔特阶梯进阶配置表: 1-3关 3x3 (20s/15s/10s), 4-6关 4x4 (20s/15s/10s), 7-9关 5x5 (20s/15s/10s), 10关 6x6 (20s)
+  const SCHULTE_LEVEL_CONFIG = {
+    1:  { cols: 3, time: 20 },
+    2:  { cols: 3, time: 15 },
+    3:  { cols: 3, time: 10 },
+    4:  { cols: 4, time: 20 },
+    5:  { cols: 4, time: 15 },
+    6:  { cols: 4, time: 10 },
+    7:  { cols: 5, time: 20 },
+    8:  { cols: 5, time: 15 },
+    9:  { cols: 5, time: 10 },
+    10: { cols: 6, time: 20 }
+  };
+
   // 1. 50 款游戏完整注册表与科学范式
   const REGISTRY = {
+    // 第一个游戏：舒尔特方格注意力阶梯训练
+    schulte_classic: {
+      title: "舒尔特方格注意力训练",
+      academy: "focus",
+      prompt: "第一关3×3(20s)，第二关(15s)，第三关(10s)，第四关4×4(20s)...阶梯递增",
+      modality: "matrix_grid",
+      gesture: "sequential_grid_tap",
+      layout: "grid_progression",
+      stimulus: "numbers_progressive",
+      engine: "schulte"
+    },
+
     // 一、 工作记忆学堂 (14 款)
     nback_spatial: {
       title: "2-back 空间记忆挑战",
@@ -147,16 +173,6 @@
     },
 
     // 二、 深度专注学堂 (8 款)
-    schulte_classic: {
-      title: "经典 5×5 舒尔特方格",
-      academy: "focus",
-      prompt: "按 1 到 25 顺序依次快速点击，保持视线平稳扫描",
-      modality: "matrix_grid",
-      gesture: "sequential_grid_tap",
-      layout: "grid_5x5",
-      stimulus: "numbers_1_to_25",
-      engine: "schulte"
-    },
     schulte_3x3: {
       title: "启蒙 3×3 英文字母舒尔特",
       academy: "focus",
@@ -828,7 +844,13 @@
     state.subState = { startStamp: Date.now() };
 
     const g = REGISTRY[state.gameId];
-    const duration = Math.max(5.0, 16.0 - (lvl * 0.9)); // 关卡越高，限时越短
+    let duration;
+    if (state.gameId === 'schulte_classic') {
+      const cfg = SCHULTE_LEVEL_CONFIG[lvl] || { cols: 5, time: 20 };
+      duration = cfg.time;
+    } else {
+      duration = Math.max(5.0, 16.0 - (lvl * 0.9)); // 关卡越高，限时越短
+    }
     startTimer(duration);
 
     // 根据手势类型先生成基础底栏
@@ -985,7 +1007,13 @@
     let items = [];
     let isReverse = (state.gameId === 'schulte_reverse');
 
-    if (modality === 'letter_matrix_grid') {
+    if (state.gameId === 'schulte_classic') {
+      const cfg = SCHULTE_LEVEL_CONFIG[lvl] || { cols: 5, time: 20 };
+      size = cfg.cols;
+      items = [];
+      for (let i = 1; i <= size * size; i++) items.push(i);
+      el.gamePrompt.innerText = `第 ${lvl} 关 · ${size}×${size} 方格 · 请点击: 【1】(限时 ${cfg.time}s)`;
+    } else if (modality === 'letter_matrix_grid') {
       size = 3;
       items = ['A','B','C','D','E','F','G','H','I'];
     } else if (modality === 'chinese_num_matrix_grid') {
@@ -1023,16 +1051,27 @@
       cell.className = 'grid-cell';
       cell.innerText = val;
       cell.onclick = () => {
+        if (cell.classList.contains('correct')) return;
         const expected = state.subState.targetList[state.subState.expectedIndex];
         if (val === expected) {
           soundSuccess();
           cell.classList.add('correct');
           if (state.subState.isReverse) {
             state.subState.expectedIndex--;
-            if (state.subState.expectedIndex < 0) nextLevel();
+            if (state.subState.expectedIndex < 0) {
+              nextLevel();
+            } else {
+              const nextVal = state.subState.targetList[state.subState.expectedIndex];
+              el.gamePrompt.innerText = `第 ${state.level} 关 · 倒序查找 · 下一个: 【${nextVal}】`;
+            }
           } else {
             state.subState.expectedIndex++;
-            if (state.subState.expectedIndex >= state.subState.targetList.length) nextLevel();
+            if (state.subState.expectedIndex >= state.subState.targetList.length) {
+              nextLevel();
+            } else {
+              const nextVal = state.subState.targetList[state.subState.expectedIndex];
+              el.gamePrompt.innerText = `第 ${state.level} 关 · 请点击: 【${nextVal}】`;
+            }
           }
         } else {
           cell.classList.add('wrong');
