@@ -1,232 +1,232 @@
-# K12 专注力 50 款科学认知训练系统与测试平台技术交接文档
+# K12 专注力科学认知训练系统与测试平台技术交接与断点续接文档 (HANDOVER)
 
-> **项目名称**：K12 专注力 50 款科学认知训练系统 (Focus Training 50)  
-> **宿主工程**：[World Countries Map Quiz](https://wizard9018.github.io/map-quiz/)  
-> **代码仓库**：`https://github.com/wizard9018/map-quiz.git` (分支：`master`)  
-> **在线访问**：`https://wizard9018.github.io/map-quiz/?tab=focus`  
-> **本地访问**：`http://127.0.0.1:8080/index.html?tab=focus`  
+> **项目名称**：K12 专注力 21 款科学认知训练系统 (Focus Training 21 认知母版)  
+> **代码仓库**：`https://github.com/wizard9018/map-quiz.git` (分支：`master`，当前提交：`4f95d88`)  
+> **工程本地路径**：`C:\Users\wizar\Others\map-quiz`  
+> **本地测试服务**：`http://127.0.0.1:8080/focus.html` 或 `http://127.0.0.1:8080/index.html?tab=focus`  
 > **交接日期**：2026-09-29  
+> **系统状态**：母版 01《N-Back 工作记忆刷新流》已 100% 验收封版；**下一阶段任务：启动母版 02《空间网格暂留闪记 (`matrix_flash`)》**。
 
 ---
 
-## 一、 项目背景与业务目标
+## 快速断点续接 Prompt（换新账号后直接发送）
 
-本项目旨在为中小学学生（K12）提供一套基于神经认知科学（前额叶认知控制、双重工作记忆、视觉搜索、选择性注意与抑制控制）的**50 款专注力小游戏 Web 互动测试与测评转化系统**。
+换账号或新开会话后，直接复制并发送以下指令给 AI 即可无缝推进：
 
-系统以轻量、无外部依赖、免下载、跨设备适配（移动端手机、平板、桌面端）为原则，深度整合进现有的 `World Countries Map Quiz` 网站，形成独立 Tab，并构建了包含 **关卡挑战 -> 容错机制 -> 1v1 好友 PK -> 省份均分天梯评定 -> 专家咨询领取7天资料 -> 裂变分享 PK** 的完整运营转化闭环。
-
----
-
-## 二、 系统架构与文件资产目录
-
-本模块采用微模块解耦架构，独立为 `focus.html` + `focus.css` + `focus.js`，通过 `<iframe>` 嵌入到宿主主站 `index.html` 的 `Focus 专注力` Tab 中，既保证与原地图 Quiz 互不干扰，又支持独立以手机模式访问。
-
+```text
+你好！我正在进行“K12 专注力 21 款科学认知训练系统”的项目研发。
+请先阅读项目工作区根目录的 C:\Users\wizar\Others\map-quiz\HANDOVER.md。
+目前母版 01（N-Back 工作记忆刷新流）已完成验收并全通测试。
+请严格按照“逐个母版制作验收”原则，立即启动母版 02《空间网格暂留闪记 (matrix_flash)》的开发：
+1. 梳理 L1~L10 关卡梯度与视觉规范；
+2. 编写 test_master_02_matrix.js 单元测试与端到端测试；
+3. 在 focus.js / focus.css 中完成实现并确保无变形、棋盘常驻；
+4. 运行并通过测试后交付我试玩验收。
 ```
+
+---
+
+## 一、 项目背景与架构全景
+
+本项目基于神经认知科学（前额叶认知控制、双重工作记忆、视觉搜索、选择性注意与抑制控制），将海量认知训练玩法系统性提炼为 **21 款核心认知母版**，面向中小学（K12）打造科学、轻量、高质感的 Web 互动训练与测评平台。
+
+### 1. 核心架构与文件资产
+
+```text
 C:\Users\wizar\Others\map-quiz/
-├── index.html               # 宿主首页，包含顶部 Tab 切换与 focus-frame iframe
-├── focus.html               # 50款小游戏核心视界 HTML（手机壳容器、状态栏、手势区、战报弹窗）
-├── focus.css                # 游戏样式表（Duolingo卡通质感、响应式视界、心数动画、战报卡片）
-├── focus.js                 # 核心运行引擎（50款注册表、关卡控制、Web Audio音效、战报计算）
-├── start_server.js          # 本地静态文件极简 HTTP 服务器脚本 (端口 8080)
-├── 启动本地测试.bat          # Windows 一键启动脚本（启动 node 服务并自动打开浏览器）
-├── HANDOVER.md              # 本技术交接文档
-└── K12_ATTENTION_107_VIDEOS_GAME_SPECIFICATION.md # 全量107个短视频聚合51款小游戏的超详细玩法与实现规格说明书
+├── focus.html               # 核心训练视界（手机壳容器、状态栏、网格舞台、手势区、战报弹窗）
+├── focus.css                # 游戏样式表（米白护眼学术风格 #f7f5ef、Duolingo 3D立体触控质感、等比正方形网格）
+├── focus.js                 # 核心运行引擎（母版注册表 REGISTRY、自适应关卡阶梯、Web Audio音效、战报计算）
+├── index.html               # 宿主页面（顶部导航 Tab 嵌入 focus-frame iframe）
+├── start_server.js          # 本地静态轻量 HTTP 服务器 (8080 端口)
+├── 启动本地测试.bat          # Windows 一键启动脚本
+├── test_master_01_nback.js  # 母版 01 单元测试与蒙特卡洛匹配率验证
+├── test_nback_e2e.js        # 母版 01 1~10 关端到端仿真测试
+├── ANALYSIS_METHODOLOGY_AND_CROSSCHECK_REPORT.md  # 4大头部APP与107个短视频去冗余分析报告
+├── K12_ATTENTION_107_VIDEOS_GAME_SPECIFICATION.md # 全量视频认知母版规格说明书
+└── HANDOVER.md              # 本交接与断点续接文档
+```
+
+### 2. 核心技术栈与约定规范
+- **运行环境**：原生 JavaScript (ES6+)，零外部打包构建依赖，开箱即用。
+- **音频系统**：基于 Web Audio API 纯数学实时合成（双音上扬和弦、琶音级联、锯齿波杂音），零延迟、无需外部音频外链。
+- **生命与容错**：每关标配 3 颗心（❤️❤️❤️），点击错误扣 1 心；耗尽触发深度评定战报。
+- **测试提效**：状态栏常驻 `💥 直接失败 (测试)` 按钮（`#btn-test-fail`），秒级调出终局战报用于联调。
+- **闭环转化**：1v1 好友 PK、全国 31 省市常模天梯榜（高于加分/低于拖后腿）、专家 1v1 二维码、动态裂变分享链接。
+
+---
+
+## 二、 21 款科学认知母版全景规划与推进状态
+
+根据跨越 107 个教学视频与 4 大头部 App（Lumosity、BrainHQ、Elevate、专注力测验等）的去冗余神经认知提炼，全系统确立了 21 款母版游戏。
+
+> [!IMPORTANT]
+> **研发执行原则**：严格执行“逐个母版制作、逐个交付验收”的节拍，坚决拒绝一次性机械拼凑。每款母版必须具备科学的 1~10 关梯度自适应、自动化测试套件与极致视觉质感。
+
+```mermaid
+graph TD
+    classDef done fill:#dcfce7,stroke:#16a34a,stroke-width:2px;
+    classDef next fill:#fef3c7,stroke:#d97706,stroke-width:2px;
+    classDef pending fill:#f1f5f9,stroke:#94a3b8,stroke-width:1px;
+
+    subgraph 学堂1: 工作记忆学堂 (5款)
+        M01["01. nback_flow (N-Back工作记忆刷新流)"]:::done
+        M02["02. matrix_flash (空间网格暂留闪记)"]:::next
+        M03["03. sequence_order (时序先后正逆组块复原)"]:::pending
+        M04["04. tidal_treasures (排他性情景记忆提取)"]:::pending
+        M05["05. semantic_synthesis (听觉语义概念综摄)"]:::pending
+    end
+
+    subgraph 学堂2: 深度专注学堂 (5款)
+        M06["06. schulte_ladder (舒尔特注意力阶梯)"]:::pending
+        M07["07. cambridge_decoder (剑桥三元组Decoder解码)"]:::pending
+        M08["08. flanker_birds (迷途鸟群Flanker侧抑制)"]:::pending
+        M09["09. ufov_dual_field (UFOV双重视野捕获)"]:::pending
+        M10["10. bimodal_divert (视听双通道分流通量监控)"]:::pending
+    end
+
+    subgraph 学堂3: 前额叶自控学堂 (5款)
+        M11["11. stroop_dimension (Stroop色词冲突反转)"]:::pending
+        M12["12. simon_reverse (空间西蒙效应反转按键)"]:::pending
+        M13["13. sst_stop_signal (SST动作紧急阻断)"]:::pending
+        M14["14. rhythm_seven (节奏跑马灯逢7克制)"]:::pending
+        M15["15. wcst_rule_switch (WCST规则突变分拣)"]:::pending
+    end
+
+    subgraph 学堂4: 视觉敏捷与空间思维 (6款)
+        M16["16. mot_trajectory (MOT多目标轨迹追踪)"]:::pending
+        M17["17. odd_one_out (视界孤品排查与同伴配对)"]:::pending
+        M18["18. mental_rotation_clock (镜中时钟心智旋转)"]:::pending
+        M19["19. train_switch_dispatch (铁轨变轨调度)"]:::pending
+        M20["20. laser_prism_deflect (激光折射与镜面推演)"]:::pending
+        M21["21. blind_sweeper_nav (盲区扫雷与拓扑导航)"]:::pending
+    end
 ```
 
 ---
 
-## 三、 50 款小游戏学堂分类体系与引擎映射
+## 三、 母版 01《N-Back 工作记忆刷新流》研发与验收成果
 
-系统将 50 款游戏划分为四大认知训练学堂，所有游戏均配置在 `focus.js` 的 `REGISTRY` 对象中：
+### 1. 神经认知机制
+- **主要脑区**：背外侧前额叶皮层 (DLPFC) + 顶下小叶 (IPL)。
+- **训练目标**：实时工作记忆容量扩充、旧刺激主动遗忘与新刺激动态移位更新。
 
-### 1. 工作记忆学堂 (Working Memory, 14 款)
-* **核心范式**：Dual N-Back（空间/地名/数字/符号）、Corsi 散点块、时序正反序复现。
-* **游戏清单**：
-  1. `nback_spatial`：2-back 空间九宫格记忆挑战
-  2. `places_nback`：地名序列 2-Back 刷新
-  3. `numbers_nback`：数字时序 2-Back 挑战
-  4. `letters_nback`：少儿图形符号 2-Back
-  5. `spatial_grid_136`：136 双色优先级空间瞬记（先蓝后黄）
-  6. `spatial_grid_5x5`：5×5 矩阵高密度方块瞬记
-  7. `sequence_timeline`：时序先后正序复原
-  8. `sequence_reverse`：逆序时序倒放检索
-  9. `visual_flash_afterimage`：380ms 极短残影单点闪记
-  10. `pattern_separation_26`：海马体模式分离位移判断
-  11. `dual_task_memory_33`：双重任务认知资源分配（九宫格+心算）
-  12. `short_term_memory_37`：Corsi 散点空间跨度提取
-  13. `detective_memory_61`：名侦探服饰细节排位瞬记
-  14. `auditory_sentence_order_92`：听觉句子时序重组比对
+### 2. 核心用户反馈与关键设计演进
+母版 01 经历了 4 轮关键用户迭代，形成了标准化设计规范：
+1. **棋盘稳定性（杜绝整屏闪烁）**：
+   - 彻底废弃整张卡片重绘与全屏黑屏闪烁；
+   - 3×3 棋盘与 9 个外框常驻，刺激呈现时仅内部激活的单个单元格微闪发光。
+2. **交互范式：实验心理学标准 Go/No-Go 单键响应**：
+   - 废除“相同 / 不同”双键干扰；
+   - 底部仅提供单个 `🎯 相同：与【N 步前】一致` 按键（支持空格键 / F / 回车 / 点击舞台）；
+   - “不同”项自动放行，无需玩家手动干预，超时未点击自动记为正确排斥（Correct Rejection）；如果错误点击则扣心。
+3. **九宫格位置 + 图标双重特征绑定（Dual-Feature Binding）**：
+   - 1-Back、2-Back、3-Back 全关卡统一采用 3×3 九宫格；
+   - 判定标准：必须【坐标完全一致】且【图标完全一致】才算匹配（Match）；
+   - 引入认知诱饵（Lures）：同位异图、异位同图一律判为不同，强效防止儿童单凭单一线索投机。
+4. **CSS Grid 几何尺寸严格 1:1 正方形**：
+   - 彻底解决格子因图标内容撑高变形的问题：
+     ```css
+     display: grid;
+     grid-template-columns: repeat(3, minmax(0, 1fr));
+     grid-template-rows: repeat(3, minmax(0, 1fr));
+     aspect-ratio: 1 / 1;
+     ```
+   - 严禁对单元格使用 `transform: scale(1.08)` 导致尺寸错觉，改用内边框发光 `box-shadow: 0 0 0 2px #0284c7` 实现聚焦。
 
-### 2. 深度专注学堂 (Focused Attention, 8 款)
-* **核心范式**：舒尔特方格注意力阶梯递进训练、极限视界搜索、罗马/噪波/动态旋转方格。
-* **游戏清单**：
-  1. `schulte_classic`：**第 1 款游戏：舒尔特方格注意力阶梯训练**（3x3 到 6x6 进阶）
-  2. `schulte_3x3`：启蒙 3×3 英文字母舒尔特
-  3. `schulte_4x4`：进阶 4×4 中文数词汉字舒尔特
-  4. `schulte_6x6`：高阶 6×6 舒尔特方格
-  5. `schulte_7x7`：挑战 7×7 极限大视野舒尔特
-  6. `schulte_rotate`：圆盘动态旋转舒尔特
-  7. `schulte_reverse`：6阶倒序舒尔特挑战（从 36 倒点至 1）
-  8. `schulte_extended_27`：罗马数字噪波舒尔特方格
+### 3. 关卡阶梯配置（1~10 关）
+- **L1~L3**：1-Back 启蒙（3×3九宫格 + 6款少儿高对比图标，曝光 1200ms，间隔 180ms）
+- **L4~L7**：2-Back 进阶（3×3九宫格 + 6款图标，曝光 1100ms，间隔 160ms）
+- **L8~L10**：3-Back 高阶（3×3九宫格 + 8款抽象几何符号，曝光 950ms，间隔 140ms）
 
-### 3. 前额叶自控学堂 (Inhibition Control, 14 款)
-* **核心范式**：Stroop 色词抗干扰、Go/No-Go 冲动抑制、反向指令控制、逢7/逢3放行。
-* **游戏清单**：
-  1. `stroop_color_word`：Stroop 字色与字义相符矩阵筛选
-  2. `stroop_speed_switch`：高频冷暖色规则快速切换
-  3. `seven_inhibition`：数字跑马灯逢7/含7克制点击
-  4. `three_inhibition`：数字跑马灯逢3倍数克制点击
-  5. `animal_zoo_gonogo`：动物萌宠放行，猛兽克制击键
-  6. `traffic_go_nogo`：红绿灯经典 Go/No-Go 反应测试
-  7. `cpt_continuous_performance`：CPT 罕见字母 X 警觉测试
-  8. `impulse_control_131`：见左点右/见右点左 反向控制
-  9. `eye_mouth_coord_34`：上下左右反向四方按键抑制
-  10. `eye_hand_coord_30`：箭头跟随快速击键
-  11. `dual_task_split_55`：红球凝视中心 + 干扰字符计数
-  12. `visual_interference_126`：多色块干扰下数值最大数挑选
-  13. `alertness_network_25`：无预警突发视听刺激捕捉
-  14. `brain_science_inhibit_90`：两难冲突决策抑制
-
-### 4. 视觉敏捷与空间感知学堂 (Visual Agility & Spatial Perception, 14 款)
-* **核心范式**：MOT 多目标动态追踪、心智旋转、轴对称折叠、微特征形近字找不同。
-* **游戏清单**：
-  1. `mot_ball_tracking`：MOT 多目标动态小球运动轨迹追踪
-  2. `visual_tracking_47`：错综复杂多目标小球动态锁定
-  3. `visual_tracking_57`：复杂交叉线条终点追寻
-  4. `visual_motion_71`：反向旋转猫咪动态敏捷捕捉
-  5. `hanzi_spot_diff`：汉字形近微特征找不同（如群王寻玉）
-  6. `hanzi_diff_reverse`：黑白反转底色笔画差异辨析
-  7. `mental_clock_rotation`：镜中时钟心智推算真实时间
-  8. `reverse_hanzi`：水平镜像翻转汉字短语识别
-  9. `mirror_symmetry_spatial`：轴对称图形折叠重合判定
-  10. `spatial_rotation_3d`：Shepard-Metzler 三维立体旋转比对
-  11. `cube_count_hidden`：多层积木遮挡盲区心智透视
-  12. `spatial_direction_arrow`：空间方位多级转向（左转90/右转180）
-  13. `pattern_mirror_67`：非对称复杂图案角位移比对
-  14. `spatial_depth_perception`：重叠与阴影深度远近知觉
-  15. `paper_fold_hole`：对折打孔心智展开孔位脑内还原
+### 4. 自动化测试套件
+- 单元与蒙特卡洛验证：`node test_master_01_nback.js`（验证 N 值映射、双重绑定、诱饵拦截、35% 匹配率，已 100% 通过）。
+- 全流程端到端仿真：`node test_nback_e2e.js`（仿真 L1~L10 完整通关及 3 次容错熔断，已 100% 通过）。
 
 ---
 
-## 四、 核心规则、关卡机制与测试支持
+## 四、 接续第一任务：母版 02《空间网格暂留闪记 (`matrix_flash`)》实施规划
 
-### 1. 舒尔特注意力阶梯规则（第 1 款游戏）
-依据教学实战需求，第 1 款游戏配置了严格的阶梯式递进难度与限时机制：
-* **第 1 关**：3×3 方格 (1~9)，限时 **20s**
-* **第 2 关**：3×3 方格 (1~9)，限时 **15s**
-* **第 3 关**：3×3 方格 (1~9)，限时 **10s**
-* **第 4 关**：4×4 方格 (1~16)，限时 **20s**
-* **第 5 关**：4×4 方格 (1~16)，限时 **15s**
-* **第 6 关**：4×4 方格 (1~16)，限时 **10s**
-* **第 7 关**：5×5 方格 (1~25)，限时 **20s**
-* **第 8 关**：5×5 方格 (1~25)，限时 **15s**
-* **第 9 关**：5×5 方格 (1~25)，限时 **10s**
-* **第 10 关**：6×6 方格 (1~36)，限时 **20s**
+**这是新会话/新账号启动后要执行的第一项核心开发任务。**
 
-### 2. 空间 2-Back 规则（第 2 款游戏）
-* 舞台为纯净的 3×3 九宫格；
-* **第 1 步**：高亮闪烁第 1 个位置，提示玩家记住；
-* **第 2 步**：高亮闪烁第 2 个位置，提示玩家记住；
-* **第 3 步起**：高亮闪烁当前方块，用户比对当前位置与【2步前】是否相同，点击底部 `🟢 相同 (Match)` 或 `🔴 不同 (Diff)`；
-* 达成设定的达标连续正确次数后自动进入下一关。
+### 1. 神经认知回路与对标原型
+- **主要回路**：后顶叶皮层 (PPC, 视空间工作记忆容量 VWM) + 初级视皮层 (V1/V2, 视觉暂留与残影提取)。
+- **对标产品**：Lumosity `Memory Matrix`、Elevate `Spatial Recall`、视频 40/41/50。
 
-### 3. 每关 3 次容错机制 (3 Lives)
-* 每一关开始时，分配 **3 颗心（❤️❤️❤️）**；
-* 点击错误、手势失误或倒计时耗尽时，心数 `-1`；
-* 倒计时耗尽且仍有剩余心数时，在当前关卡重新开始，保留剩余心数；
-* **当本关 3 次机会全部耗尽，游戏立即结束并触发终局评定战报**；
-* 成功通关晋级到新关卡时，心数重新恢复满格 3 颗心。
-
-### 4. 测试专用【直接失败】按钮
-在顶部状态栏常驻 `💥 直接失败 (测试)` 按钮（`#btn-test-fail`）：
-* 任意关卡点击后直接将生命值归零，秒级唤出当前关卡的测评报告，极大方便各关卡边界条件与报告界面的敏捷测试。
-
----
-
-## 五、 战报评定体系与引流裂变闭环
-
-测试结束时弹出的 `#report-modal` 包含了 4 个维度的完整交付物：
-
-### 1. 1v1 好友 PK 对决战报
-* **URL 传参机制**：支持读取 `?inviter=xxx&inviterScore=xx&inviterLevel=x`（缺省预设为“海淀·林同学 76分 第4关”）。
-* **胜负评定**：
-  * 若当前用户关卡高于邀请人，或同关卡总分高于邀请人：显示 **`👑 挑战大获全胜！`** 徽章及祝贺评语；
-  * 若落后于邀请人：显示 **`💪 稍逊一筹·继续加油`** 徽章及逆袭加练评语。
-
-### 2. 全国 31 省市天梯榜评定（加分 / 拖后腿）
-* 内置全国 31 省市官方专注力常模基准分（北京 89.6、上海 88.5、江苏 87.2... 青海 71.2、西藏 70.5）；
-* 提供出战省份即时切换下拉框（`#province-select`）；
-* **高于本省均分**：展示绿色横幅 **`🏆 高于本省平均成绩 · 恭喜加分！`**，为全省排位拉榜；
-* **低于本省均分**：展示橙红警示横幅 **`⚠️ 低于本省平均成绩 · 拖了后腿！`**，计算落后分差，提示给全省拖了后腿。
-
-### 3. 专注力专家咨询与《7天提升资料》引流转化
-* **高清矢量 SVG 二维码**：纯代码生成，无外部图片依赖，支持移动端长按或电脑端微信扫码；
-* **一键复制微信号**：展示专属微信号 `ql_focus88`，配备 `#btn-copy-wechat` 一键写入剪贴板；
-* **3 大核心权益**：7天脑力打卡营音频、粗心漏题防错手册 PDF、专家 1v1 诊断提分方案；
-* **智能动态备注口令**：提示扫码时附带备注，如 `【专注力+第 4 关+85分】`，提升私域加微留存率。
-
-### 4. 游戏结束后发给朋友挑战 PK 的裂变选项
-* 点击战报底部的 **`⚔️ 发给朋友挑战 PK（比拼闯关级数）`** 按钮（`#btn-pk-share`）；
-* 自动提取当前玩家的昵称、最高闯关级数、得分与全国战胜百分比，动态拼装专属挑战 URL 并写入剪贴板：
-  ```text
-  ⚔️ 我在【专注力 50 款小游戏】闯到了第 4 关 (85分)，战胜了全国 75% 的人！敢来挑战我吗？点击链接直接迎战 👉 https://wizard9018.github.io/map-quiz/?tab=focus&game=schulte_classic&inviter=你的好友&inviterScore=85&inviterLevel=4#schulte_classic
-  ```
-
----
-
-## 六、 音频引擎设计 (Web Audio API)
-
-为保证在 GitHub Pages 及各类网络环境下的零延迟、免加载、免外部 CDN 资源，音效全部由浏览器底层 Web Audio API 振荡器实时纯数学合成：
-* `soundSuccess()`：C5 (523Hz) + E5 (659Hz) 双音上扬和弦（三角波）；
-* `soundError()`：G3 (196Hz) 锯齿波下行杂音；
-* `soundLevelUp()`：C5 + E5 + G5 三重琶音级联跃升。
-
----
-
-## 七、 本地开发、调试与线上部署
-
-### 1. 本地调试与运行
-* **前置要求**：安装 Node.js (推荐 v18+)。
-* **方式一（Windows 快捷方式）**：
-  双击根目录下的 `启动本地测试.bat`。
-* **方式二（命令行启动）**：
-  ```bash
-  cd "C:\Users\wizar\Others\map-quiz"
-  node start_server.js
-  ```
-  然后在浏览器打开：[http://127.0.0.1:8080/index.html?tab=focus](http://127.0.0.1:8080/index.html?tab=focus)。
-
-### 2. 自动化验证测试 (Playwright)
-项目配置了完备的无头浏览器自动化验收用例，可随时验证核心逻辑与界面元素：
-```bash
-# 验证 3次机会失误、省份拖后腿/加分、微信号复制及PK链接复制
-node test_focus.js
-
-# 验证直接失败按钮与关卡跳转
-node test_fail_btn.js
-
-# 验证九宫格空间 2-Back 刺激流与比对
-node test_game2.js
+### 2. 游戏规则与交互流程
+```text
+【阶段 1: 闪烁曝光 (Flash)】
+  常驻网格就位 -> 瞬间高亮特定数量方格（深海蓝发光 #0284c7）持续曝光（如 1000ms）
+      ↓
+【阶段 2: 记忆保持 (Retention)】
+  全部方格熄灭复原，进入视觉暂留与脑内空间表象保持期（ISI 200ms）
+      ↓
+【阶段 3: 点选复原 (Recall)】
+  玩家点击网格还原目标方块：
+  - 点击正确：方格点亮为翡翠绿 (#16a34a)，伴随清脆正向音效
+  - 点击错误：方格闪烁红色并震动，生命值 -1，伴随低沉错误音效
+  - 找齐所有目标格后，结算得分并自动推进至下一组
 ```
 
-### 3. Git 版本管理与发布
-代码直接托管在 GitHub 主干，更新后执行以下命令即可同步至 GitHub Pages 自动构建与发布：
+### 3. 1~10 关自适应科学梯度设计
+| 关卡 | 棋盘尺寸 | 闪烁方块数 | 曝光时间 | 容错/达标要求 | 认知挑战维度 |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **L1** | 3 × 3 (9格) | 3 格 | 1200 ms | 连续正确 2 组 | 启蒙适应，基础视觉暂留 |
+| **L2** | 3 × 3 (9格) | 4 格 | 1100 ms | 连续正确 2 组 | 突破视觉暂留容量上限 (3~4组块) |
+| **L3** | 4 × 4 (16格) | 4 格 | 1100 ms | 连续正确 3 组 | 视野扩散至 16 格，空间定位锚点提取 |
+| **L4** | 4 × 4 (16格) | 5 格 | 1000 ms | 连续正确 3 组 | 组块化记忆 (Chunking) 策略形成 |
+| **L5** | 4 × 4 (16格) | 6 格 | 950 ms | 连续正确 3 组 | 极限空间关系编码 |
+| **L6** | 5 × 5 (25格) | 5 格 | 900 ms | 连续正确 3 组 | 视网膜大视野跳跃搜索 |
+| **L7** | 5 × 5 (25格) | 6 格 | 850 ms | 连续正确 3 组 | 空间稀疏与离散方块记忆 |
+| **L8** | 5 × 5 (25格) | 7 格 | 800 ms | 连续正确 3 组 | 顶叶空间表征极限负荷 |
+| **L9** | 5 × 5 (25格) | 7 格 (双色) | 850 ms | 连续正确 3 组 | **双色优先级**：3蓝+4黄，需先点蓝再点黄 |
+| **L10** | 5 × 5 (25格) | 8 格 (双色) | 800 ms | 连续正确 3 组 | 顶峰对决：双重空间特征+抑制控制 |
+
+### 4. 实施细节与避坑指南
+1. **网格尺寸必须严格正方形**：
+   - 依据当前关卡动态应用 CSS 类：`.grid-3x3`、`.grid-4x4`、`.grid-5x5`。
+   - 所有网格统一设置 `aspect-ratio: 1 / 1` 与 `grid-template-rows: repeat(N, minmax(0, 1fr))`，确保不论在何种手机屏幕或桌面缩放比例下，每个小格子绝对是严丝合缝的正方形。
+2. **状态流控与防连击**：
+   - 曝光期间必须禁用点击事件（`pointer-events: none`），避免玩家在未熄灭前抢跑。
+   - 已点选的正确方块应进入锁定状态，不可重复点击。
+3. **模块化挂载**：
+   - 在 `focus.js` 的 `REGISTRY` 中注册 `matrix_flash`，并暴露标准生命周期方法：
+     - `init(container, level)`
+     - `start()`
+     - `destroy()`
+
+---
+
+## 五、 本地运行、调试与验证指令
+
 ```bash
-git add focus.html focus.css focus.js start_server.js HANDOVER.md
-git commit -m "docs: 完善项目技术交接文档与运行指引"
+# 1. 启动本地服务（默认端口 8080）
+cd "C:\Users\wizar\Others\map-quiz"
+node start_server.js
+
+# 2. 浏览器访问测试地址
+# 母版独立运行视界：http://127.0.0.1:8080/focus.html
+# 平台整合 Tab 视界：http://127.0.0.1:8080/index.html?tab=focus
+
+# 3. 运行母版 01 验证脚本（随时回归测试）
+node test_master_01_nback.js
+node test_nback_e2e.js
+
+# 4. 代码提交与部署
+git add .
+git commit -m "feat(matrix_flash): 实现母版02空间网格暂留闪记与自适应梯度"
 git push origin master
 ```
-推送成功后，约 1~2 分钟即可在线上访问：`https://wizard9018.github.io/map-quiz/?tab=focus`。
 
 ---
 
-## 八、 关键技术注意事项与后续演进建议
+## 六、 研发质感与承诺准则 (Design System Guardrails)
 
-1. **iframe 通信与自适应**：
-   * `index.html` 中的 `.focus-frame` 设置了 `width: 100%; height: calc(100vh - 120px); border: none;`；若需从父级向子级传递主题或鉴权信息，可通过 `postMessage` 机制扩展。
-2. **移动端手势优化**：
-   * 所有按钮均应用了 `-webkit-tap-highlight-color: transparent;` 与 `touch-action: manipulation;`，杜绝 iOS 双击缩放延迟。
-3. **微信内置浏览器适配**：
-   * 微信长按识别二维码要求 `<img>` 或直出 `<svg>` 结构，目前已内联高清晰度 SVG；若在特定老版微信内核长按无效，可配置转成 base64 PNG 输出作为补充方案。
-4. **后端成绩埋点扩展**：
-   * 目前成绩结算保存在前端内存与 URL 参数中；后续若需沉淀用户全生命周期训练档案，可在 `finishGame` 中向服务端 API 发送一个 JSON 数据包打点即可。
+1. **视觉配色**：
+   - 背景底色：米白护眼学术风格 `#f7f5ef`，卡片 `#ffffff`；
+   - 激活主色：深海蓝 `#0284c7`，成功翠绿 `#16a34a`，警示橙红 `#dc2626`；
+   - 按键质感：Duolingo 3D 立体感，`box-shadow: 0 4px 0 #...`，按下时 `transform: translateY(2px)`。
+2. **严禁破坏几何感知**：
+   - 禁止在网格单元格上使用 `transform: scale()`，所有状态切换（高亮、选中、激活）统一使用内发光、边框和背景色过渡。
+3. **稳步推进**：
+   - 每一款母版必须经过“设计梯度 -> 自动化测试编写 -> 引擎功能开发 -> 样式打磨 -> 100% 测试通过 -> 交付试玩验收”的完整闭环，验收合格后再开启下一款。
