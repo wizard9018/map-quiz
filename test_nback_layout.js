@@ -23,7 +23,7 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
       await page.clock.runFor(300);
       const before = await grid.boundingBox();
       assert.deepEqual(before, initial, 'Grid must stay fixed when observation starts');
-      await page.clock.runFor(n === 1 ? 1870 : n * 1500 + (n - 1) * 180 + 1200 + 10);
+      await page.clock.runFor(n === 1 ? 1870 : 2 * (n * 1500 + (n - 1) * 180) + 1200 + 10);
       assert.equal(await page.locator('#btn-nback-match').isEnabled(), true);
       const after = await grid.boundingBox();
       console.log(JSON.stringify({ width, level, before, after }));

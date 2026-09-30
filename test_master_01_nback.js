@@ -1,7 +1,7 @@
 // test_master_01_nback.js - 母版 01 N-Back 工作记忆刷新流核心算法单元测试
 const assert = require('assert');
 
-const { getNForLevel, getNBackConfig, ICONS_POOL, isStimulusEqual, generateNBackSequence } = require('./test_nback_helpers.js');
+const { getNForLevel, getNBackConfig, ICONS_POOL, isStimulusEqual, isNBackGroupEqual, generateNBackSequence } = require('./test_nback_helpers.js');
 
 // ---------------- 单元测试套件 ----------------
 
@@ -67,6 +67,27 @@ function runTests() {
   assert(measuredRatio >= 0.28 && measuredRatio <= 0.42);
   console.log('✅ 测试 4 通过: 匹配率统计平稳');
 
+  // Group equality requires every position, icon and order to match.
+  const a = { item: dummy1 };
+  const b = { item: dummyDiffPosSameIcon };
+  assert(isNBackGroupEqual([a, b, a, b], 3, 2));
+  assert(!isNBackGroupEqual([a, b, b, a], 3, 2));
+  assert(!isNBackGroupEqual([a, b, a, { item: dummySamePosDiffIcon }], 3, 2));
+  for (const level of [4, 7, 10]) {
+    const n = getNForLevel(level);
+    let matches = 0;
+    let groups = 0;
+    for (let run = 0; run < 100; run++) {
+      const { sequence } = generateNBackSequence(level, n * 30, 0.35);
+      for (let end = 2 * n - 1; end < sequence.length; end += n) {
+        groups++;
+        if (isNBackGroupEqual(sequence, end, n)) matches++;
+      }
+    }
+    assert(matches / groups > 0.28 && matches / groups < 0.42);
+  }
+  console.log('✅ 整组一致、顺序和局部差异判定以及 35% 整组匹配率通过');
+
   console.log('🎉 母版 01 N-Back [九宫格位置+图标双重特征绑定] 算法验证全通！');
 }
 
@@ -77,5 +98,6 @@ module.exports = {
   ICONS_POOL,
   getNBackConfig,
   isStimulusEqual,
+  isNBackGroupEqual,
   generateNBackSequence
 };

@@ -966,6 +966,8 @@
 
     if (state.lives <= 0) {
       finishGame(true);
+    } else if (state.gameId === 'nback_flow') {
+      startTimer(state.levelDuration);
     }
   }
 
@@ -1040,6 +1042,11 @@
 
   function finishGame(isFail) {
     clearInterval(state.timerInterval);
+    if (state.gameId === 'nback_flow' && state.subState) {
+      clearTimeout(state.subState.stepTimerHandle);
+      clearTimeout(state.subState.isiTimerHandle);
+      state.subState.awaitingAnswer = false;
+    }
     const achievedLevel = isFail ? Math.max(1, state.level - 1) : (state.gameId === 'nback_flow' ? 12 : 10);
     const total = state.stats.correct + state.stats.mistakes;
     const acc = total > 0 ? Math.round((state.stats.correct / total) * 100) : 0;
@@ -1153,7 +1160,9 @@
       const cfg = getNBackConfig(lvl);
       const gaps = cfg.n === 1 ? cfg.totalSteps * 360
         : Math.floor(cfg.totalSteps / cfg.n) * 1200 + (cfg.totalSteps - Math.floor(cfg.totalSteps / cfg.n)) * 180;
-      duration = Math.ceil((cfg.totalSteps * cfg.stepDuration * 1000 + gaps) / 1000) + 6;
+      const decisions = cfg.n >= 2 ? (cfg.totalSteps / cfg.n - 1) * 1500 : 0;
+      duration = Math.ceil((cfg.totalSteps * cfg.stepDuration * 1000 + gaps + decisions) / 1000) + 6;
+      state.levelDuration = duration;
     } else if (state.gameId === 'schulte_classic') {
       const cfg = SCHULTE_LEVEL_CONFIG[lvl] || { cols: 5, time: 20 };
       duration = cfg.time;
@@ -1369,11 +1378,19 @@
     return a.pos === b.pos && a.id === b.id;
   }
 
+  function isNBackGroupEqual(sequence, endIndex, n) {
+    const start = endIndex - n + 1;
+    return start >= n && sequence.slice(start, endIndex + 1).every((step, index) =>
+      isStimulusEqual(step.item, sequence[start - n + index].item));
+  }
+
   function generateNBackSequence(lvl, totalSteps = 12, targetRatio = 0.35) {
     const n = getNForLevel(lvl);
     const size = getNBackConfig(lvl).size;
     const positions = Array.from({ length: size * size }, (_, i) => i);
     const sequence = [];
+    let groupMatches = false;
+    let changedIndex = 0;
 
     for (let i = 0; i < totalSteps; i++) {
       let item;
@@ -1386,7 +1403,11 @@
         expectedMatch = false;
       } else {
         const prev = sequence[i - n].item;
-        const matchPrev = Math.random() < targetRatio;
+        if (n >= 2 && i % n === 0) {
+          groupMatches = Math.random() < targetRatio;
+          changedIndex = Math.floor(Math.random() * n);
+        }
+        const matchPrev = n === 1 ? Math.random() < targetRatio : groupMatches || i % n !== changedIndex;
 
         if (matchPrev) {
           // 真匹配：位置与图标均完全相同！
@@ -1533,6 +1554,28 @@
       }
       playTone(440 + curStep.item.pos * 35, 'triangle', 0.12, 0.12);
 
+      if (sub.n >= 2) {
+        sub.awaitingAnswer = false;
+        sub.userResponded = false;
+        const itemNumber = sub.stepIdx % sub.n + 1;
+        el.gamePrompt.innerText = `观察本组 ${sub.n} 项，全部出现完再与上一组比较（${itemNumber}/${sub.n}）`;
+        sub.warmupNotice.style.visibility = sub.stepIdx < sub.n ? 'visible' : 'hidden';
+        sub.warmupNotice.innerText = `👀 记住第一组... (${itemNumber}/${sub.n})`;
+        if (btnMatch) {
+          btnMatch.disabled = true;
+          btnMatch.innerText = `👀 观察本组（${itemNumber}/${sub.n}）`;
+        }
+        sub.stepTimerHandle = setTimeout(() => {
+          if ((sub.stepIdx + 1) % sub.n === 0 && sub.stepIdx >= sub.n) {
+            clearStimulus();
+            showGroupDecision();
+          } else {
+            doISITransition();
+          }
+        }, sub.stepDuration * 1000);
+        return;
+      }
+
       if (sub.stepIdx < sub.n) {
         // 瞬记预热阶段 (前 N 项只需观察记忆，无需点击)
         sub.awaitingAnswer = false;
@@ -1590,17 +1633,46 @@
       }
     }
 
-    function doISITransition() {
+    function clearStimulus() {
       const sub = state.subState;
-      if (!sub) return;
-
-      // 仅熄灭当前方格并清空图标，棋盘绝对不动
       if (sub.gridCells) {
         sub.gridCells.forEach(c => {
           c.classList.remove('active-lit');
           c.innerText = '';
         });
       }
+    }
+
+    function showGroupDecision() {
+      const sub = state.subState;
+      if (state.lives <= 0) return;
+      sub.awaitingAnswer = true;
+      sub.userResponded = false;
+      sub.stepStartStamp = Date.now();
+      const btnMatch = document.getElementById('btn-nback-match');
+      btnMatch.disabled = false;
+      btnMatch.innerText = '🎯 整组相同：与上一组一致';
+      document.getElementById('nback-step-counter').innerText = `第 ${Math.floor(sub.stepIdx / sub.n) + 1} 组 · 请判断`;
+      el.gamePrompt.innerText = '本组每项的位置、图标和顺序都与上一组一致，才点【整组相同】；不同无需点击';
+      sub.stepTimerHandle = setTimeout(() => {
+        if (!sub.userResponded) {
+          sub.awaitingAnswer = false;
+          if (isNBackGroupEqual(sub.sequence, sub.stepIdx, sub.n)) {
+            sub.misses++;
+            deductLife('漏报：这一整组与上一组完全一致');
+          } else {
+            sub.correctRejections++;
+            state.stats.correct++;
+          }
+        }
+        doISITransition();
+      }, 1500);
+    }
+
+    function doISITransition() {
+      const sub = state.subState;
+      if (!sub || state.lives <= 0) return;
+      clearStimulus();
 
       const groupFinished = sub.n >= 2 && (sub.stepIdx + 1) % sub.n === 0;
       if (groupFinished && sub.stepIdx + 1 < sub.totalSteps) {
@@ -1625,8 +1697,8 @@
       notice.className = 'nback-transition-notice';
       notice.innerHTML = `<h3>接下来：${n}-Back</h3>
         <p>现在每 ${n} 项为一组，组与组之间会停顿。</p>
-        <p>先记住第一组。之后每项与<strong>${n} 步前</strong>比较，即上一组中相同顺序的那一项。</p>
-        <p>位置和图标都相同才点击。</p>`;
+        <p>先记住第一组。之后等本组全部显示完，再判断<strong>整组是否与上一组一致</strong>。</p>
+        <p>每项的位置、图标和顺序都相同才点击。</p>`;
       card.appendChild(notice);
       el.gamePrompt.innerText = `从 ${n - 1}-Back 升级到 ${n}-Back，准备好后点击开始`;
       const btnMatch = document.getElementById('btn-nback-match');
@@ -1658,6 +1730,7 @@
 
     sub.userResponded = true;
     sub.awaitingAnswer = false;
+    document.getElementById('btn-nback-match').disabled = true;
     clearTimeout(sub.stepTimerHandle);
 
     const rt = Date.now() - sub.stepStartStamp;
@@ -1666,7 +1739,8 @@
     const curStep = sub.sequence[sub.stepIdx];
     const card = document.getElementById('nback-stage-card');
 
-    if (curStep.expectedMatch) {
+    const expectedMatch = sub.n >= 2 ? isNBackGroupEqual(sub.sequence, sub.stepIdx, sub.n) : curStep.expectedMatch;
+    if (expectedMatch) {
       // 命中 (Hit)
       sub.correctHits++;
       state.stats.correct++;
@@ -1680,7 +1754,7 @@
     } else {
       // 虚报手抖 (False Alarm)
       sub.falseAlarms++;
-      deductLife(`虚报手抖：位置或图标与 ${sub.n} 步前不同！`);
+      deductLife(sub.n >= 2 ? '误点：这一整组与上一组不同' : '误点：位置或图标与上一步不同');
       if (card) {
         card.classList.add('shake-error');
         setTimeout(() => card.classList.remove('shake-error'), 400);
@@ -1688,6 +1762,7 @@
     }
 
     // 短暂留存后熄灭方块并推进下一步
+    if (state.lives <= 0) return;
     sub.stepTimerHandle = setTimeout(() => {
       if (typeof sub.doISITransition === 'function') {
         sub.doISITransition();

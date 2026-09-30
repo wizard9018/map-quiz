@@ -39,6 +39,10 @@ const { getNBackConfig } = require('./test_nback_helpers');
         await page.clock.runFor(1);
         assert.equal(await active.count(), 0);
         const groupEnd = cfg.n >= 2 && (step + 1) % cfg.n === 0;
+        if (groupEnd && step >= cfg.n) {
+          assert.equal(await page.locator('#btn-nback-match').isEnabled(), true);
+          await page.clock.runFor(1500);
+        }
         const gap = groupEnd ? 1200 : cfg.n >= 2 ? 180 : 360;
         await page.clock.runFor(gap - 1);
         assert.equal(await active.count(), 0);

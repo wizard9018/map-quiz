@@ -5,6 +5,7 @@ const {
   getNBackConfig,
   getStimulusPool,
   isStimulusEqual,
+  isNBackGroupEqual,
   generateNBackSequence
 } = require('./test_master_01_nback.js');
 
@@ -36,21 +37,23 @@ class NBackSimulator {
         // 观察记忆项
         continue;
       }
+      if (n >= 2 && (stepIdx + 1) % n !== 0) continue;
+      const expectedMatch = n === 1 ? step.expectedMatch : isNBackGroupEqual(sequence, stepIdx, n);
 
       // 阶段 2: 正式比对决策阶段
       const willMakeMistake = Math.random() < errorRate;
       let playerChoice;
       if (willMakeMistake) {
-        playerChoice = !step.expectedMatch; // 故意按错
+        playerChoice = !expectedMatch; // 故意按错
       } else {
-        playerChoice = step.expectedMatch;  // 正确按键
+        playerChoice = expectedMatch;  // 正确按键
       }
 
       // 模拟 320ms ~ 750ms 真实生理反应时
       const simRt = Math.floor(320 + Math.random() * 400);
       this.reactionTimes.push(simRt);
 
-      if (playerChoice === step.expectedMatch) {
+      if (playerChoice === expectedMatch) {
         this.correctCount++;
         this.score += 15 * lvl;
       } else {
