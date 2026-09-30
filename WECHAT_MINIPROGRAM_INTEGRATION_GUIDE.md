@@ -5,12 +5,50 @@
 
 ---
 
+## 快速导航：本地工程与在线测试地址
+
+### 1. 本地微信小程序工程源码目录
+* **主小程序工程（当前正在开发与维护的主版本）**：
+  ```text
+  C:\Users\wizar\My Drive (wizard9018@gmail.com)\3.K12网站资源\专注力\miniprogram_听觉测试
+  ```
+  - **AppID**：`wx22e0e2231016d8c1`
+  - **项目名称**：`qingliang-auditory-test`（清良思维听觉专注力测试 - 微信小程序原生版）
+  - **客户端标题**：`各省中小学生专注力PK`
+  - **模块布局**：
+    - 专区 A：专业专注力测评 (`pages/home/home`, `pages/auditory/auditory`, `pages/visual/visual`, `pages/report/report`)
+    - 专区 B：脑力训练营 50款/21母版 (`pages/train/intro/intro`, `pages/train/nback/nback`, `pages/train/schulte/schulte`, `pages/train/stroop/stroop`, `pages/train/grid/grid`, `pages/train/diff/diff`, `pages/train/report/report`, `pages/train/leaderboard/leaderboard`)
+* **备用/实验子工程**：
+  ```text
+  C:\Users\wizar\My Drive (wizard9018@gmail.com)\3.K12网站资源\专注力\miniprogram_记忆力训练
+  ```
+  - **项目名称**：`qingliang-memory-training`（清良思维记忆力训练）
+
+### 2. 现有可用于加载游戏的公网 HTTPS 在线测试地址
+* **【推荐】游戏母版独立全屏运行视界（最适合 `<web-view>` 直接嵌入）**：
+  ```text
+  https://wizard9018.github.io/map-quiz/focus.html
+  ```
+  - **携带参数直达指定游戏与学员身份示例**：
+    `https://wizard9018.github.io/map-quiz/focus.html?game=nback_flow&uid=OPENID_123&name=李同学`
+* **宿主 Tab 嵌入视界（包含顶部导航栏与大地图 Quiz）**：
+  ```text
+  https://wizard9018.github.io/map-quiz/?tab=focus
+  ```
+* **关联的视听双通道综合专注力测评系统线上地址**：
+  ```text
+  https://wizard9018.github.io/attention-test/
+  ```
+
+---
+
 ## 目录
 1. [三种接入架构方案选型与对比](#一-三种接入架构方案选型与对比)
 2. [方案 A（推荐首期）：`<web-view>` 容器极速嵌入（1天上线）](#二-方案-a推荐首期web-view-容器极速嵌入1天上线)
 3. [方案 B（推荐进阶）：原生 WXML/WXSS 组件化移植](#三-方案-b推荐进阶原生-wxmlwxss-组件化移植)
 4. [微信生态核心转化链路打通（登录、分享、加微）](#四-微信生态核心转化链路打通登录分享加微)
 5. [常见技术避坑指南（音频、缓存、安全区）](#五-常见技术避坑指南音频缓存安全区)
+6. [在当前小程序工程中的具体落地改动点](#六-在当前小程序工程中的具体落地改动点)
 
 ---
 
@@ -47,7 +85,7 @@
 
 ### 2. 小程序端代码实现
 
-#### (1) `pages/game/game.json`
+#### (1) `pages/train/webview/webview.json`
 配置页面全屏，隐藏系统导航栏（或自定义沉浸式）：
 ```json
 {
@@ -57,23 +95,23 @@
 }
 ```
 
-#### (2) `pages/game/game.wxml`
+#### (2) `pages/train/webview/webview.wxml`
 使用 `<web-view>` 组件加载游戏页面，并监听 H5 回传的消息：
 ```xml
-<!-- pages/game/game.wxml -->
+<!-- pages/train/webview/webview.wxml -->
 <web-view src="{{ gameUrl }}" bindmessage="onWebviewMessage"></web-view>
 ```
 
-#### (3) `pages/game/game.js`
+#### (3) `pages/train/webview/webview.js`
 处理用户身份注入与战报消息监听：
 ```javascript
-// pages/game/game.js
+// pages/train/webview/webview.js
 Page({
   data: {
     gameUrl: '',
     shareData: {
       title: '我在专注力挑战中拿到了满分，敢来PK吗？',
-      path: '/pages/index/index'
+      path: '/pages/home/home'
     }
   },
 
@@ -102,7 +140,7 @@ Page({
       this.setData({
         shareData: {
           title: `⚔️ 我在【${latestReport.gameTitle}】冲到了第 ${latestReport.level} 关 (${latestReport.score}分)，敢来挑战我吗？`,
-          path: `/pages/game/game?game=${latestReport.gameId}&inviter=${latestReport.uid}&inviterScore=${latestReport.score}&inviterLevel=${latestReport.level}`
+          path: `/pages/train/webview/webview?game=${latestReport.gameId}&inviter=${latestReport.uid}&inviterScore=${latestReport.score}&inviterLevel=${latestReport.level}`
         }
       });
     }
@@ -164,7 +202,7 @@ function handleShareToWeChat() {
   if (isMiniProgram() && window.wx && window.wx.miniProgram) {
     // 方案 1：直接跳转回小程序的原生战报/分享海报页
     window.wx.miniProgram.navigateTo({
-      url: `/pages/report/report?score=${STATE.score}&level=${STATE.level}&game=${STATE.gameId}`
+      url: `/pages/train/report/report?score=${STATE.score}&level=${STATE.level}&game=${STATE.gameId}`
     });
   } else {
     // 方案 2：保持原有复制 URL 剪贴板逻辑
@@ -244,7 +282,7 @@ flowchart LR
 onShareAppMessage() {
   return {
     title: `⚔️ 我在【N-Back刷新流】打出 ${this.data.score} 高分！你敢迎战吗？`,
-    path: `/pages/game/game?game=nback_flow&inviterOpenid=${this.data.openid}&targetScore=${this.data.score}`,
+    path: `/pages/train/webview/webview?game=nback_flow&inviterOpenid=${this.data.openid}&targetScore=${this.data.score}`,
     imageUrl: '/images/share_pk_banner.png' // 吸引眼球的PK对抗对决封面
   };
 }
@@ -310,9 +348,25 @@ onShareAppMessage() {
 
 ---
 
-## 六、 快速实施行动清单 (Action Items)
+## 六、 在当前小程序工程中的具体落地改动点
 
-1. [ ] **第一天**：注册小程序账号，在开发者工具中使用 `<web-view>` 容器嵌入当前网站测试地址。
-2. [ ] **第二天**：在 `focus.html` 中引入 `jweixin-1.6.0.js`，在 `finishGame` 挂载 `postMessage` 战报数据上报。
-3. [ ] **第三天**：在小程序端配置 `onShareAppMessage` 动态分享卡片，接入客服消息或企业微信二维码转化。
-4. [ ] **第四天**：提交微信代码审核，发布正式版小程序。
+在 `C:\Users\wizar\My Drive (wizard9018@gmail.com)\3.K12网站资源\专注力\miniprogram_听觉测试` 中挂载现有 Web 游戏的推荐步骤：
+
+1. **注册 WebView 路由**：
+   在 `app.json` 的 `"pages"` 数组中追加：
+   ```json
+   "pages/train/webview/webview"
+   ```
+2. **创建页面文件**：
+   在 `pages/train/webview/` 目录下创建 `webview.json`, `webview.wxml`, `webview.js`。
+3. **改造卡片跳转**：
+   在 `pages/home/home.js` 中的 `onTapGameCard` 方法内，当点击母版游戏卡片时直接跳转至：
+   ```javascript
+   wx.navigateTo({
+     url: `/pages/train/webview/webview?game=${item.id}`
+   });
+   ```
+4. **微信开发者工具联调**：
+   使用微信开发者工具打开该目录，在右上角【详情】->【本地设置】勾选：
+   - ☑️ **不校验合法域名、web-view (业务域名)、TLS 版本以及 HTTPS 证书**
+   即可直接加载 `https://wizard9018.github.io/map-quiz/focus.html` 开始游玩与测试！
