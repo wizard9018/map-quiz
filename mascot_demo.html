@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>K12 专注力小博士 · 2D日漫双导师交互动效实验台</title>
+  <link rel="stylesheet" href="focus.css?v=20260930_3">
+  <style>
+    body {
+      background: #f7f5ef;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      margin: 0;
+      padding: 20px;
+      color: #1e293b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .demo-container {
+      max-width: 600px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.03);
+      padding: 24px;
+      box-sizing: border-box;
+      border: 2px solid #e2e8f0;
+      text-align: center;
+    }
+
+    .demo-header {
+      margin-bottom: 20px;
+    }
+
+    .demo-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .demo-desc {
+      font-size: 14px;
+      color: #64748b;
+      margin-top: 6px;
+    }
+
+    /* 导师角色切换卡 */
+    .mentor-switcher {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .mentor-card-btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 16px;
+      border: 2px solid #e2e8f0;
+      background: #f8fafc;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      text-align: left;
+    }
+
+    .mentor-card-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+    }
+
+    .mentor-card-btn.active {
+      border-color: #0284c7;
+      background: #f0f9ff;
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+    }
+
+    .mentor-avatar-small {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #0284c7;
+    }
+
+    .mentor-meta h4 {
+      margin: 0;
+      font-size: 15px;
+      color: #0f172a;
+    }
+
+    .mentor-meta p {
+      margin: 2px 0 0 0;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    /* 核心动效视界舞台 */
+    .stage-wrapper {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      margin: 0 auto 24px auto;
+      border-radius: 24px;
+      background: radial-gradient(circle at center, #ffffff 40%, #f1f5f9 100%);
+      border: 2px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.04);
+    }
+
+    .mascot-display-img {
+      width: 250px;
+      height: 250px;
+      object-fit: cover;
+      border-radius: 20px;
+      transition: all 0.3s ease;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.12));
+    }
+
+    /* 气泡对话框 */
+    .speech-bubble {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(8px);
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      white-space: nowrap;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* 粒子/高光特效浮层 */
+    .fx-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    /* 动效控制面板 */
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .btn-action {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+      box-shadow: 0 3px 0 #cbd5e1;
+    }
+
+    .btn-action:hover {
+      background: #f1f5f9;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 0 #cbd5e1;
+    }
+
+    .btn-action:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #cbd5e1;
+    }
+
+    .btn-action.ready { border-color: #0284c7; color: #0284c7; }
+    .btn-action.combo { border-color: #eab308; color: #ca8a04; }
+    .btn-action.cheer { border-color: #10b981; color: #059669; }
+    .btn-action.win   { border-color: #f97316; color: #ea580c; }
+    .btn-action.diag  { border-color: #8b5cf6; color: #7c3aed; }
+
+    /* CSS 动态动画样式 */
+    @keyframes pulse-zoom {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); filter: drop-shadow(0 12px 24px rgba(2, 132, 199, 0.35)); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes cheer-bounce {
+      0% { transform: translateY(0); }
+      30% { transform: translateY(-12px) scale(1.04); }
+      60% { transform: translateY(4px) scale(0.98); }
+      100% { transform: translateY(0); }
+    }
+
+    @keyframes golden-flash {
+      0% { filter: brightness(1) drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
+      50% { filter: brightness(1.2) drop-shadow(0 0 24px rgba(234, 179, 8, 0.8)); }
+      100% { filter: brightness(1) drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
+    }
+
+    .anim-pulse { animation: pulse-zoom 1.2s ease-in-out infinite; }
+    .anim-bounce { animation: cheer-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .anim-golden { animation: golden-flash 0.8s ease-in-out; }
+
+    /* 浮动星星/粒子动效 */
+    .star-fx {
+      position: absolute;
+      font-size: 24px;
+      animation: float-star 0.8s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes float-star {
+      0% { transform: translate(0, 0) scale(0.4) rotate(0deg); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(1.2) rotate(45deg); opacity: 0; }
+    }
+
+    /* 跳转回主测试站链接 */
+    .nav-back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #0284c7;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+    .nav-back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="demo-container">
+    <div class="demo-header">
+      <div class="demo-title">
+        <span>🎓</span>
+        <span>专注力小博士 · 2D日漫双导师动效实验室</span>
+      </div>
+      <p class="demo-desc">纯 2D 日漫精修立绘 · 5 大情绪反馈状态机 · 零白边轻量微动效体验</p>
+    </div>
+
+    <!-- 1. 导师切换器 -->
+    <div class="mentor-switcher">
+      <div class="mentor-card-btn active" id="btn-mentor-boy" onclick="switchMentor('boy')">
+        <img src="assets/mascot/mentor_boy.jpg" class="mentor-avatar-small" alt="帅气学长导师">
+        <div class="mentor-meta">
+          <h4>星言学长 · 小博士</h4>
+          <p>主攻：时间控制 · 反应时与敏捷</p>
+        </div>
+      </div>
+
+      <div class="mentor-card-btn" id="btn-mentor-girl" onclick="switchMentor('girl')">
+        <img src="assets/mascot/mentor_girl.jpg" class="mentor-avatar-small" alt="知性学姐导师">
+        <div class="mentor-meta">
+          <h4>清禾学姐 · 小博士</h4>
+          <p>主攻：脑电测评 · 专注与深度诊断</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 动效测试舞台 -->
+    <div class="stage-wrapper" id="stage-wrapper">
+      <img id="mascot-img" class="mascot-display-img" src="assets/mascot/mentor_boy.jpg" alt="专注力导师立绘">
+      <div class="fx-layer" id="fx-layer"></div>
+      <div class="speech-bubble" id="speech-bubble">“准备好了吗？眼神聚焦，3、2、1...”</div>
+    </div>
+
+    <!-- 3. 5 大状态机动作触发按钮 -->
+    <div class="actions-grid">
+      <button class="btn-action ready" onclick="triggerAction('ready')">
+        <span>⏱️</span>
+        <span>1. 局前蓄势 (Ready)</span>
+      </button>
+
+      <button class="btn-action combo" onclick="triggerAction('combo')">
+        <span>⭐</span>
+        <span>2. 连击加分 (Combo)</span>
+      </button>
+
+      <button class="btn-action cheer" onclick="triggerAction('cheer')">
+        <span>💪</span>
+        <span>3. 失误打气 (Cheer)</span>
+      </button>
+
+      <button class="btn-action win" onclick="triggerAction('win')">
+        <span>🏆</span>
+        <span>4. 战报加冕 (Win)</span>
+      </button>
+
+      <button class="btn-action diag" style="grid-column: span 2;" onclick="triggerAction('diag')">
+        <span>📊</span>
+        <span>5. 专家深度诊断 (Diagnostic Report)</span>
+      </button>
+    </div>
+
+    <div>
+      <a href="focus.html" class="nav-back-link">➔ 前往 21 款认知母版测试站 (focus.html)</a>
+    </div>
+  </div>
+
+  <script>
+    // 导师配置数据
+    const MENTORS = {
+      boy: {
+        name: "星言学长",
+        img: "assets/mascot/mentor_boy.jpg",
+        speeches: {
+          ready: "“🧠 准备好了吗？握紧秒表，眼神聚焦，3、2、1！”",
+          combo: "“🔥 漂亮！反应速度超越 95% 同龄人，继续保持！”",
+          cheer: "“💪 稳住节奏，深呼吸调整视角，看准再出手！”",
+          win: "“🏆 荣耀通关！前额叶控制力完美爆发，敢去PK打榜吗？”",
+          diag: "“📊 脑力波形出炉：你的工作记忆带宽超常，专家方案已就绪！”"
+        }
+      },
+      girl: {
+        name: "清禾学姐",
+        img: "assets/mascot/mentor_girl.jpg",
+        speeches: {
+          ready: "“💡 专注力小测试马上开始咯，注意观察每一个细节哦~”",
+          combo: "“✨ 太棒啦！三连击达成，你的专注力正在持续进阶！”",
+          cheer: "“🌱 没关系，偶尔失误很正常，放松肩膀，再来一次！”",
+          win: "“👑 恭喜摘金！你在本省天梯榜为全省拉高了均分！”",
+          diag: "“📖 专家诊断已生成，针对做题粗心我为你准备了《7天提升手册》~”"
+        }
+      }
+    };
+
+    let currentMentor = 'boy';
+    let audioCtx = null;
+
+    // 音频简单合成器
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioCtx;
+    }
+
+    function playSound(type) {
+      try {
+        const ctx = getAudioContext();
+        if (ctx.state === 'suspended') ctx.resume();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        if (type === 'ready') {
+          // 倒数滴答
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, now);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.16);
+        } else if (type === 'combo' || type === 'win') {
+          // 欢快和弦
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.setValueAtTime(659.25, now + 0.08);
+          osc.frequency.setValueAtTime(783.99, now + 0.16);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.36);
+        } else if (type === 'cheer') {
+          // 温暖中音
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.setValueAtTime(554.37, now + 0.1);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.31);
+        } else if (type === 'diag') {
+          // 科技感琶音
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(392, now);
+          osc.frequency.setValueAtTime(587.33, now + 0.08);
+          osc.frequency.setValueAtTime(783.99, now + 0.16);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.31);
+        }
+      } catch(e) {}
+    }
+
+    // 切换导师
+    function switchMentor(mentorKey) {
+      currentMentor = mentorKey;
+      document.getElementById('btn-mentor-boy').classList.toggle('active', mentorKey === 'boy');
+      document.getElementById('btn-mentor-girl').classList.toggle('active', mentorKey === 'girl');
+      
+      const imgEl = document.getElementById('mascot-img');
+      imgEl.style.opacity = '0';
+      setTimeout(() => {
+        imgEl.src = MENTORS[mentorKey].img;
+        imgEl.style.opacity = '1';
+        triggerAction('ready');
+      }, 150);
+    }
+
+    // 触发动作
+    function triggerAction(actionKey) {
+      const imgEl = document.getElementById('mascot-img');
+      const bubbleEl = document.getElementById('speech-bubble');
+      const fxLayer = document.getElementById('fx-layer');
+
+      // 清理旧动效类
+      imgEl.className = 'mascot-display-img';
+      void imgEl.offsetWidth; // 触发重绘
+
+      // 更新台词
+      bubbleEl.textContent = MENTORS[currentMentor].speeches[actionKey];
+      bubbleEl.style.transform = 'translateX(-50%) scale(1.08)';
+      setTimeout(() => {
+        bubbleEl.style.transform = 'translateX(-50%) scale(1)';
+      }, 200);
+
+      playSound(actionKey);
+
+      // 分场景动效
+      if (actionKey === 'ready') {
+        imgEl.classList.add('anim-pulse');
+      } else if (actionKey === 'combo') {
+        imgEl.classList.add('anim-bounce');
+        spawnParticles(fxLayer, '⭐', 6);
+      } else if (actionKey === 'cheer') {
+        imgEl.classList.add('anim-bounce');
+        spawnParticles(fxLayer, '💚', 4);
+      } else if (actionKey === 'win') {
+        imgEl.classList.add('anim-golden');
+        spawnParticles(fxLayer, '🏆', 5);
+        spawnParticles(fxLayer, '✨', 8);
+      } else if (actionKey === 'diag') {
+        imgEl.classList.add('anim-pulse');
+        spawnParticles(fxLayer, '📊', 4);
+      }
+    }
+
+    // 抛洒粒子
+    function spawnParticles(container, emoji, count) {
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'star-fx';
+        p.textContent = emoji;
+        p.style.left = '50%';
+        p.style.top = '50%';
+        const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
+        const dist = 60 + Math.random() * 60;
+        const tx = Math.cos(angle) * dist + 'px';
+        const ty = Math.sin(angle) * dist + 'px';
+        p.style.setProperty('--tx', tx);
+        p.style.setProperty('--ty', ty);
+        container.appendChild(p);
+        setTimeout(() => p.remove(), 800);
+      }
+    }
+
+    // 页面初始化
+    window.addEventListener('DOMContentLoaded', () => {
+      triggerAction('ready');
+    });
+  </script>
+</body>
+</html>

@@ -1478,3 +1478,131 @@ body.miniprogram-view #phone-container {
 body.miniprogram-view .controls-container {
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
 }
+
+/* ==========================================================================
+   伴学导师微交互与结算诊断横幅样式 (Duolingo 风格 2D 日漫导师)
+   ========================================================================== */
+.game-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+.mentor-badge-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1.5px solid #0284c7;
+  padding: 3px 8px 3px 4px;
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(2, 132, 199, 0.1);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+}
+
+.mentor-badge-btn:hover {
+  transform: translateY(-1px);
+  background: #f0f9ff;
+  box-shadow: 0 4px 8px rgba(2, 132, 199, 0.2);
+}
+
+.mentor-badge-btn:active {
+  transform: translateY(1px);
+}
+
+.mentor-badge-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #0284c7;
+}
+
+.mentor-badge-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0284c7;
+  white-space: nowrap;
+}
+
+/* 结算弹窗中的导师诊断卡片 */
+.report-mentor-banner {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 2px solid #bae6fd;
+  border-radius: 16px;
+  padding: 10px 12px;
+  margin: 12px 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
+  animation: popIn 0.35s ease;
+}
+
+.report-mentor-img {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #0284c7;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);
+}
+
+.report-mentor-dialog {
+  flex: 1;
+  min-width: 0;
+}
+
+.mentor-name-tag {
+  font-size: 12px;
+  font-weight: 800;
+  color: #0369a1;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mentor-dialog-text {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+
+/* N-Back group-gap distractions never cover an active stimulus. */
+.nback-distraction {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: #64748b;
+}
+.nback-flying-bird {
+  position: absolute;
+  top: 28%;
+  left: 0;
+  animation: nbackBirdFly var(--distraction-duration) linear both;
+}
+.nback-fake-flip {
+  animation: nbackFakeFlip var(--distraction-duration) ease-in-out both;
+}
+@keyframes nbackBirdFly {
+  0% { transform: translate(-50px, 12px); }
+  50% { transform: translate(100px, -12px); }
+  100% { transform: translate(260px, 8px); }
+}
+@keyframes nbackFakeFlip {
+  0%, 100% { transform: perspective(400px) rotateY(0); }
+  50% { transform: perspective(400px) rotateY(35deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nback-flying-bird { animation: none; left: 38%; }
+  .nback-fake-flip { animation: none; border-color: #94a3b8; }
+}

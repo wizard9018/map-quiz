@@ -754,7 +754,15 @@
     btnPkShare: document.getElementById('btn-pk-share'),
     btnRetry: document.getElementById('btn-retry'),
     btnNextGame: document.getElementById('btn-next-game'),
-    btnTestFail: document.getElementById('btn-test-fail')
+    btnTestFail: document.getElementById('btn-test-fail'),
+    // 伴学导师模块
+    mentorBadgeBtn: document.getElementById('mentor-badge-btn'),
+    mentorBadgeAvatar: document.getElementById('mentor-badge-avatar'),
+    mentorBadgeName: document.getElementById('mentor-badge-name'),
+    reportMentorBanner: document.getElementById('report-mentor-banner'),
+    reportMentorImg: document.getElementById('report-mentor-img'),
+    reportMentorName: document.getElementById('report-mentor-name'),
+    reportMentorComment: document.getElementById('report-mentor-comment')
   };
 
   function showToast(text, duration = 1200) {
@@ -765,6 +773,49 @@
     el.toast._t = setTimeout(() => {
       el.toast.classList.add('hidden');
     }, duration);
+  }
+
+  // 3.5 伴学导师系统 (2D日漫双导师：星言学长 / 清禾学姐)
+  const MENTOR_DATA = {
+    boy: {
+      key: 'boy',
+      name: '星言学长',
+      avatar: 'assets/mascot/mentor_boy.jpg',
+      badgeText: '星言学长 伴学',
+      winComment: '你的工作记忆刷新带宽超越同龄人，前额叶控制力完美爆发！',
+      encourageComment: '稳住心态！脑力波形显示你的抗干扰潜能很大，专家方案已为你定制！'
+    },
+    girl: {
+      key: 'girl',
+      name: '清禾学姐',
+      avatar: 'assets/mascot/mentor_girl.jpg',
+      badgeText: '清禾学姐 伴学',
+      winComment: '恭喜通关！反应敏捷且精准度极高，为全省平均分拉高了榜单！',
+      encourageComment: '没关系，偶尔失误很正常，放松肩膀深呼吸，再来一次一定能突破！'
+    }
+  };
+
+  let currentMentorKey = localStorage.getItem('focus_preferred_mentor') || 'boy';
+
+  function updateMentorUI() {
+    const mentor = MENTOR_DATA[currentMentorKey] || MENTOR_DATA.boy;
+    if (el.mentorBadgeAvatar) el.mentorBadgeAvatar.src = mentor.avatar;
+    if (el.mentorBadgeName) el.mentorBadgeName.innerText = mentor.badgeText;
+  }
+
+  function toggleMentor() {
+    currentMentorKey = currentMentorKey === 'boy' ? 'girl' : 'boy';
+    localStorage.setItem('focus_preferred_mentor', currentMentorKey);
+    updateMentorUI();
+    const mentor = MENTOR_DATA[currentMentorKey];
+    showToast(`🎓 已切换为伴学导师：${mentor.name}`);
+  }
+
+  function initMentorCompanion() {
+    updateMentorUI();
+    if (el.mentorBadgeBtn) {
+      el.mentorBadgeBtn.addEventListener('click', toggleMentor);
+    }
   }
 
   // 4. 初始化下拉列表与学堂标签
@@ -1117,6 +1168,16 @@
     el.statRt.innerText = `${avgRt}ms`;
     el.statScore.innerText = `${state.score}分`;
 
+    // 0. 伴学导师专属评语与状态视界更新
+    const currentMentor = MENTOR_DATA[currentMentorKey] || MENTOR_DATA.boy;
+    if (el.reportMentorImg) el.reportMentorImg.src = currentMentor.avatar;
+    if (el.reportMentorName) el.reportMentorName.innerText = `🎓 ${currentMentor.name} · 专家点评`;
+    if (el.reportMentorComment) {
+      el.reportMentorComment.innerText = (state.score >= 80 || !isFail)
+        ? `“${currentMentor.winComment}”`
+        : `“${currentMentor.encourageComment}”`;
+    }
+
     // 1. 1v1 PK 对决分析
     const urlParams = new URLSearchParams(window.location.search);
     const inviter = urlParams.get('inviter') || '海淀·林同学';
@@ -1185,7 +1246,7 @@
     } else {
       duration = Math.max(5.0, 16.0 - (lvl * 0.9)); // 关卡越高，限时越短
     }
-    const waitForNewBack = state.gameId === 'nback_flow' && [4, 7, 10].includes(lvl) && !isRestart;
+    const waitForNewBack = state.gameId === 'nback_flow' && !isRestart;
     if (state.gameId !== 'nback_flow' && state.gameId !== 'matrix_flash') {
       startTimer(duration);
     }
@@ -1365,7 +1426,7 @@
   // ==================== 母版 01: N-Back 工作记忆刷新流 引擎 ====================
   function getMatrixFlashConfig(lvl) {
     const levels = [
-      [3, 3, 1200, 2], [3, 4, 1100, 2], [4, 4, 1100, 3],
+      [4, 3, 1200, 2], [4, 4, 1100, 2], [4, 4, 1100, 3],
       [4, 5, 1000, 3], [4, 6, 950, 3], [5, 5, 900, 3],
       [5, 6, 850, 3], [5, 7, 800, 3], [5, 7, 850, 3], [5, 8, 800, 3]
     ];
@@ -1692,6 +1753,7 @@
     }
 
     function advanceToNext() {
+      clearDistraction();
       if (state.lives <= 0) return;
       clearTimeout(state.subState.stepTimerHandle);
 
@@ -1827,6 +1889,27 @@
       }, 1500);
     }
 
+    function clearDistraction() {
+      card.querySelectorAll('.nback-distraction').forEach(node => node.remove());
+      gridCells.forEach(cell => cell.classList.remove('nback-fake-flip'));
+    }
+
+    function showDistraction(gap) {
+      const duration = Math.min(850, gap - 30);
+      if (Math.random() < 0.5) {
+        const bird = document.createElement('div');
+        bird.className = 'nback-distraction';
+        bird.setAttribute('aria-hidden', 'true');
+        bird.style.setProperty('--distraction-duration', `${duration}ms`);
+        bird.innerHTML = '<svg class="nback-flying-bird" viewBox="0 0 48 32" width="48" height="32"><path d="M4 20 Q14 7 24 20 Q34 7 44 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>';
+        card.appendChild(bird);
+      } else {
+        const cell = gridCells[Math.floor(Math.random() * gridCells.length)];
+        cell.style.setProperty('--distraction-duration', `${duration}ms`);
+        cell.classList.add('nback-fake-flip');
+      }
+    }
+
     function doISITransition() {
       const sub = state.subState;
       if (!sub || state.lives <= 0) return;
@@ -1840,18 +1923,27 @@
       sub.awaitingAnswer = false;
       const btnMatch = document.getElementById('btn-nback-match');
       if (btnMatch) btnMatch.disabled = true;
+      const gap = groupFinished ? 1200 : sub.n >= 2 ? 180 : 360;
+      if ((sub.stepIdx + 1) % sub.n === 0 && sub.stepIdx + 1 < sub.totalSteps) showDistraction(gap);
       sub.isiTimerHandle = setTimeout(() => {
         sub.stepIdx++;
         advanceToNext();
-      }, groupFinished ? 1200 : sub.n >= 2 ? 180 : 360);
+      }, gap);
     }
 
     state.subState.advanceToNext = advanceToNext;
     state.subState.doISITransition = doISITransition;
+    state.subState.destroy = () => {
+      clearTimeout(state.subState.stepTimerHandle);
+      clearTimeout(state.subState.isiTimerHandle);
+      state.subState.awaitingAnswer = false;
+      clearDistraction();
+    };
     state.subState.restart = () => {
       const sub = state.subState;
       clearTimeout(sub.stepTimerHandle);
       clearTimeout(sub.isiTimerHandle);
+      clearDistraction();
       sub.sequence = generateNBackSequence(sub.lvl, sub.sequence[0].item).sequence;
       sub.stepIdx = 0;
       sub.awaitingAnswer = false;
@@ -1878,12 +1970,12 @@
     if (requireConfirmation) {
       const notice = document.createElement('div');
       notice.className = 'nback-transition-notice';
-      notice.innerHTML = `<h3>接下来：${n}-Back</h3>
-        <p>现在每 ${n} 项为一组，组与组之间会停顿。</p>
-        <p>先记住第一组。之后等本组全部显示完，再判断<strong>整组是否与上一组一致</strong>。</p>
-        <p>每项的位置、图标和顺序都相同才点击。</p>`;
+      notice.innerHTML = `<h3>第 ${lvl} 关 · ${n}-Back</h3>
+        <p>${n === 1 ? '先记住第一项，再将每一项与上一项比较。' : `每 ${n} 项为一组，等整组显示完再与上一组比较。`}</p>
+        <p>位置与图标都相同才点击，不同无需点击。</p>
+        <p>组间的小鸟和空格翻动只是干扰，不需要判断。</p>`;
       card.appendChild(notice);
-      el.gamePrompt.innerText = `从 ${n - 1}-Back 升级到 ${n}-Back，准备好后点击开始`;
+      el.gamePrompt.innerText = `第 ${lvl} 关 · ${n}-Back，准备好后点击开始`;
       const btnMatch = document.getElementById('btn-nback-match');
       btnMatch.innerText = `开始 ${n}-Back`;
       card.onclick = null;
@@ -2701,6 +2793,7 @@
       sdk.src = 'https://res.wx.qq.com/open/js/jweixin-1.6.0.js';
       document.head.appendChild(sdk);
     }
+    initMentorCompanion();
     initToolbar();
 
     // 检测 URL hash 或 query param

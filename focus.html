@@ -61,7 +61,13 @@
 
       <!-- 游戏标题与导引 -->
       <div class="game-info">
-        <h2 id="game-title">游戏加载中...</h2>
+        <div class="game-title-row">
+          <h2 id="game-title">游戏加载中...</h2>
+          <div class="mentor-badge-btn" id="mentor-badge-btn" title="点击切换伴学导师 (星言学长 / 清禾学姐)">
+            <img src="assets/mascot/mentor_boy.jpg" id="mentor-badge-avatar" class="mentor-badge-avatar" alt="伴学导师">
+            <span class="mentor-badge-name" id="mentor-badge-name">星言学长 伴学</span>
+          </div>
+        </div>
         <div class="prompt-chip" id="game-prompt">游戏规则提示</div>
       </div>
 
@@ -85,6 +91,15 @@
           <div class="report-grade-circle" id="report-grade">A</div>
           <h3 class="report-title" id="report-title">挑战结束</h3>
           <p class="report-subtitle" id="report-subtitle">专注力认知潜能诊断与战报分析</p>
+
+          <!-- 0. 伴学导师专属评语与状态视界 -->
+          <div class="report-mentor-banner" id="report-mentor-banner">
+            <img src="assets/mascot/mentor_boy.jpg" class="report-mentor-img" id="report-mentor-img" alt="导师评定">
+            <div class="report-mentor-dialog">
+              <div class="mentor-name-tag" id="report-mentor-name">🎓 星言学长 · 专家点评</div>
+              <div class="mentor-dialog-text" id="report-mentor-comment">你的工作记忆刷新带宽超越同龄人，注意力极其集中！</div>
+            </div>
+          </div>
 
           <div class="report-stats-grid">
             <div class="stat-item">
