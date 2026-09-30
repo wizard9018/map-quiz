@@ -199,29 +199,10 @@
     .btn-action.win   { border-color: #f97316; color: #ea580c; }
     .btn-action.diag  { border-color: #8b5cf6; color: #7c3aed; }
 
-    /* CSS 动态动画样式 */
-    @keyframes pulse-zoom {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); filter: drop-shadow(0 12px 24px rgba(2, 132, 199, 0.35)); }
-      100% { transform: scale(1); }
-    }
-
-    @keyframes cheer-bounce {
-      0% { transform: translateY(0); }
-      30% { transform: translateY(-12px) scale(1.04); }
-      60% { transform: translateY(4px) scale(0.98); }
-      100% { transform: translateY(0); }
-    }
-
-    @keyframes golden-flash {
-      0% { filter: brightness(1) drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
-      50% { filter: brightness(1.2) drop-shadow(0 0 24px rgba(234, 179, 8, 0.8)); }
-      100% { filter: brightness(1) drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
-    }
-
-    .anim-pulse { animation: pulse-zoom 1.2s ease-in-out infinite; }
-    .anim-bounce { animation: cheer-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
-    .anim-golden { animation: golden-flash 0.8s ease-in-out; }
+    /* 彻底移除所有 CSS 缩放/变形特效，纯展示内部真实画面 */
+    .anim-pulse { }
+    .anim-bounce { }
+    .anim-golden { }
 
     /* 浮动星星/粒子动效 */
     .star-fx {
@@ -298,35 +279,38 @@
       </div>
     </div>
 
-    <!-- 🌟 Wan 2.1 物理动作动图专区 (纯提示词驱动肢体表情) -->
-    <div style="background: #eff6ff; border: 2px dashed #3b82f6; border-radius: 18px; padding: 16px; margin-bottom: 24px; text-align: left;">
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-        <span style="font-weight: 800; font-size: 15px; color: #1d4ed8; display: flex; align-items: center; gap: 6px;">
-          <span>🎬</span>
-          <span>Wan 2.1 真实物理动画 (Image-to-Video 14B)</span>
+    <!-- 🌟 微信动态表情包专区 (高表现力真实微表情与动作，彻底杜绝 CSS 缩放) -->
+    <div style="background: #f0fdf4; border: 2px dashed #22c55e; border-radius: 18px; padding: 16px; margin-bottom: 24px; text-align: left;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+        <span style="font-weight: 800; font-size: 15px; color: #15803d; display: flex; align-items: center; gap: 6px;">
+          <span>💬</span>
+          <span>微信动态表情包标准 (WeChat Animated Stickers)</span>
         </span>
-        <span style="background: #2563eb; color: #fff; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 12px;">WebP 动画</span>
+        <span style="background: #16a34a; color: #fff; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 12px;">无限循环 GIF</span>
       </div>
-      <div style="display: flex; gap: 16px; align-items: center;">
-        <div style="position: relative; width: 120px; height: 120px; border-radius: 14px; overflow: hidden; border: 2px solid #93c5fd; background: #fff; flex-shrink: 0; box-shadow: 0 4px 12px rgba(37,99,235,0.12);">
-          <img src="assets/mascot/kids/animations/boy_ready_wave.webp" style="width: 100%; height: 100%; object-fit: cover;" alt="Wan 2.1 动画">
-          <span style="position: absolute; bottom: 4px; right: 4px; background: rgba(0,0,0,0.65); color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 4px;">17帧/10fps</span>
-        </div>
-        <div style="font-size: 12px; color: #334155; line-height: 1.6;">
-          <div style="font-weight: 700; color: #0f172a; margin-bottom: 4px;">【局前动作：挥手微笑问“准备好了吗？”】</div>
-          <div style="background: #ffffff; padding: 6px 10px; border-radius: 8px; border: 1px solid #bfdbfe; font-family: monospace; font-size: 11px; color: #1e40af; margin-bottom: 6px;">
-            Prompt: "the 8-year-old anime boy waves his hand cheerfully at the viewer, blinking his big bright eyes, smiling warmly with excitement, nodding head slightly, asking are you ready..."
+      <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+        <!-- 表情包 1: 说话点头 -->
+        <div style="display: flex; align-items: center; gap: 10px; background: #fff; padding: 8px 12px; border-radius: 12px; border: 1px solid #bbf7d0; flex: 1; min-width: 220px;">
+          <img src="assets/mascot/kids/animations/wechat_sticker_boy_talking.gif?v=2026" style="width: 72px; height: 72px; object-fit: cover; border-radius: 10px;" alt="说话动画">
+          <div>
+            <div style="font-weight: 700; font-size: 13px; color: #166534;">【Ready: 说话点头】</div>
+            <div style="font-size: 11px; color: #4b5563;">张嘴说话、微点头眨眼<br>“准备好了吗？”</div>
           </div>
-          <div style="color: #64748b; font-size: 11px;">
-            ✨ 特点：人物真实抬手挥动、眼眸自然眨动、头部兴奋微点头，非简单缩放/贴图闪光特效。
+        </div>
+        <!-- 表情包 2: 开怀大笑 -->
+        <div style="display: flex; align-items: center; gap: 10px; background: #fff; padding: 8px 12px; border-radius: 12px; border: 1px solid #bbf7d0; flex: 1; min-width: 220px;">
+          <img src="assets/mascot/kids/animations/wechat_sticker_boy_laugh.gif?v=2026" style="width: 72px; height: 72px; object-fit: cover; border-radius: 10px;" alt="开怀大笑">
+          <div>
+            <div style="font-weight: 700; font-size: 13px; color: #166534;">【Combo/Win: 欢快大笑】</div>
+            <div style="font-size: 11px; color: #4b5563;">开怀大笑、欢快眯眼<br>“太棒啦！冲刺满分！”</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 2. 动效测试舞台 -->
+    <!-- 2. 动效测试舞台 (已彻底移除 CSS 缩放/抖动，纯展现表情包真实动态) -->
     <div class="stage-wrapper" id="stage-wrapper">
-      <img id="mascot-img" class="mascot-display-img" src="assets/mascot/kids/animations/boy_ready_wave.webp" alt="专注力导师立绘">
+      <img id="mascot-img" class="mascot-display-img" src="assets/mascot/kids/animations/wechat_sticker_boy_talking.gif?v=2026" alt="专注力导师立绘">
       <div class="fx-layer" id="fx-layer"></div>
       <div class="speech-bubble" id="speech-bubble">“🌟 准备好了吗？深呼吸，眼神聚焦，我们一起冲刺满分！”</div>
     </div>
@@ -370,7 +354,9 @@
       kidboy: {
         name: "阳光小博士·星言",
         img: "assets/mascot/kids/kid_boy_sunny.png",
-        animReady: "assets/mascot/kids/animations/boy_ready_wave.webp",
+        animReady: "assets/mascot/kids/animations/wechat_sticker_boy_talking.gif?v=2026",
+        animCombo: "assets/mascot/kids/animations/wechat_sticker_boy_laugh.gif?v=2026",
+        animWin: "assets/mascot/kids/animations/wechat_sticker_boy_laugh.gif?v=2026",
         speeches: {
           ready: "“🌟 准备好了吗？深呼吸，眼神聚焦，我们一起冲刺满分！”",
           combo: "“🔥 太帅了！连续击中目标，大脑专注力全开！”",
@@ -507,9 +493,11 @@
       const fxLayer = document.getElementById('fx-layer');
       const mentor = MENTORS[currentMentor];
 
-      // 如果有专属 WebP 动画动作
+      // 如果有专属表情包动图动作
       if (actionKey === 'ready' && mentor.animReady) {
         imgEl.src = mentor.animReady;
+      } else if ((actionKey === 'combo' || actionKey === 'win') && mentor.animCombo) {
+        imgEl.src = mentor.animCombo;
       } else {
         imgEl.src = mentor.img;
       }
@@ -527,21 +515,15 @@
 
       playSound(actionKey);
 
-      // 分场景动效
-      if (actionKey === 'ready') {
-        imgEl.classList.add('anim-pulse');
-      } else if (actionKey === 'combo') {
-        imgEl.classList.add('anim-bounce');
+      // 纯粹展示真实动图与音效，彻底杜绝任何 CSS 缩放/抖动
+      if (actionKey === 'combo') {
         spawnParticles(fxLayer, '⭐', 6);
       } else if (actionKey === 'cheer') {
-        imgEl.classList.add('anim-bounce');
         spawnParticles(fxLayer, '💚', 4);
       } else if (actionKey === 'win') {
-        imgEl.classList.add('anim-golden');
         spawnParticles(fxLayer, '🏆', 5);
         spawnParticles(fxLayer, '✨', 8);
       } else if (actionKey === 'diag') {
-        imgEl.classList.add('anim-pulse');
         spawnParticles(fxLayer, '📊', 4);
       }
     }
