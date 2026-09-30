@@ -263,30 +263,72 @@
       <p class="demo-desc">纯 2D 日漫精修立绘 · 5 大情绪反馈状态机 · 零白边轻量微动效体验</p>
     </div>
 
-    <!-- 1. 导师切换器 -->
-    <div class="mentor-switcher">
-      <div class="mentor-card-btn active" id="btn-mentor-boy" onclick="switchMentor('boy')">
-        <img src="assets/mascot/mentor_boy.jpg" class="mentor-avatar-small" alt="帅气学长导师">
+    <!-- 1. 导师切换器 (含原创7~8岁小学生双人组) -->
+    <div class="mentor-switcher" style="flex-wrap: wrap;">
+      <div class="mentor-card-btn active" id="btn-mentor-kidboy" onclick="switchMentor('kidboy')">
+        <img src="assets/mascot/kids/kid_boy_sunny.png" class="mentor-avatar-small" alt="阳光男孩小博士">
         <div class="mentor-meta">
-          <h4>星言学长 · 小博士</h4>
-          <p>主攻：时间控制 · 反应时与敏捷</p>
+          <h4>阳光小博士 · 星言 (8岁)</h4>
+          <p>原创小学生 · 元气点赞伴学</p>
         </div>
       </div>
 
-      <div class="mentor-card-btn" id="btn-mentor-girl" onclick="switchMentor('girl')">
-        <img src="assets/mascot/mentor_girl.jpg" class="mentor-avatar-small" alt="知性学姐导师">
+      <div class="mentor-card-btn" id="btn-mentor-kidgirl" onclick="switchMentor('kidgirl')">
+        <img src="assets/mascot/kids/kid_girl_smart.png" class="mentor-avatar-small" alt="知性女孩小博士">
         <div class="mentor-meta">
-          <h4>清禾学姐 · 小博士</h4>
-          <p>主攻：脑电测评 · 专注与深度诊断</p>
+          <h4>知性小博士 · 清禾 (8岁)</h4>
+          <p>原创小学生 · 脑力平板分析</p>
+        </div>
+      </div>
+
+      <div class="mentor-card-btn" id="btn-mentor-conan" onclick="switchMentor('conan')">
+        <img src="assets/mascot/conan/conan_solo_scholar.png" class="mentor-avatar-small" alt="柯南风小博士">
+        <div class="mentor-meta">
+          <h4>柯南风 · 星言 (8岁)</h4>
+          <p>神探级反应时 · 专注破局</p>
+        </div>
+      </div>
+
+      <div class="mentor-card-btn" id="btn-mentor-haibara" onclick="switchMentor('haibara')">
+        <img src="assets/mascot/conan/haibara_girl_genius.png" class="mentor-avatar-small" alt="小哀风小博士">
+        <div class="mentor-meta">
+          <h4>小哀风 · 清禾 (8岁)</h4>
+          <p>脑波高智商诊断 · 缜密记忆</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🌟 Wan 2.1 物理动作动图专区 (纯提示词驱动肢体表情) -->
+    <div style="background: #eff6ff; border: 2px dashed #3b82f6; border-radius: 18px; padding: 16px; margin-bottom: 24px; text-align: left;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+        <span style="font-weight: 800; font-size: 15px; color: #1d4ed8; display: flex; align-items: center; gap: 6px;">
+          <span>🎬</span>
+          <span>Wan 2.1 真实物理动画 (Image-to-Video 14B)</span>
+        </span>
+        <span style="background: #2563eb; color: #fff; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 12px;">WebP 动画</span>
+      </div>
+      <div style="display: flex; gap: 16px; align-items: center;">
+        <div style="position: relative; width: 120px; height: 120px; border-radius: 14px; overflow: hidden; border: 2px solid #93c5fd; background: #fff; flex-shrink: 0; box-shadow: 0 4px 12px rgba(37,99,235,0.12);">
+          <img src="assets/mascot/kids/animations/boy_ready_wave.webp" style="width: 100%; height: 100%; object-fit: cover;" alt="Wan 2.1 动画">
+          <span style="position: absolute; bottom: 4px; right: 4px; background: rgba(0,0,0,0.65); color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 4px;">17帧/10fps</span>
+        </div>
+        <div style="font-size: 12px; color: #334155; line-height: 1.6;">
+          <div style="font-weight: 700; color: #0f172a; margin-bottom: 4px;">【局前动作：挥手微笑问“准备好了吗？”】</div>
+          <div style="background: #ffffff; padding: 6px 10px; border-radius: 8px; border: 1px solid #bfdbfe; font-family: monospace; font-size: 11px; color: #1e40af; margin-bottom: 6px;">
+            Prompt: "the 8-year-old anime boy waves his hand cheerfully at the viewer, blinking his big bright eyes, smiling warmly with excitement, nodding head slightly, asking are you ready..."
+          </div>
+          <div style="color: #64748b; font-size: 11px;">
+            ✨ 特点：人物真实抬手挥动、眼眸自然眨动、头部兴奋微点头，非简单缩放/贴图闪光特效。
+          </div>
         </div>
       </div>
     </div>
 
     <!-- 2. 动效测试舞台 -->
     <div class="stage-wrapper" id="stage-wrapper">
-      <img id="mascot-img" class="mascot-display-img" src="assets/mascot/mentor_boy.jpg" alt="专注力导师立绘">
+      <img id="mascot-img" class="mascot-display-img" src="assets/mascot/kids/animations/boy_ready_wave.webp" alt="专注力导师立绘">
       <div class="fx-layer" id="fx-layer"></div>
-      <div class="speech-bubble" id="speech-bubble">“准备好了吗？眼神聚焦，3、2、1...”</div>
+      <div class="speech-bubble" id="speech-bubble">“🌟 准备好了吗？深呼吸，眼神聚焦，我们一起冲刺满分！”</div>
     </div>
 
     <!-- 3. 5 大状态机动作触发按钮 -->
@@ -323,33 +365,56 @@
   </div>
 
   <script>
-    // 导师配置数据
+    // 导师配置数据 (含原创儿童双人组 + 柯南风儿童两人组)
     const MENTORS = {
-      boy: {
-        name: "星言学长",
-        img: "assets/mascot/mentor_boy.jpg",
+      kidboy: {
+        name: "阳光小博士·星言",
+        img: "assets/mascot/kids/kid_boy_sunny.png",
+        animReady: "assets/mascot/kids/animations/boy_ready_wave.webp",
         speeches: {
-          ready: "“🧠 准备好了吗？握紧秒表，眼神聚焦，3、2、1！”",
-          combo: "“🔥 漂亮！反应速度超越 95% 同龄人，继续保持！”",
-          cheer: "“💪 稳住节奏，深呼吸调整视角，看准再出手！”",
-          win: "“🏆 荣耀通关！前额叶控制力完美爆发，敢去PK打榜吗？”",
-          diag: "“📊 脑力波形出炉：你的工作记忆带宽超常，专家方案已就绪！”"
+          ready: "“🌟 准备好了吗？深呼吸，眼神聚焦，我们一起冲刺满分！”",
+          combo: "“🔥 太帅了！连续击中目标，大脑专注力全开！”",
+          cheer: "“💪 没关系！稳住节奏看清楚，下一题一定能找对！”",
+          win: "“🏆 满分通关！你的专注力在同龄小朋友里超棒的！”",
+          diag: "“📊 专注力雷达图出炉啦：反应灵敏，继续保持自律习惯哦！”"
         }
       },
-      girl: {
-        name: "清禾学姐",
-        img: "assets/mascot/mentor_girl.jpg",
+      kidgirl: {
+        name: "知性小博士·清禾",
+        img: "assets/mascot/kids/kid_girl_smart.png",
         speeches: {
-          ready: "“💡 专注力小测试马上开始咯，注意观察每一个细节哦~”",
-          combo: "“✨ 太棒啦！三连击达成，你的专注力正在持续进阶！”",
-          cheer: "“🌱 没关系，偶尔失误很正常，放松肩膀，再来一次！”",
-          win: "“👑 恭喜摘金！你在本省天梯榜为全省拉高了均分！”",
-          diag: "“📖 专家诊断已生成，针对做题粗心我为你准备了《7天提升手册》~”"
+          ready: "“💡 专注力小测试马上开始咯，注意观察每一个方格细节哦~”",
+          combo: "“✨ 很出色的工作记忆表现呢，认知状态正在进阶！”",
+          cheer: "“🌱 偶尔出现误差很正常，放松肩膀，下一轮一定能校准。”",
+          win: "“👑 恭喜通关！认知准确率与抗干扰能力极高，真厉害！”",
+          diag: "“📖 专家诊断已生成，平板里为你准备了专属专注力成长小贴士~”"
+        }
+      },
+      conan: {
+        name: "柯南风·星言",
+        img: "assets/mascot/conan/conan_solo_scholar.png",
+        speeches: {
+          ready: "“🔍 真相只有一个！握紧秒表，眼神聚焦，3、2、1！”",
+          combo: "“⚡ 漂亮！神探级反应时，连续破局命中，继续保持！”",
+          cheer: "“💪 别着急！线索就在细节里，深呼吸稳住，看准再出手！”",
+          win: "“🏆 破案通关！前额叶专注力爆发，敢来挑战PK打榜吗？”",
+          diag: "“📊 脑力侦探报告：你的观察力极强，专家提分手册已就绪！”"
+        }
+      },
+      haibara: {
+        name: "小哀风·清禾",
+        img: "assets/mascot/conan/haibara_girl_genius.png",
+        speeches: {
+          ready: "“🧪 脑科学专注力测验准备启动，注意观察网格细节哦。”",
+          combo: "“✨ 很出色的工作记忆表现呢，认知状态正在进阶。”",
+          cheer: "“🌱 偶尔的数据波动很正常，放松肩膀，下一轮一定能校准。”",
+          win: "“👑 恭喜摘金！你在本省天梯榜为全省拉高了均分哦。”",
+          diag: "“📖 专家诊断已生成，针对粗心走神我为你准备了《7天提升手册》~”"
         }
       }
     };
 
-    let currentMentor = 'boy';
+    let currentMentor = 'kidboy';
     let audioCtx = null;
 
     // 音频简单合成器
@@ -420,13 +485,16 @@
     // 切换导师
     function switchMentor(mentorKey) {
       currentMentor = mentorKey;
-      document.getElementById('btn-mentor-boy').classList.toggle('active', mentorKey === 'boy');
-      document.getElementById('btn-mentor-girl').classList.toggle('active', mentorKey === 'girl');
+      ['kidboy', 'kidgirl', 'conan', 'haibara'].forEach(k => {
+        const btn = document.getElementById(`btn-mentor-${k}`);
+        if (btn) btn.classList.toggle('active', k === mentorKey);
+      });
       
       const imgEl = document.getElementById('mascot-img');
       imgEl.style.opacity = '0';
       setTimeout(() => {
-        imgEl.src = MENTORS[mentorKey].img;
+        const mentor = MENTORS[mentorKey];
+        imgEl.src = (mentor.animReady) ? mentor.animReady : mentor.img;
         imgEl.style.opacity = '1';
         triggerAction('ready');
       }, 150);
@@ -437,13 +505,21 @@
       const imgEl = document.getElementById('mascot-img');
       const bubbleEl = document.getElementById('speech-bubble');
       const fxLayer = document.getElementById('fx-layer');
+      const mentor = MENTORS[currentMentor];
+
+      // 如果有专属 WebP 动画动作
+      if (actionKey === 'ready' && mentor.animReady) {
+        imgEl.src = mentor.animReady;
+      } else {
+        imgEl.src = mentor.img;
+      }
 
       // 清理旧动效类
       imgEl.className = 'mascot-display-img';
       void imgEl.offsetWidth; // 触发重绘
 
       // 更新台词
-      bubbleEl.textContent = MENTORS[currentMentor].speeches[actionKey];
+      bubbleEl.textContent = mentor.speeches[actionKey];
       bubbleEl.style.transform = 'translateX(-50%) scale(1.08)';
       setTimeout(() => {
         bubbleEl.style.transform = 'translateX(-50%) scale(1)';
