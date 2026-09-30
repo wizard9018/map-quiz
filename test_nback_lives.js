@@ -12,7 +12,9 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
       await page.goto(process.env.FOCUS_TEST_URL || 'http://127.0.0.1:8080/focus.html');
       await page.locator('#level-select').selectOption('4');
       await page.getByRole('button', { name: '开始 2-Back' }).click();
-      const initialTime = await page.locator('#timer-badge').innerText();
+      assert.equal(await page.locator('#timer-badge').isVisible(), false, 'N-Back has no level countdown');
+      const firstItem = await page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText }));
+      const initialGrid = await page.locator('#nback-grid-matrix').boundingBox();
       await page.clock.runFor(7560);
       for (let mistake = 1; mistake <= 3; mistake++) {
         assert.equal(await page.locator('#btn-nback-match').isEnabled(), true);
@@ -21,8 +23,14 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
         assert.equal(await page.locator('.heart.active').count(), 3 - mistake);
         assert.equal(await page.locator('#report-modal').isVisible(), mistake === 3);
         if (mistake < 3) {
-          assert.equal(await page.locator('#timer-badge').innerText(), initialTime, 'Each error resets the level timer');
-          await page.clock.runFor((random === 0.9 ? 1500 : 0) + 1200 + 3180);
+          assert.match(await page.locator('#nback-step-counter').innerText(), /第 1 组/);
+          assert.equal(await page.locator('#btn-nback-match').isDisabled(), true);
+          assert.match(await page.locator('#level-badge').innerText(), /L4/);
+          await page.clock.runFor(300);
+          assert.equal(await page.locator('.active-lit').count(), 1);
+          assert.deepEqual(await page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText })), firstItem);
+          assert.deepEqual(await page.locator('#nback-grid-matrix').boundingBox(), initialGrid);
+          await page.clock.runFor(7560);
         }
       }
       await page.clock.runFor(10000);
@@ -37,14 +45,18 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
     await page.addInitScript(() => { Math.random = () => 0.9; });
     await page.goto(process.env.FOCUS_TEST_URL || 'http://127.0.0.1:8080/focus.html');
     await page.clock.runFor(2160);
-    for (let step = 1; step < 10; step++) {
-      if (step <= 2) await page.locator('#btn-nback-match').click();
-      await page.clock.runFor(1860);
-    }
+    await page.locator('#btn-nback-match').click();
+    await page.clock.runFor(2160);
+    await page.locator('#btn-nback-match').click();
+    assert.equal(await page.locator('.heart.active').count(), 1);
+    await page.clock.runFor(300 + 10 * 1860);
     await page.clock.runFor(1000);
     assert.equal(await page.locator('.heart.active').count(), 3);
     assert.match(await page.locator('#level-badge').innerText(), /L2/);
-    console.log('False alarms, missed groups, timer resets, third-error failure and level-up heart refill passed.');
+    assert.equal(await page.locator('#timer-badge').isVisible(), false);
+    await page.locator('#game-select').selectOption('schulte_classic');
+    assert.equal(await page.locator('#timer-badge').isVisible(), true, 'Other games retain their timers');
+    console.log('No countdown, restart from first group, third-error failure and level-up heart refill passed.');
   } finally {
     await browser.close();
   }

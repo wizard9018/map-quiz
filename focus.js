@@ -918,6 +918,7 @@
       });
     }
     state.gameId = gid;
+    el.timerBadge.hidden = gid === 'nback_flow';
     state.level = lvl;
     state.lives = 3;
     state.score = 0;
@@ -967,7 +968,7 @@
     if (state.lives <= 0) {
       finishGame(true);
     } else if (state.gameId === 'nback_flow') {
-      startTimer(state.levelDuration);
+      state.subState.restart();
     }
   }
 
@@ -1157,12 +1158,8 @@
     const g = REGISTRY[state.gameId];
     let duration;
     if (state.gameId === 'nback_flow') {
-      const cfg = getNBackConfig(lvl);
-      const gaps = cfg.n === 1 ? cfg.totalSteps * 360
-        : Math.floor(cfg.totalSteps / cfg.n) * 1200 + (cfg.totalSteps - Math.floor(cfg.totalSteps / cfg.n)) * 180;
-      const decisions = cfg.n >= 2 ? (cfg.totalSteps / cfg.n - 1) * 1500 : 0;
-      duration = Math.ceil((cfg.totalSteps * cfg.stepDuration * 1000 + gaps + decisions) / 1000) + 6;
-      state.levelDuration = duration;
+      clearInterval(state.timerInterval);
+      state.timer = 0;
     } else if (state.gameId === 'schulte_classic') {
       const cfg = SCHULTE_LEVEL_CONFIG[lvl] || { cols: 5, time: 20 };
       duration = cfg.time;
@@ -1172,10 +1169,7 @@
       duration = Math.max(5.0, 16.0 - (lvl * 0.9)); // 关卡越高，限时越短
     }
     const waitForNewBack = state.gameId === 'nback_flow' && [4, 7, 10].includes(lvl) && !isRestart;
-    if (waitForNewBack) {
-      clearInterval(state.timerInterval);
-      el.timerBadge.innerText = '等待开始';
-    } else {
+    if (state.gameId !== 'nback_flow') {
       startTimer(duration);
     }
 
@@ -1184,7 +1178,7 @@
 
     // 根据模式生成舞台
     if (waitForNewBack) {
-      renderNBackFlow(lvl, () => startTimer(duration));
+      renderNBackFlow(lvl, true);
     } else {
       renderStageForModality(g.modality, g.layout, lvl);
     }
@@ -1448,7 +1442,7 @@
     return { n, sequence };
   }
 
-  function renderNBackFlow(lvl, onConfirmStart) {
+  function renderNBackFlow(lvl, requireConfirmation) {
     el.stage.innerHTML = '';
     const { n, size, totalSteps, stepDuration } = getNBackConfig(lvl);
     const { sequence } = generateNBackSequence(lvl, totalSteps, 0.35);
@@ -1613,15 +1607,11 @@
           // 步进时间耗尽：若玩家未点击，检查是否为漏报
           if (!sub.userResponded && sub.awaitingAnswer) {
             sub.awaitingAnswer = false;
-            const stageCard = document.getElementById('nback-stage-card');
             if (curStep.expectedMatch) {
               // 实际相同却漏报
               sub.misses++;
               deductLife(`超时漏报：此方块【位置与图标】均与 ${sub.n} 步前相同！`);
-              if (stageCard) {
-                stageCard.classList.add('shake-error');
-                setTimeout(() => stageCard.classList.remove('shake-error'), 400);
-              }
+              return;
             } else {
               // 实际不同且未按：正确放行克制
               sub.correctRejections++;
@@ -1660,6 +1650,7 @@
           if (isNBackGroupEqual(sub.sequence, sub.stepIdx, sub.n)) {
             sub.misses++;
             deductLife('漏报：这一整组与上一组完全一致');
+            return;
           } else {
             sub.correctRejections++;
             state.stats.correct++;
@@ -1690,9 +1681,25 @@
 
     state.subState.advanceToNext = advanceToNext;
     state.subState.doISITransition = doISITransition;
+    state.subState.restart = () => {
+      const sub = state.subState;
+      clearTimeout(sub.stepTimerHandle);
+      clearTimeout(sub.isiTimerHandle);
+      sub.stepIdx = 0;
+      sub.awaitingAnswer = false;
+      sub.userResponded = false;
+      clearStimulus();
+      updateHeaderUI(0);
+      card.classList.remove('shake-error', 'hit-pulse');
+      const btnMatch = document.getElementById('btn-nback-match');
+      btnMatch.disabled = true;
+      btnMatch.innerText = '👀 重新观察第一组';
+      el.gamePrompt.innerText = '本关重新开始：先记住第一组图形';
+      sub.stepTimerHandle = setTimeout(advanceToNext, 300);
+    };
 
     // 启动第一步
-    if (onConfirmStart) {
+    if (requireConfirmation) {
       const notice = document.createElement('div');
       notice.className = 'nback-transition-notice';
       notice.innerHTML = `<h3>接下来：${n}-Back</h3>
@@ -1709,7 +1716,6 @@
         btnMatch.onclick = () => handleNBackMatchTap();
         card.onclick = () => handleNBackMatchTap();
         btnMatch.disabled = true;
-        onConfirmStart();
         advanceToNext();
       };
     } else {
@@ -1755,10 +1761,7 @@
       // 虚报手抖 (False Alarm)
       sub.falseAlarms++;
       deductLife(sub.n >= 2 ? '误点：这一整组与上一组不同' : '误点：位置或图标与上一步不同');
-      if (card) {
-        card.classList.add('shake-error');
-        setTimeout(() => card.classList.remove('shake-error'), 400);
-      }
+      return;
     }
 
     // 短暂留存后熄灭方块并推进下一步

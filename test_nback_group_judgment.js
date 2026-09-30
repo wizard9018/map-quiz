@@ -14,7 +14,7 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
         await page.goto(process.env.FOCUS_TEST_URL || 'http://127.0.0.1:8080/focus.html');
         await page.locator('#level-select').selectOption(String(level));
         await page.clock.runFor(60000);
-        assert.equal(await page.locator('#timer-badge').innerText(), '等待开始');
+        assert.equal(await page.locator('#timer-badge').isVisible(), false);
         await page.getByRole('button', { name: `开始 ${n}-Back` }).click();
         const groupDuration = n * 1500 + (n - 1) * 180;
         await page.clock.runFor(groupDuration + 1200);

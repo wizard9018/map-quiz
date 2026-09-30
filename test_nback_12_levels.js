@@ -23,7 +23,7 @@ const { getNBackConfig } = require('./test_nback_helpers');
         const start = page.getByRole('button', { name: `开始 ${cfg.n}-Back` });
         await start.waitFor();
         await page.clock.runFor(60000);
-        assert.equal(await page.locator('#timer-badge').innerText(), '等待开始');
+        assert.equal(await page.locator('#timer-badge').isVisible(), false);
         await start.click();
       } else {
         await page.clock.runFor(300);
