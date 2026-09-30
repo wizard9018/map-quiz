@@ -36,19 +36,18 @@ const { getNBackConfig } = require('./test_nback_helpers');
       contentType: 'application/javascript',
       body: 'window.results=[];window.wx={miniProgram:{postMessage:function(message){window.results.push(message.data)}}};'
     }));
-    await page.goto(process.env.FOCUS_TEST_URL || 'http://127.0.0.1:8080/focus.html?miniprogram=1');
+    await page.goto(process.env.FOCUS_TEST_URL || 'http://127.0.0.1:8080/focus.html?game=nback_flow&miniprogram=1');
     for (let level = 1; level <= 12; level++) {
       const cfg = getNBackConfig(level);
       const grid = page.locator('#nback-grid-matrix');
       assert.equal(await page.locator('.nback-grid-cell').count(), cfg.size * cfg.size);
-      if ([4, 7, 10].includes(level)) {
+      {
         const start = page.getByRole('button', { name: `开始 ${cfg.n}-Back` });
         await start.waitFor();
         await page.clock.runFor(60000);
         assert.equal(await page.locator('#timer-badge').isVisible(), false);
+        assert.equal(await page.locator('.active-lit').count(), 0, 'Each level waits for start');
         await start.click();
-      } else {
-        await page.clock.runFor(300);
       }
       const bounds = await grid.boundingBox();
       const items = [];
@@ -56,6 +55,7 @@ const { getNBackConfig } = require('./test_nback_helpers');
       for (let step = 0; step < cfg.totalSteps; step++) {
         const active = page.locator('.active-lit');
         assert.equal(await active.count(), 1);
+        assert.equal(await page.locator('.nback-distraction').count(), 0);
         assert(Number(await active.getAttribute('data-pos')) < cfg.size * cfg.size);
         if (step === 0 && cfg.size > 3) assert(Number(await active.getAttribute('data-pos')) > 8);
         items.push(await active.evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText })));
@@ -80,7 +80,7 @@ const { getNBackConfig } = require('./test_nback_helpers');
           }
           await page.clock.runFor(1500);
         }
-        const gap = groupEnd ? 1200 : cfg.n >= 2 ? 180 : 360;
+        const gap = (step + 1) % cfg.n === 0 ? 2000 : 180;
         await page.clock.runFor(gap - 1);
         assert.equal(await active.count(), 0);
         assert.deepEqual(await grid.boundingBox(), bounds, 'Group changes must not move the grid');

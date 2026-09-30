@@ -7,9 +7,10 @@ const context = { module: { exports: {} } };
 vm.runInNewContext(source.slice(source.indexOf('  function getMatrixFlashConfig('), source.indexOf('  function renderMatrixFlash(')) +
   '\nmodule.exports = {getMatrixFlashConfig, generateMatrixFlashTargets};', context);
 const { getMatrixFlashConfig, generateMatrixFlashTargets } = context.module.exports;
-const expected = [[3,3,1200,2],[3,4,1100,2],[4,4,1100,3],[4,5,1000,3],[4,6,950,3],
-  [5,5,900,3],[5,6,850,3],[5,7,800,3],[5,7,850,3],[5,8,800,3]];
-for (let level = 1; level <= 10; level++) {
+const expected = [[4,3,1200,5],[4,4,1100,5],[4,5,1100,5],[4,6,1000,5],[4,7,950,5],
+  [5,8,900,5],[5,9,850,5],[5,10,800,5],[5,11,850,5],[5,12,800,5],
+  [5,13,800,5],[5,14,800,5],[5,15,800,5],[5,16,800,5],[5,17,800,5]];
+for (let level = 1; level <= 15; level++) {
   const cfg = getMatrixFlashConfig(level);
   assert.deepEqual([cfg.size, cfg.count, cfg.exposure, cfg.required], expected[level - 1]);
   const layouts = new Set();
@@ -18,7 +19,7 @@ for (let level = 1; level <= 10; level++) {
     assert.equal(targets.length, cfg.count);
     assert.equal(new Set(targets.map(target => target.pos)).size, cfg.count);
     assert(targets.every(target => target.pos >= 0 && target.pos < cfg.size * cfg.size));
-    assert.equal(targets.filter(target => target.color === 'blue').length, cfg.blueCount);
+    assert.equal(targets.filter(target => target.color === 'blue').length, level < 9 ? cfg.count : Math.floor(cfg.count / 2));
     layouts.add(targets.map(target => target.pos).sort((a, b) => a - b).join(','));
   }
   assert(layouts.size > 1);
@@ -66,10 +67,10 @@ for (let level = 1; level <= 10; level++) {
     return target.sort((a, b) => Number(b.blue) - Number(a.blue));
   }
   try {
-    // Full actual-browser ten-level journey, including new color rule and result bridge.
+    // Full actual-browser fifteen-level journey, including new color rule and result bridge.
     const page = await createPage();
     assert.equal(await page.locator('#timer-badge').isVisible(), false);
-    for (let level = 1; level <= 10; level++) {
+    for (let level = 1; level <= 15; level++) {
       const cfg = getMatrixFlashConfig(level);
       assert.equal(await page.locator('.matrix-flash-cell').count(), cfg.size * cfg.size);
       await startLevel(page, level);
@@ -81,13 +82,14 @@ for (let level = 1; level <= 10; level++) {
         assert.match(await page.locator('#matrix-round-counter').innerText(), new RegExp(`${round + 1}/${cfg.required}`));
         await page.clock.runFor(600);
       }
-      if (level < 10) await page.clock.runFor(600);
+      if (level < 15) await page.clock.runFor(600);
       console.log(`Matrix L${level}: ${cfg.size}x${cfg.size}, ${cfg.count} targets, ${cfg.required} rounds passed`);
     }
     assert.equal(await page.locator('#report-modal').isVisible(), true);
     const report = await page.evaluate(() => window.results[0]);
     assert.equal(report.gameId, 'matrix_flash');
-    assert.equal(report.level, 10);
+    assert.equal(report.level, 15);
+    assert.match(await page.locator('#report-title').innerText(), /15 关/);
     await page.close();
 
     // Wrong color order resets streak, pause blocks input; third error ends game.
@@ -105,7 +107,7 @@ for (let level = 1; level <= 10; level++) {
       assert.equal(await failure.locator('.heart.active').count(), 3 - attempt);
       assert.equal(await failure.locator('#report-modal').isVisible(), attempt === 3);
       if (attempt < 3) {
-        assert.match(await failure.locator('#matrix-round-counter').innerText(), /0\/3/);
+        assert.match(await failure.locator('#matrix-round-counter').innerText(), /0\/5/);
         assert.equal(await failure.locator('.matrix-error-notice').isVisible(), true);
         await failure.clock.runFor(1999);
         assert.equal(await failure.locator('.matrix-flash-cell:enabled').count(), 0);
@@ -125,12 +127,12 @@ for (let level = 1; level <= 10; level++) {
       for (const item of target) await layout.locator(`.matrix-flash-cell[data-pos="${item.pos}"]`).click();
       await layout.clock.runFor(600);
       target = await observe(layout, getMatrixFlashConfig(1));
-      const wrong = Array.from({ length: 9 }, (_, pos) => String(pos)).find(pos => !target.some(item => item.pos === pos));
+      const wrong = Array.from({ length: 16 }, (_, pos) => String(pos)).find(pos => !target.some(item => item.pos === pos));
       await layout.locator(`.matrix-flash-cell[data-pos="${wrong}"]`).click();
-      assert.match(await layout.locator('#matrix-round-counter').innerText(), /0\/2/);
+      assert.match(await layout.locator('#matrix-round-counter').innerText(), /0\/5/);
       assert.equal(await layout.locator('.heart.active').count(), 2);
       await layout.clock.runFor(2000);
-      for (let round = 0; round < 2; round++) {
+      for (let round = 0; round < 5; round++) {
         target = await observe(layout, getMatrixFlashConfig(1));
         for (const item of target) await layout.locator(`.matrix-flash-cell[data-pos="${item.pos}"]`).click();
         await layout.clock.runFor(600);
@@ -141,6 +143,7 @@ for (let level = 1; level <= 10; level++) {
       await layout.clock.runFor(300);
       await layout.locator('#game-select').evaluate(select => { select.value = 'nback_flow'; select.dispatchEvent(new Event('change')); });
       await layout.clock.runFor(300);
+      assert.equal(await layout.locator('#level-select option[value="15"]').count(), 0);
       await layout.locator('#game-select').evaluate(select => { select.value = 'matrix_flash'; select.dispatchEvent(new Event('change')); });
       await layout.clock.runFor(3000);
       assert.equal(await layout.locator('.matrix-flash-cell:enabled').count(), 0);

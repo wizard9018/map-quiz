@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>专注力游戏 · 10 款试玩总览</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f7f5ef; color: #23313a; font-family: "Microsoft YaHei", system-ui, sans-serif; line-height: 1.6; }
+    main { max-width: 1720px; margin: auto; padding: 28px; }
+    h1 { font-size: 28px; margin: 0 0 8px; }
+    .intro { margin: 0; max-width: 75ch; color: #475569; }
+    a { color: #075985; text-underline-offset: 3px; }
+    nav { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 20px 0 28px; }
+    .games { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 32px 24px; margin-top: 24px; }
+    article { min-width: 0; scroll-margin-top: 20px; }
+    h2 { font-size: 18px; margin: 0 0 6px; }
+    .rule { color: #475569; font-size: 14px; margin: 12px 0; min-height: 68px; }
+    .rule strong { color: #23313a; }
+    .actions { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; font-size: 14px; }
+    button { font: inherit; cursor: pointer; }
+    .toggle { background: #075985; color: white; border: 0; border-radius: 8px; padding: 8px 14px; }
+    .active .toggle { background: #334155; }
+    .preview { position: relative; border: 1px solid #cbd5e1; border-radius: 14px; overflow: hidden; background: white; }
+    .active .preview { outline: 3px solid #0284c7; outline-offset: 3px; }
+    iframe { display: block; width: 100%; height: 800px; border: 0; background: white; }
+    .preview-image { display: block; width: 100%; height: 360px; object-fit: contain; background: #fafafa; }
+    .active .preview-image { display: none; }
+    .cover { position: absolute; inset: 0; width: 100%; border: 0; background: transparent; display: flex; align-items: flex-end; justify-content: center; padding: 22px; }
+    .cover span { background: #075985; color: white; border-radius: 8px; padding: 10px 20px; }
+    .active .cover { display: none; }
+    button:hover { filter: brightness(1.12); }
+    a:focus-visible, button:focus-visible { outline: 3px solid #0284c7; outline-offset: 4px; }
+    ::selection { background: #bae6fd; color: #0c4a6e; }
+    @media (max-width: 600px) { main { padding: 20px 14px; } h1 { font-size: 24px; } .games { grid-template-columns: minmax(0, 1fr); } iframe { height: 800px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>专注力游戏试玩总览</h1>
+    <p class="intro">先看图片预览和玩法说明，再点击“试玩这款”直接体验。切换游戏会重开上一款，避免声音互相干扰。</p>
+    <nav aria-label="游戏目录" id="directory"></nav>
+    <p><a href="games04-10-report.html">查看游戏 4～10 的玩法与关卡参数</a></p>
+    <p class="intro">每关三颗心，第三次失误结束并显示报告；升级补满三颗心。N-Back 每关 10 组判断；游戏 4 物体各选一次升级；游戏 5 连续正确 3 组升级；游戏 6 完成一张数字表升级；游戏 7 连续正确 3 组升级；游戏 8 在本关限时内达到正确次数要求升级；其余连续正确 5 组升级。</p>
+    <div class="games" id="games"></div>
+  </main>
+  <script>
+    const games = [
+      ['nback_flow', 'N-Back 工作记忆刷新流', '依次观察一组图形，与上一整组比较。位置、图形和顺序全部一致时点“相同”，不同则无需点击。12 关，每组由 1 项增至 4 项。'],
+      ['matrix_flash', '空间网格暂留闪记', '记住亮起的格子，熄灭后点出原来的位置。后面双色关要先点蓝色，再点黄色。15 关，需要记忆的格子逐级增加。'],
+      ['sequence_order', '时序先后正逆组块复原', '记住方格依次亮起的顺序，全部熄灭后按顺序点选。前 5 关正序，后 5 关倒序；例如 1→3→2，倒序应点 2→3→1。'],
+      ['tidal_treasures', '排他性情景记忆提取', '每次选一个本关没选过的物体，选择后位置重新打乱。所有物体各选一次就升级。L1～L5 用 4×4，L6～L10 用 5×5；物体由 4 件逐级增加到 13 件。'],
+      ['semantic_synthesis', '听觉语义概念综摄', '听完整组词语，选择出现次数最多的类别。词数由 5 增至 15，类别由 2 增至 6；连续正确 3 组升级。播放时不能答题。'],
+      ['schulte_ladder', '舒尔特注意力阶梯', '在限时内从 1 开始依次找齐数字，每关完成一张表就升级。点错只提示，可继续，不重置、不扣心；只有超时扣心。3×3 为 20/15/10 秒，4×4 为 30/25/20 秒，5×5 为 40/35/30 秒，6×6 为 50 秒。'],
+      ['cambridge_decoder', '图标顺序复原', '先记住图标依次出现的顺序，再在打乱排列的图标中按原顺序依次点击，无需填空。图标由 3 个增至 12 个，连续正确 3 组升级。'],
+      ['flanker_birds', '迷途鸟群侧抑制', '找到网格里带下划线的小鸟，L1～L5 判断左右，L6 起判断上下左右；支持方向键、WASD 或点击按钮。L1～L5 每关 20 秒，L6～L10 每关 25 秒，需答对 8～26 次；点击圆形方向盘的对应扇区；鸟群从 2×2 增至 6×6，目标随机出现在任何位置。'],
+      ['ufov_dual_field', '双重视野捕获', '观察后才显示选项，依次选择中心图形和星星位置；L6 起为 5×5，目标位于最外圈。每两级增加一个选项至 6 个；L11～L14 加入心形位置，三项都正确才完成一组。'],
+      ['bimodal_divert', '视听双通道分流', '每关更换目标颜色和音色，每组从 2 次逐级增加至 11 次，播放速度固定。L6 起三种颜色，干扰配色每组随机更换；播放后点击选择两项次数，开始前可试听。']
+    ];
+    let active = null;
+    function activate(article) {
+      if (active) {
+        active.classList.remove('active');
+        active.querySelector('.toggle').textContent = '试玩这款';
+        active.querySelector('.toggle').setAttribute('aria-pressed', 'false');
+        active.querySelector('iframe').remove();
+      }
+      if (active === article) { active = null; return; }
+      active = article;
+      article.classList.add('active');
+      const frame = document.createElement('iframe');
+      frame.title = `${article.dataset.title}试玩`;
+      frame.src = article.dataset.url;
+      article.querySelector('.preview').appendChild(frame);
+      article.querySelector('.toggle').textContent = '结束试玩';
+      article.querySelector('.toggle').setAttribute('aria-pressed', 'true');
+    }
+    games.forEach(([id, title, rule], index) => {
+      const number = String(index + 1).padStart(2, '0');
+      const url = `focus.html?game=${id}&miniprogram=1&v=local22#${id}`;
+      const article = document.createElement('article'); article.id = id;
+      article.dataset.url = url; article.dataset.title = title;
+      article.innerHTML = `<h2>${number} · ${title}</h2><div class="preview"><img class="preview-image" src="reports/game-previews/${id}.png" alt="${title}实际游戏画面${id === 'semantic_synthesis' ? '（文字练习模式）' : ''}" loading="lazy"><button class="cover" aria-label="试玩${title}"><span>点击启用试玩</span></button></div><p class="rule"><strong>怎么玩：</strong>${rule}</p><div class="actions"><button class="toggle" aria-pressed="false">试玩这款</button><a href="${url}" target="_blank" rel="noopener">单独打开</a></div>`;
+      article.querySelector('.toggle').onclick = () => activate(article);
+      article.querySelector('.cover').onclick = () => activate(article);
+      document.querySelector('#games').appendChild(article);
+      const link = document.createElement('a'); link.href = `#${id}`; link.textContent = `${number} ${title}`;
+      document.querySelector('#directory').appendChild(link);
+    });
+  </script>
+</body>
+</html>

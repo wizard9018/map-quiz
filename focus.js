@@ -45,6 +45,20 @@
       engine: "matrix_flash"
     },
 
+    sequence_order: {
+      masterId: 3,
+      title: "母版 03 · 时序先后正逆组块复原",
+      academy: "memory",
+      prompt: "记住方格亮起的先后顺序，按要求正序或倒序复现",
+      modality: "sequence_order",
+      gesture: "sequential_grid_tap",
+      layout: "sequence_matrix",
+      stimulus: "ordered_flash_cells",
+      engine: "sequence_order"
+    },
+
+    ...window.FocusBatchGames.registry,
+
     // 第一个游戏：舒尔特方格注意力阶梯训练
     schulte_classic: {
       title: "舒尔特方格注意力训练",
@@ -556,6 +570,9 @@
     }
   };
 
+  const GAME_IDS = ['nback_flow', 'matrix_flash', 'sequence_order', ...window.FocusBatchGames.definitions.map(([id]) => id)];
+  Object.keys(REGISTRY).filter(id => !GAME_IDS.includes(id)).forEach(id => delete REGISTRY[id]);
+
   // 2. 音效生成器 (基于 Web Audio API 纯合成，零延迟免外部资源)
   let audioCtx = null;
   function getAudioContext() {
@@ -690,7 +707,7 @@
 
   // 3. 运行状态
   const state = {
-    gameId: 'schulte_classic',
+    gameId: 'nback_flow',
     level: 1,
     lives: 3,
     score: 0,
@@ -775,23 +792,23 @@
     }, duration);
   }
 
-  // 3.5 伴学导师系统 (2D日漫双导师：星言学长 / 清禾学姐)
+  // 3.5 伴学导师系统 (柯南风儿童两人组：柯南风星言 / 小哀风清禾)
   const MENTOR_DATA = {
     boy: {
       key: 'boy',
-      name: '星言学长',
-      avatar: 'assets/mascot/mentor_boy.jpg',
-      badgeText: '星言学长 伴学',
-      winComment: '你的工作记忆刷新带宽超越同龄人，前额叶控制力完美爆发！',
-      encourageComment: '稳住心态！脑力波形显示你的抗干扰潜能很大，专家方案已为你定制！'
+      name: '柯南风·星言 (8岁)',
+      avatar: 'assets/mascot/conan/conan_solo_scholar.png',
+      badgeText: '柯南风·星言 伴学',
+      winComment: '真相只有一个！你的专注力与观察力完美破局，超越同龄人！',
+      encourageComment: '别着急！蛛丝马迹就在细节里，深呼吸稳住，我们再试一次！'
     },
     girl: {
       key: 'girl',
-      name: '清禾学姐',
-      avatar: 'assets/mascot/mentor_girl.jpg',
-      badgeText: '清禾学姐 伴学',
-      winComment: '恭喜通关！反应敏捷且精准度极高，为全省平均分拉高了榜单！',
-      encourageComment: '没关系，偶尔失误很正常，放松肩膀深呼吸，再来一次一定能突破！'
+      name: '小哀风·清禾 (8岁)',
+      avatar: 'assets/mascot/conan/haibara_girl_genius.png',
+      badgeText: '小哀风·清禾 伴学',
+      winComment: '数据非常惊艳呢。你的工作记忆容量远超预期，继续保持哦。',
+      encourageComment: '偶尔的数据波动在认知常模内，放松肩膀，下一轮一定能校准。'
     }
   };
 
@@ -820,7 +837,7 @@
 
   // 4. 初始化下拉列表与学堂标签
   function initToolbar() {
-    const keys = Object.keys(REGISTRY);
+    const keys = GAME_IDS;
 
     function populateSelect(ac = 'all') {
       el.gameSelect.innerHTML = '';
@@ -970,18 +987,24 @@
 
   // 5. 切换游戏主函数
   function switchGame(gid, lvl = 1) {
-    if (!REGISTRY[gid]) gid = 'schulte_classic';
-    el.levelSelect.querySelectorAll('option[value="11"], option[value="12"]').forEach(option => option.remove());
-    if (gid === 'nback_flow') {
-      [11, 12].forEach(level => {
-        const option = document.createElement('option');
-        option.value = level;
-        option.innerText = `第 ${level} 关`;
-        el.levelSelect.appendChild(option);
-      });
+    if (!REGISTRY[gid]) gid = 'nback_flow';
+    document.body.classList.remove('focus-home-view');
+    document.getElementById('focus-home').hidden = true;
+    state.runFinished = false;
+    Array.from(el.levelSelect.options).filter(option => Number(option.value) > 10).forEach(option => option.remove());
+    const maxLevel = gid === 'nback_flow' ? 12 : gid === 'matrix_flash' ? 15 : gid === 'ufov_dual_field' ? 14 : 10;
+    for (let level = 11; level <= maxLevel; level++) {
+      const option = document.createElement('option');
+      option.value = level;
+      option.innerText = `第 ${level} 关`;
+      el.levelSelect.appendChild(option);
     }
     state.gameId = gid;
-    el.timerBadge.hidden = gid === 'nback_flow' || gid === 'matrix_flash';
+    state.flankerPrevious = null;
+    state.ufovPrevious = null;
+    document.body.classList.toggle('flanker-view', gid === 'flanker_birds');
+    el.timerBadge.hidden = gid === 'nback_flow' || gid === 'matrix_flash' || gid === 'sequence_order' || (REGISTRY[gid].engine === 'batch_master' && !['schulte_ladder', 'flanker_birds'].includes(gid));
+    el.controls.classList.toggle('batch-controls', REGISTRY[gid].engine === 'batch_master');
     state.level = lvl;
     state.lives = 3;
     state.score = 0;
@@ -1032,7 +1055,7 @@
       finishGame(true);
     } else if (state.gameId === 'nback_flow') {
       state.subState.restart();
-    } else if (state.gameId === 'matrix_flash') {
+    } else if (state.gameId === 'matrix_flash' || state.gameId === 'sequence_order' || REGISTRY[state.gameId].engine === 'batch_master') {
       state.subState.restart();
     }
   }
@@ -1073,7 +1096,7 @@
     state.stats.correct++;
     state.score += (state.level * 10) + Math.round(state.timer * 5);
 
-    if (state.level >= (state.gameId === 'nback_flow' ? 12 : 10)) {
+    if (state.level >= (state.gameId === 'nback_flow' ? 12 : state.gameId === 'matrix_flash' ? 15 : state.gameId === 'ufov_dual_field' ? 14 : 10)) {
       finishGame(false);
       return;
     }
@@ -1084,7 +1107,7 @@
     const promotionHandle = setTimeout(() => {
       startLevel(state.level);
     }, 600);
-    if (state.gameId === 'matrix_flash') state.subState.timerHandle = promotionHandle;
+    if (state.gameId === 'matrix_flash' || state.gameId === 'sequence_order' || REGISTRY[state.gameId].engine === 'batch_master') state.subState.timerHandle = promotionHandle;
   }
 
   // 省份天梯战报动态评定计算
@@ -1108,6 +1131,8 @@
   }
 
   function finishGame(isFail) {
+    if (state.runFinished) return;
+    state.runFinished = true;
     clearInterval(state.timerInterval);
     if (state.subState && state.subState.destroy) state.subState.destroy();
     if (state.gameId === 'nback_flow' && state.subState) {
@@ -1115,7 +1140,7 @@
       clearTimeout(state.subState.isiTimerHandle);
       state.subState.awaitingAnswer = false;
     }
-    const achievedLevel = isFail ? Math.max(1, state.level - 1) : (state.gameId === 'nback_flow' ? 12 : 10);
+    const achievedLevel = isFail ? Math.max(1, state.level - 1) : (state.gameId === 'nback_flow' ? 12 : state.gameId === 'matrix_flash' ? 15 : state.gameId === 'ufov_dual_field' ? 14 : 10);
     const total = state.stats.correct + state.stats.mistakes;
     const acc = total > 0 ? Math.round((state.stats.correct / total) * 100) : 0;
     const avgRt = state.stats.reactionTimes.length > 0 
@@ -1136,6 +1161,9 @@
     }
     state.score = calcScore;
     state.lastAchievedLevel = achievedLevel;
+    const recordSaved = window.FocusHistory.save({ gameId: state.gameId, level: isFail ? state.level : achievedLevel, score: state.score, timestamp: Date.now() });
+    window.FocusHistory.render(document.getElementById('report-history'), GAME_IDS.map(id => ({ id, title: REGISTRY[id].title })), state.gameId);
+    if (!recordSaved) document.querySelector('#report-history .history-storage-note').textContent = '浏览器无法保存本次记录，请检查网站存储设置。';
 
     let grade = 'B';
     let percentile = 75;
@@ -1235,7 +1263,7 @@
 
     const g = REGISTRY[state.gameId];
     let duration;
-    if (state.gameId === 'nback_flow' || state.gameId === 'matrix_flash') {
+    if (state.gameId === 'nback_flow' || state.gameId === 'matrix_flash' || state.gameId === 'sequence_order' || g.engine === 'batch_master') {
       clearInterval(state.timerInterval);
       state.timer = 0;
     } else if (state.gameId === 'schulte_classic') {
@@ -1247,7 +1275,7 @@
       duration = Math.max(5.0, 16.0 - (lvl * 0.9)); // 关卡越高，限时越短
     }
     const waitForNewBack = state.gameId === 'nback_flow' && !isRestart;
-    if (state.gameId !== 'nback_flow' && state.gameId !== 'matrix_flash') {
+    if (state.gameId !== 'nback_flow' && state.gameId !== 'matrix_flash' && state.gameId !== 'sequence_order' && g.engine !== 'batch_master') {
       startTimer(duration);
     }
 
@@ -1353,7 +1381,13 @@
     const g = REGISTRY[state.gameId];
 
     // 00. 母版 01: N-Back 工作记忆刷新流 (自适应 1~3 Back)
-    if (state.gameId === 'matrix_flash') {
+    if (g.engine === 'batch_master') {
+      window.FocusBatchGames.render(lvl, { state, el, playTone, soundSuccess, deductLife, nextLevel, updateTimerDisplay });
+    }
+    else if (state.gameId === 'sequence_order') {
+      renderSequenceOrder(lvl);
+    }
+    else if (state.gameId === 'matrix_flash') {
       renderMatrixFlash(lvl);
     }
     else if (state.gameId === 'nback_flow' || modality === 'nback_flow') {
@@ -1424,14 +1458,148 @@
   // ---------------- 具体模态渲染器 ----------------
 
   // ==================== 母版 01: N-Back 工作记忆刷新流 引擎 ====================
+  function getSequenceOrderConfig(lvl) {
+    return { size: 3, count: 4 + (lvl - 1) % 5, reverse: lvl >= 6, exposure: 400, gap: 180, required: 5 };
+  }
+
+  function generateSequenceOrder(lvl) {
+    const { size, count } = getSequenceOrderConfig(lvl);
+    const positions = Array.from({ length: size * size }, (_, i) => i);
+    for (let i = positions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [positions[i], positions[j]] = [positions[j], positions[i]];
+    }
+    return positions.slice(0, count);
+  }
+
+  function renderSequenceOrder(lvl) {
+    const cfg = getSequenceOrderConfig(lvl);
+    const mode = cfg.reverse ? '倒序' : '正序';
+    const wrap = document.createElement('div');
+    wrap.className = 'matrix-flash-stage';
+    wrap.innerHTML = `<div class="nback-meta-bar"><span class="nback-mode-pill">${mode} · 记住 ${cfg.count} 格</span><span id="sequence-round-counter"></span></div>
+      <div class="matrix-flash-card"><div id="sequence-order-grid" class="matrix-flash-grid"></div></div>
+      <p id="sequence-phase-label" role="status" aria-live="polite"></p>`;
+    el.stage.appendChild(wrap);
+    const grid = wrap.querySelector('#sequence-order-grid');
+    const card = wrap.querySelector('.matrix-flash-card');
+    const status = wrap.querySelector('#sequence-phase-label');
+    grid.style.gridTemplateColumns = `repeat(${cfg.size}, minmax(0, 1fr))`;
+    grid.style.gridTemplateRows = `repeat(${cfg.size}, minmax(0, 1fr))`;
+    const sub = state.subState = { phase: 'ready', completed: 0, responseIndex: 0, sequence: [], timerHandle: null };
+    const cells = [];
+    for (let pos = 0; pos < cfg.size * cfg.size; pos++) {
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'matrix-flash-cell sequence-order-cell';
+      cell.dataset.pos = pos;
+      cell.setAttribute('aria-label', `第 ${Math.floor(pos / cfg.size) + 1} 行第 ${pos % cfg.size + 1} 列`);
+      cell.disabled = true;
+      cell.onclick = () => selectCell(pos);
+      cells.push(cell);
+      grid.appendChild(cell);
+    }
+    function updateProgress() {
+      wrap.querySelector('#sequence-round-counter').innerText = `连续正确 ${sub.completed}/${cfg.required} 组`;
+    }
+    function beginRound() {
+      sub.phase = 'flash';
+      sub.responseIndex = 0;
+      sub.sequence = generateSequenceOrder(lvl);
+      cells.forEach(cell => { cell.className = 'matrix-flash-cell sequence-order-cell'; cell.innerText = ''; cell.disabled = true; });
+      updateProgress();
+      el.gamePrompt.innerText = cfg.reverse ? '先观察顺序，随后从最后亮起的方格开始倒着点' : '先观察顺序，随后从第一个亮起的方格开始依次点';
+      showItem(0);
+    }
+    function showItem(index) {
+      const cell = cells[sub.sequence[index]];
+      cell.classList.add('matrix-lit-blue');
+      cell.innerText = index + 1;
+      status.innerText = `观察顺序 ${index + 1}/${cfg.count}，暂时不要点击`;
+      playTone(440, 'triangle', 0.12, 0.12);
+      sub.timerHandle = setTimeout(() => {
+        cell.classList.remove('matrix-lit-blue');
+        cell.innerText = '';
+        if (index + 1 < cfg.count) {
+          sub.timerHandle = setTimeout(() => showItem(index + 1), cfg.gap);
+        } else {
+          sub.phase = 'retention';
+          status.innerText = '在脑中保留刚才的顺序…';
+          sub.timerHandle = setTimeout(() => {
+            sub.phase = 'recall';
+            sub.recallStart = Date.now();
+            cells.forEach(item => { item.disabled = false; });
+            status.innerText = cfg.reverse ? '倒序：先点最后一格，再倒着往前点' : '正序：从第一格开始依次点';
+          }, 200);
+        }
+      }, cfg.exposure);
+    }
+    function selectCell(pos) {
+      if (sub.phase !== 'recall' || cells[pos].disabled) return;
+      state.stats.clicks++;
+      const expectedIndex = cfg.reverse ? cfg.count - 1 - sub.responseIndex : sub.responseIndex;
+      if (pos !== sub.sequence[expectedIndex]) {
+        sub.phase = 'error';
+        cells[pos].classList.add('matrix-wrong');
+        cells.forEach(cell => { cell.disabled = true; });
+        deductLife('顺序错误：请记住先后顺序再复现');
+        return;
+      }
+      sub.responseIndex++;
+      cells[pos].classList.add('matrix-correct');
+      cells[pos].innerText = sub.responseIndex;
+      cells[pos].disabled = true;
+      state.stats.correct++;
+      state.stats.reactionTimes.push(Date.now() - sub.recallStart);
+      sub.recallStart = Date.now();
+      soundSuccess();
+      status.innerText = `已复现 ${sub.responseIndex}/${cfg.count} 格`;
+      if (sub.responseIndex === cfg.count) {
+        sub.phase = 'complete';
+        sub.completed++;
+        cells.forEach(cell => { cell.disabled = true; });
+        updateProgress();
+        status.innerText = sub.completed === cfg.required ? '本关完成！' : '本组正确，准备下一组';
+        sub.timerHandle = setTimeout(sub.completed === cfg.required ? nextLevel : beginRound, 600);
+      }
+    }
+    sub.restart = () => {
+      clearTimeout(sub.timerHandle);
+      sub.completed = 0;
+      updateProgress();
+      const notice = document.createElement('div');
+      notice.className = 'nback-transition-notice sequence-error-notice';
+      notice.setAttribute('role', 'alert');
+      notice.innerHTML = '<h3>顺序错误</h3><p>连续进度已重置，认真记住下一组哦！</p><p>即将重新开始…</p>';
+      card.appendChild(notice);
+      sub.timerHandle = setTimeout(() => { notice.remove(); beginRound(); }, 2000);
+    };
+    sub.destroy = () => {
+      clearTimeout(sub.timerHandle);
+      sub.phase = 'finished';
+      cells.forEach(cell => { cell.disabled = true; });
+    };
+    updateProgress();
+    status.innerText = `本关${mode}复现，点击开始后观察`;
+    el.gamePrompt.innerText = cfg.reverse ? '倒序挑战：最后亮起的先点，第一个亮起的最后点' : '正序挑战：按方格亮起的先后顺序点击';
+    el.controls.innerHTML = '';
+    const start = document.createElement('button');
+    start.className = 'duo-btn';
+    start.innerText = `开始${mode}训练`;
+    start.onclick = () => { start.remove(); el.controls.innerText = `观察结束后，按${mode}点击方格`; beginRound(); };
+    el.controls.appendChild(start);
+  }
+
   function getMatrixFlashConfig(lvl) {
-    const levels = [
-      [4, 3, 1200, 2], [4, 4, 1100, 2], [4, 4, 1100, 3],
-      [4, 5, 1000, 3], [4, 6, 950, 3], [5, 5, 900, 3],
-      [5, 6, 850, 3], [5, 7, 800, 3], [5, 7, 850, 3], [5, 8, 800, 3]
-    ];
-    const [size, count, exposure, required] = levels[lvl - 1];
-    return { size, count, exposure, required, blueCount: lvl >= 9 ? 3 : count };
+    const count = lvl + 2;
+    const exposures = [1200, 1100, 1100, 1000, 950, 900, 850, 800, 850, 800];
+    return {
+      size: lvl <= 5 ? 4 : 5,
+      count,
+      exposure: exposures[lvl - 1] || 800,
+      required: 5,
+      blueCount: lvl >= 9 ? Math.floor(count / 2) : count
+    };
   }
 
   function generateMatrixFlashTargets(lvl) {
@@ -1670,6 +1838,27 @@
     return { n, sequence };
   }
 
+  function generateNBackDistraction(width, height) {
+    const objects = ['bird', 'football', 'balloon', 'plane', 'kite', 'butterfly', 'fish', 'rocket', 'star', 'apple', 'umbrella', 'leaf'];
+    const object = objects[Math.floor(Math.random() * objects.length)];
+    const entry = ['left', 'right', 'top', 'bottom'][Math.floor(Math.random() * 4)];
+    const diagonal = Math.random() < 0.5;
+    const lane = Math.random() < 0.5 ? 0.25 : 0.75;
+    const horizontal = entry === 'left' || entry === 'right';
+    const startCross = lane * (horizontal ? height : width) - (horizontal ? 26 : 30);
+    const endCross = (diagonal ? 1 - lane : lane) * (horizontal ? height : width) - (horizontal ? 26 : 30);
+    const forward = entry === 'left' || entry === 'top';
+    const startAxis = forward ? (horizontal ? -68 : -60) : (horizontal ? width + 8 : height + 8);
+    const endAxis = forward ? (horizontal ? width + 8 : height + 8) : (horizontal ? -68 : -60);
+    return {
+      object, entry, diagonal,
+      startX: horizontal ? startAxis : startCross,
+      startY: horizontal ? startCross : startAxis,
+      endX: horizontal ? endAxis : endCross,
+      endY: horizontal ? endCross : endAxis
+    };
+  }
+
   function renderNBackFlow(lvl, requireConfirmation) {
     el.stage.innerHTML = '';
     const { n, size, totalSteps, stepDuration } = getNBackConfig(lvl);
@@ -1891,23 +2080,26 @@
 
     function clearDistraction() {
       card.querySelectorAll('.nback-distraction').forEach(node => node.remove());
-      gridCells.forEach(cell => cell.classList.remove('nback-fake-flip'));
     }
 
     function showDistraction(gap) {
-      const duration = Math.min(850, gap - 30);
-      if (Math.random() < 0.5) {
-        const bird = document.createElement('div');
-        bird.className = 'nback-distraction';
-        bird.setAttribute('aria-hidden', 'true');
-        bird.style.setProperty('--distraction-duration', `${duration}ms`);
-        bird.innerHTML = '<svg class="nback-flying-bird" viewBox="0 0 48 32" width="48" height="32"><path d="M4 20 Q14 7 24 20 Q34 7 44 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>';
-        card.appendChild(bird);
-      } else {
-        const cell = gridCells[Math.floor(Math.random() * gridCells.length)];
-        cell.style.setProperty('--distraction-duration', `${duration}ms`);
-        cell.classList.add('nback-fake-flip');
-      }
+      const flight = generateNBackDistraction(card.clientWidth, card.clientHeight);
+      const distraction = document.createElement('div');
+      distraction.className = 'nback-distraction';
+      distraction.setAttribute('aria-hidden', 'true');
+      distraction.dataset.entry = flight.entry;
+      distraction.dataset.motion = flight.diagonal ? 'diagonal' : 'straight';
+      ['startX', 'startY', 'endX', 'endY'].forEach(key => {
+        distraction.style.setProperty('--' + key, `${flight[key]}px`);
+      });
+      distraction.style.setProperty('--distraction-duration', `${gap - 100}ms`);
+      const picture = document.createElement('img');
+      picture.className = 'nback-flying-picture';
+      picture.src = `assets/distractions/${flight.object}.svg`;
+      picture.alt = '';
+      picture.draggable = false;
+      distraction.appendChild(picture);
+      card.appendChild(distraction);
     }
 
     function doISITransition() {
@@ -1923,7 +2115,7 @@
       sub.awaitingAnswer = false;
       const btnMatch = document.getElementById('btn-nback-match');
       if (btnMatch) btnMatch.disabled = true;
-      const gap = groupFinished ? 1200 : sub.n >= 2 ? 180 : 360;
+      const gap = (sub.stepIdx + 1) % sub.n === 0 ? 2000 : 180;
       if ((sub.stepIdx + 1) % sub.n === 0 && sub.stepIdx + 1 < sub.totalSteps) showDistraction(gap);
       sub.isiTimerHandle = setTimeout(() => {
         sub.stepIdx++;
@@ -1973,7 +2165,7 @@
       notice.innerHTML = `<h3>第 ${lvl} 关 · ${n}-Back</h3>
         <p>${n === 1 ? '先记住第一项，再将每一项与上一项比较。' : `每 ${n} 项为一组，等整组显示完再与上一组比较。`}</p>
         <p>位置与图标都相同才点击，不同无需点击。</p>
-        <p>组间的小鸟和空格翻动只是干扰，不需要判断。</p>`;
+        <p>组间从不同方向飞过的物体只是干扰，不需要判断。</p>`;
       card.appendChild(notice);
       el.gamePrompt.innerText = `第 ${lvl} 关 · ${n}-Back，准备好后点击开始`;
       const btnMatch = document.getElementById('btn-nback-match');
@@ -2801,12 +2993,45 @@
     const urlParams = new URLSearchParams(window.location.search);
     const initialGame = hash || urlParams.get('game') || 'nback_flow';
 
-    switchGame(initialGame, 1);
+    const games = GAME_IDS.map(id => ({ id, title: REGISTRY[id].title, prompt: id === 'nback_flow' ? '记住上一组的位置、图标和顺序，判断整组是否相同；从 1 项逐步增加到 4 项。' : REGISTRY[id].prompt }));
+    const home = document.getElementById('focus-home');
+    const catalog = document.getElementById('focus-catalog');
+    games.forEach(game => {
+      const link = document.createElement('a'); link.className = 'focus-game-entry'; link.href = '#'+game.id;
+      const image = document.createElement('img'); image.src = 'reports/game-previews/'+game.id+'.png'; image.alt = game.title.replace(/^母版 \d+ · /, '')+'试玩预览'; image.loading = 'lazy';
+      const title = document.createElement('h2'); title.textContent = game.title.replace(/^母版 /, '');
+      const description = document.createElement('p'); description.textContent = game.prompt;
+      const action = document.createElement('span'); action.textContent = '开始训练 →';
+      link.append(image, title, description, action); link.onclick = event => { event.preventDefault(); switchGame(game.id, 1); }; catalog.appendChild(link);
+    });
+    function showHome() {
+      clearInterval(state.timerInterval);
+      if (state.subState && state.subState.destroy) state.subState.destroy();
+      if (state.subState) { clearTimeout(state.subState.stepTimerHandle); clearTimeout(state.subState.isiTimerHandle); clearTimeout(state.subState.timerHandle); state.subState.awaitingAnswer = false; }
+      el.reportModal.classList.add('hidden');
+      document.body.classList.add('focus-home-view'); home.hidden = false;
+      history.replaceState(null, '', '#home');
+      window.FocusHistory.render(document.getElementById('home-history'), games, state.gameId || games[0].id);
+      window.scrollTo(0, 0);
+    }
+    document.getElementById('focus-home-btn').onclick = showHome;
+    document.getElementById('report-home-btn').onclick = showHome;
+    if (hash === 'home' || (!hash && !urlParams.get('game'))) showHome();
+    else switchGame(initialGame, 1);
   });
 
   // 9. 全局键盘快捷键响应 (支持母版 01 N-Back 等高频神经反应游戏)
   window.addEventListener('keydown', (e) => {
+    if (document.body.classList.contains('focus-home-view')) return;
     if (el.reportModal && !el.reportModal.classList.contains('hidden')) return;
+
+    if (state.gameId === 'flanker_birds') {
+      if (e.altKey || e.ctrlKey || e.metaKey || (e.target instanceof Element && e.target.closest('input, select, textarea, [contenteditable="true"]'))) return;
+      const direction = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down', a: 'left', d: 'right', w: 'up', s: 'down' }[e.key.length === 1 ? e.key.toLowerCase() : e.key]
+        || { Numpad4: 'left', Numpad6: 'right', Numpad8: 'up', Numpad2: 'down' }[e.code];
+      if (direction) { e.preventDefault(); if (!e.repeat && state.subState && state.subState.handleDirection) state.subState.handleDirection(direction); }
+      return;
+    }
 
     if (state.gameId === 'nback_flow') {
       if (document.querySelector('.nback-transition-notice')) return;

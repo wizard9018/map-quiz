@@ -22,7 +22,7 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
           const items = [];
           for (let item = 0; item < 2; item++) {
             items.push(await page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText })));
-            await page.clock.runFor(1500 + (item === 0 ? 180 : group === 0 ? 1200 : 0));
+            await page.clock.runFor(1500 + (item === 0 ? 180 : group === 0 ? 2000 : 0));
           }
           groups.push(items);
         }
@@ -64,11 +64,12 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
     await page.clock.pauseAt(new Date());
     await page.addInitScript(() => { Math.random = () => 0.9; });
     await page.goto(process.env.FOCUS_TEST_URL || 'http://127.0.0.1:8080/focus.html');
+    await page.getByRole('button', { name: '开始 1-Back' }).click();
     const readItem = () => page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText }));
     for (let mistake = 0; mistake < 2; mistake++) {
-      await page.clock.runFor(mistake === 0 ? 300 : 2000);
+      if (mistake > 0) await page.clock.runFor(2000);
       const previous = await readItem();
-      await page.clock.runFor(1860);
+      await page.clock.runFor(3500);
       const current = await readItem();
       if (JSON.stringify(previous) === JSON.stringify(current)) await page.clock.runFor(1500);
       else await page.locator('#btn-nback-match').click();
@@ -76,12 +77,12 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
     assert.equal(await page.locator('.heart.active').count(), 1);
     await page.clock.runFor(2000);
     let previous = await readItem();
-    await page.clock.runFor(1860);
+    await page.clock.runFor(3500);
     for (let judgment = 0; judgment < 10; judgment++) {
       const current = await readItem();
       if (JSON.stringify(previous) === JSON.stringify(current)) await page.locator('#btn-nback-match').click();
       previous = current;
-      await page.clock.runFor(1860);
+      await page.clock.runFor(3500);
     }
     await page.clock.runFor(1000);
     assert.equal(await page.locator('.heart.active').count(), 3);

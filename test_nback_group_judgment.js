@@ -20,7 +20,25 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
         const current = [];
         for (let item = 0; item < n; item++) {
           previous.push(await page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText })));
-          await page.clock.runFor(1500 + (item < n - 1 ? 180 : 1200));
+          await page.clock.runFor(1500);
+          if (item < n - 1) {
+            assert.equal(await page.locator('.nback-distraction').count(), 0, 'No distractions inside a group');
+            await page.clock.runFor(180);
+          } else {
+            assert.equal(await page.locator('.nback-distraction').count(), 1);
+            await page.waitForFunction(() => { const picture = document.querySelector('.nback-flying-picture'); return picture && picture.complete && picture.naturalWidth > 0; });
+            assert.equal(await page.locator('.nback-flying-picture').getAttribute('src'), `assets/distractions/${random === 0.1 ? 'football' : 'umbrella'}.svg`);
+            assert.equal(await page.locator('.active-lit').count(), 0);
+            assert.equal(await page.locator('#btn-nback-match').isDisabled(), true);
+            assert.equal(await page.locator('.nback-grid-cell').evaluateAll(cells => cells.every(cell => cell.innerText === '')), true,
+              'Distractions reveal no icons');
+            await page.keyboard.press('Space');
+            assert.equal(await page.locator('.heart.active').count(), 3);
+            await page.clock.runFor(1999);
+            assert.equal(await page.locator('.active-lit').count(), 0);
+            await page.clock.runFor(1);
+            assert.equal(await page.locator('.nback-distraction').count(), 0);
+          }
         }
         const button = page.locator('#btn-nback-match');
         for (let item = 0; item < n; item++) {

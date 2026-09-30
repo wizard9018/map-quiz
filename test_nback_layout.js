@@ -12,7 +12,7 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
       await page.goto('http://127.0.0.1:8080/focus.html');
       await page.locator('#level-select').selectOption(String(level));
       const n = Math.ceil(level / 3);
-      if ([4, 7, 10].includes(level)) await page.getByRole('button', { name: `开始 ${n}-Back` }).click();
+      await page.getByRole('button', { name: `开始 ${n}-Back` }).click();
       const grid = page.locator('#nback-grid-matrix');
       await grid.waitFor();
       const size = 3 + (level - 1) % 3;
@@ -20,10 +20,10 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
       const cell = await page.locator('.nback-grid-cell').first().boundingBox();
       assert.ok(Math.abs(cell.width - cell.height) < 0.1, 'Cells must stay square');
       const initial = await grid.boundingBox();
-      await page.clock.runFor(300);
+
       const before = await grid.boundingBox();
       assert.deepEqual(before, initial, 'Grid must stay fixed when observation starts');
-      await page.clock.runFor(n === 1 ? 1870 : 2 * (n * 1500 + (n - 1) * 180) + 1200 + 10);
+      await page.clock.runFor(n === 1 ? 3510 : 2 * (n * 1500 + (n - 1) * 180) + 2000 + 10);
       assert.equal(await page.locator('#btn-nback-match').isEnabled(), true);
       const after = await grid.boundingBox();
       console.log(JSON.stringify({ width, level, before, after }));
