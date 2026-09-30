@@ -1247,6 +1247,25 @@ body {
   box-shadow: 0 0 20px rgba(239, 68, 68, 0.35) !important;
 }
 
+.nback-transition-notice {
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.nback-transition-notice h3 {
+  font-size: 18px;
+  color: #0369a1;
+}
+
 @keyframes nbackShake {
   10%, 90% { transform: translate3d(-3px, 0, 0); }
   20%, 80% { transform: translate3d(5px, 0, 0); }

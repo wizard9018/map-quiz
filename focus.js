@@ -1132,6 +1132,10 @@
     if (state.subState && state.subState.timerHandle) {
       clearTimeout(state.subState.timerHandle);
     }
+    if (state.gameId === 'nback_flow' && state.subState) {
+      clearTimeout(state.subState.stepTimerHandle);
+      clearTimeout(state.subState.isiTimerHandle);
+    }
     state.subState = { startStamp: Date.now() };
 
     const g = REGISTRY[state.gameId];
@@ -1139,7 +1143,8 @@
     if (state.gameId === 'nback_flow') {
       const totalSteps = (lvl <= 3) ? 10 : (lvl <= 7 ? 14 : 18);
       const stepDuration = Math.max(0.9, 1.6 - (lvl * 0.07));
-      duration = Math.ceil(totalSteps * (stepDuration + 0.35)) + 6;
+      const groupPauses = getNForLevel(lvl) === 2 ? Math.floor(totalSteps / 2) * 0.84 : 0;
+      duration = Math.ceil(totalSteps * (stepDuration + 0.36) + groupPauses) + 6;
     } else if (state.gameId === 'schulte_classic') {
       const cfg = SCHULTE_LEVEL_CONFIG[lvl] || { cols: 5, time: 20 };
       duration = cfg.time;
@@ -1148,13 +1153,23 @@
     } else {
       duration = Math.max(5.0, 16.0 - (lvl * 0.9)); // 关卡越高，限时越短
     }
-    startTimer(duration);
+    const waitFor2Back = state.gameId === 'nback_flow' && lvl === 4 && !isRestart;
+    if (waitFor2Back) {
+      clearInterval(state.timerInterval);
+      el.timerBadge.innerText = '等待开始';
+    } else {
+      startTimer(duration);
+    }
 
     // 根据手势类型先生成基础底栏
     renderControlsForGesture(g.gesture);
 
     // 根据模式生成舞台
-    renderStageForModality(g.modality, g.layout, lvl);
+    if (waitFor2Back) {
+      renderNBackFlow(lvl, () => startTimer(duration));
+    } else {
+      renderStageForModality(g.modality, g.layout, lvl);
+    }
   }
 
   // 渲染操作按键
@@ -1393,7 +1408,7 @@
     return { n, sequence };
   }
 
-  function renderNBackFlow(lvl) {
+  function renderNBackFlow(lvl, onConfirmStart) {
     el.stage.innerHTML = '';
     const n = getNForLevel(lvl);
     const totalSteps = (lvl <= 3) ? 10 : (lvl <= 7 ? 14 : 18);
@@ -1465,7 +1480,9 @@
     function updateHeaderUI(curStep) {
       const counterEl = document.getElementById('nback-step-counter');
       const fillEl = document.getElementById('nback-progress-fill');
-      if (counterEl) counterEl.innerText = `${curStep + 1} / ${totalSteps}`;
+      if (counterEl) counterEl.innerText = n === 2
+        ? `第 ${Math.floor(curStep / 2) + 1} 组 · ${curStep % 2 + 1}/2 项`
+        : `${curStep + 1} / ${totalSteps}`;
       if (fillEl) {
         const pct = Math.round((curStep / totalSteps) * 100);
         fillEl.style.width = `${pct}%`;
@@ -1565,17 +1582,47 @@
         });
       }
 
+      const groupFinished = sub.n === 2 && (sub.stepIdx + 1) % 2 === 0;
+      if (groupFinished && sub.stepIdx + 1 < sub.totalSteps) {
+        const counterEl = document.getElementById('nback-step-counter');
+        if (counterEl) counterEl.innerText = `第 ${Math.floor(sub.stepIdx / 2) + 1} 组 · 停顿`;
+      }
+      sub.awaitingAnswer = false;
+      const btnMatch = document.getElementById('btn-nback-match');
+      if (btnMatch) btnMatch.disabled = true;
       sub.isiTimerHandle = setTimeout(() => {
         sub.stepIdx++;
         advanceToNext();
-      }, 360); // 360ms 间歇期，只有亮块熄灭
+      }, groupFinished ? 1200 : 360); // 2-Back 每两项后停顿，形成明确分组节拍
     }
 
     state.subState.advanceToNext = advanceToNext;
     state.subState.doISITransition = doISITransition;
 
     // 启动第一步
-    setTimeout(advanceToNext, 300);
+    if (onConfirmStart) {
+      const notice = document.createElement('div');
+      notice.className = 'nback-transition-notice';
+      notice.innerHTML = `<h3>接下来：2-Back</h3>
+        <p>现在每两项为一组，组与组之间会停顿。</p>
+        <p>先记住第一组。之后每项与<strong>两步前</strong>比较：第 1 项对上一组第 1 项，第 2 项对上一组第 2 项。</p>
+        <p>位置和图标都相同才点击。</p>`;
+      card.appendChild(notice);
+      el.gamePrompt.innerText = '从 1-Back 升级到 2-Back，准备好后点击开始';
+      const btnMatch = document.getElementById('btn-nback-match');
+      btnMatch.innerText = '开始 2-Back';
+      card.onclick = null;
+      btnMatch.onclick = () => {
+        notice.remove();
+        btnMatch.onclick = () => handleNBackMatchTap();
+        card.onclick = () => handleNBackMatchTap();
+        btnMatch.disabled = true;
+        onConfirmStart();
+        advanceToNext();
+      };
+    } else {
+      state.subState.stepTimerHandle = setTimeout(advanceToNext, 300);
+    }
   }
 
   function handleNBackMatchTap() {
@@ -1621,11 +1668,11 @@
     }
 
     // 短暂留存后熄灭方块并推进下一步
-    setTimeout(() => {
+    sub.stepTimerHandle = setTimeout(() => {
       if (typeof sub.doISITransition === 'function') {
         sub.doISITransition();
       }
-    }, 200);
+    }, sub.n === 2 ? Math.max(0, sub.stepDuration * 1000 - rt) : 200);
   }
 
   // 0. 空间 2-Back 九宫格位置记忆挑战 (第 2 款游戏)
@@ -2395,6 +2442,7 @@
     if (el.reportModal && !el.reportModal.classList.contains('hidden')) return;
 
     if (state.gameId === 'nback_flow') {
+      if (document.querySelector('.nback-transition-notice')) return;
       if (e.key === ' ' || e.key === 'f' || e.key === 'F' || e.key === 'Enter') {
         e.preventDefault();
         handleNBackMatchTap();
