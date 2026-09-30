@@ -1307,7 +1307,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
+  font-size: var(--nback-icon-size, 32px);
   user-select: none;
   line-height: 1;
   min-width: 0;

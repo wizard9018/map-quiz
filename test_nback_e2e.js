@@ -1,13 +1,14 @@
-// test_nback_e2e.js - 母版 01 N-Back 端到端 1~10 关仿真与生命周期回归测试
+// test_nback_e2e.js - 母版 01 N-Back 端到端 1~12 关仿真与生命周期回归测试
 const assert = require('assert');
 const {
   getNForLevel,
+  getNBackConfig,
   getStimulusPool,
   isStimulusEqual,
   generateNBackSequence
 } = require('./test_master_01_nback.js');
 
-console.log('>>> [母版 01 N-Back] 开始执行 1~10 关全周期端到端仿真...');
+console.log('>>> [母版 01 N-Back] 开始执行 1~12 关全周期端到端仿真...');
 
 // 仿真玩家状态机
 class NBackSimulator {
@@ -24,7 +25,7 @@ class NBackSimulator {
   playLevel(lvl, errorRate = 0.05) {
     this.lives = 3; // 每关开始满血 3 命
     const n = getNForLevel(lvl);
-    const totalSteps = (lvl <= 3) ? 10 : (lvl <= 7 ? 14 : 18);
+    const totalSteps = getNBackConfig(lvl).totalSteps;
     const { sequence } = generateNBackSequence(lvl, totalSteps, 0.35);
 
     for (let stepIdx = 0; stepIdx < totalSteps; stepIdx++) {
@@ -68,7 +69,7 @@ class NBackSimulator {
 // 场景 1: 优秀玩家 (错误率 3%) 冲击 10 关大满贯
 const p1 = new NBackSimulator();
 let maxLevel = 1;
-for (let lvl = 1; lvl <= 10; lvl++) {
+for (let lvl = 1; lvl <= 12; lvl++) {
   const res = p1.playLevel(lvl, 0.02);
   if (res.status === 'CLEARED') {
     maxLevel = lvl;
@@ -77,12 +78,12 @@ for (let lvl = 1; lvl <= 10; lvl++) {
   }
 }
 console.log(`✅ 场景 1 仿真完成: 优秀玩家闯关结果 = 第 ${maxLevel} 关, 剩余命数 = ${p1.lives}, 累计得分 = ${p1.score}`);
-assert(maxLevel >= 9, '低失误率玩家应稳定冲至 9~10 关高阶');
+assert(maxLevel >= 11, '低失误率玩家应稳定冲至 11~12 关高阶');
 
 // 场景 2: 验证 3 命耗尽保护机制 (高失误率玩家必定在早期止步并进入战报)
 const p2 = new NBackSimulator();
 let failed = false;
-for (let lvl = 1; lvl <= 10; lvl++) {
+for (let lvl = 1; lvl <= 12; lvl++) {
   const res = p2.playLevel(lvl, 0.8); // 80% 高失误
   if (res.status === 'GAMEOVER') {
     failed = true;

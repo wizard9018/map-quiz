@@ -5,22 +5,25 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
   const browser = await chromium.launch({ headless: true });
   try {
     for (const width of [320, 390, 1280]) {
-      for (const level of [1, 4, 8]) {
+      for (let level = 1; level <= 12; level++) {
       const page = await browser.newPage({ viewport: { width, height: 900 } });
       await page.clock.install();
       await page.clock.pauseAt(new Date());
       await page.goto('http://127.0.0.1:8080/focus.html');
       await page.locator('#level-select').selectOption(String(level));
-      if (level === 4) await page.getByRole('button', { name: '开始 2-Back' }).click();
+      const n = Math.ceil(level / 3);
+      if ([4, 7, 10].includes(level)) await page.getByRole('button', { name: `开始 ${n}-Back` }).click();
       const grid = page.locator('#nback-grid-matrix');
       await grid.waitFor();
+      const size = 3 + (level - 1) % 3;
+      assert.equal(await page.locator('.nback-grid-cell').count(), size * size);
+      const cell = await page.locator('.nback-grid-cell').first().boundingBox();
+      assert.ok(Math.abs(cell.width - cell.height) < 0.1, 'Cells must stay square');
       const initial = await grid.boundingBox();
       await page.clock.runFor(300);
       const before = await grid.boundingBox();
       assert.deepEqual(before, initial, 'Grid must stay fixed when observation starts');
-      const n = level <= 3 ? 1 : level <= 7 ? 2 : 3;
-      const duration = Math.max(0.9, 1.6 - level * 0.07);
-      await page.clock.runFor(Math.ceil(n * (duration * 1000 + 360)) + (n === 2 ? 840 : 0) + 10);
+      await page.clock.runFor(n === 1 ? 1870 : n * 1500 + (n - 1) * 180 + 1200 + 10);
       assert.equal(await page.locator('#btn-nback-match').isEnabled(), true);
       const after = await grid.boundingBox();
       console.log(JSON.stringify({ width, level, before, after }));

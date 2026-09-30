@@ -908,6 +908,15 @@
   // 5. 切换游戏主函数
   function switchGame(gid, lvl = 1) {
     if (!REGISTRY[gid]) gid = 'schulte_classic';
+    el.levelSelect.querySelectorAll('option[value="11"], option[value="12"]').forEach(option => option.remove());
+    if (gid === 'nback_flow') {
+      [11, 12].forEach(level => {
+        const option = document.createElement('option');
+        option.value = level;
+        option.innerText = `第 ${level} 关`;
+        el.levelSelect.appendChild(option);
+      });
+    }
     state.gameId = gid;
     state.level = lvl;
     state.lives = 3;
@@ -996,8 +1005,8 @@
     state.stats.correct++;
     state.score += (state.level * 10) + Math.round(state.timer * 5);
 
-    if (state.level >= 10) {
-      finishGame(false); // 10关全通
+    if (state.level >= (state.gameId === 'nback_flow' ? 12 : 10)) {
+      finishGame(false);
       return;
     }
 
@@ -1031,7 +1040,7 @@
 
   function finishGame(isFail) {
     clearInterval(state.timerInterval);
-    const achievedLevel = isFail ? Math.max(1, state.level - 1) : 10;
+    const achievedLevel = isFail ? Math.max(1, state.level - 1) : (state.gameId === 'nback_flow' ? 12 : 10);
     const total = state.stats.correct + state.stats.mistakes;
     const acc = total > 0 ? Math.round((state.stats.correct / total) * 100) : 0;
     const avgRt = state.stats.reactionTimes.length > 0 
@@ -1078,7 +1087,7 @@
 
     el.reportGrade.innerText = grade;
     el.reportGrade.style.borderColor = (grade==='S'||grade==='A') ? '#58cc02' : (grade==='B' ? '#1cb0f6' : '#f97316');
-    el.reportTitle.innerText = isFail ? `挑战结束 · 止步第 ${state.level} 关` : `🏆 恭喜！十关大满贯通关！`;
+    el.reportTitle.innerText = isFail ? `挑战结束 · 止步第 ${state.level} 关` : `🏆 恭喜！${achievedLevel} 关大满贯通关！`;
     el.statLevel.innerText = `第 ${achievedLevel} 关`;
     el.statAcc.innerText = `${acc}%`;
     el.statRt.innerText = `${avgRt}ms`;
@@ -1141,10 +1150,10 @@
     const g = REGISTRY[state.gameId];
     let duration;
     if (state.gameId === 'nback_flow') {
-      const totalSteps = (lvl <= 3) ? 10 : (lvl <= 7 ? 14 : 18);
-      const stepDuration = Math.max(0.9, 1.6 - (lvl * 0.07));
-      const groupPauses = getNForLevel(lvl) === 2 ? Math.floor(totalSteps / 2) * 0.84 : 0;
-      duration = Math.ceil(totalSteps * (stepDuration + 0.36) + groupPauses) + 6;
+      const cfg = getNBackConfig(lvl);
+      const gaps = cfg.n === 1 ? cfg.totalSteps * 360
+        : Math.floor(cfg.totalSteps / cfg.n) * 1200 + (cfg.totalSteps - Math.floor(cfg.totalSteps / cfg.n)) * 180;
+      duration = Math.ceil((cfg.totalSteps * cfg.stepDuration * 1000 + gaps) / 1000) + 6;
     } else if (state.gameId === 'schulte_classic') {
       const cfg = SCHULTE_LEVEL_CONFIG[lvl] || { cols: 5, time: 20 };
       duration = cfg.time;
@@ -1153,8 +1162,8 @@
     } else {
       duration = Math.max(5.0, 16.0 - (lvl * 0.9)); // 关卡越高，限时越短
     }
-    const waitFor2Back = state.gameId === 'nback_flow' && lvl === 4 && !isRestart;
-    if (waitFor2Back) {
+    const waitForNewBack = state.gameId === 'nback_flow' && [4, 7, 10].includes(lvl) && !isRestart;
+    if (waitForNewBack) {
       clearInterval(state.timerInterval);
       el.timerBadge.innerText = '等待开始';
     } else {
@@ -1165,7 +1174,7 @@
     renderControlsForGesture(g.gesture);
 
     // 根据模式生成舞台
-    if (waitFor2Back) {
+    if (waitForNewBack) {
       renderNBackFlow(lvl, () => startTimer(duration));
     } else {
       renderStageForModality(g.modality, g.layout, lvl);
@@ -1175,7 +1184,7 @@
   // 渲染操作按键
   function renderControlsForGesture(gesture) {
     if (gesture === 'single_match_tap') {
-      const n = (state.subState && state.subState.n) ? state.subState.n : (state.level <= 3 ? 1 : (state.level <= 7 ? 2 : 3));
+      const n = (state.subState && state.subState.n) ? state.subState.n : getNForLevel(state.level);
       const btnMatch = document.createElement('button');
       btnMatch.className = 'duo-btn-match-single';
       btnMatch.id = 'btn-nback-match';
@@ -1332,9 +1341,17 @@
 
   // ==================== 母版 01: N-Back 工作记忆刷新流 引擎 ====================
   function getNForLevel(lvl) {
-    if (lvl <= 3) return 1;
-    if (lvl <= 7) return 2;
-    return 3;
+    return Math.ceil(lvl / 3);
+  }
+
+  function getNBackConfig(lvl) {
+    const n = getNForLevel(lvl);
+    return {
+      n,
+      size: 3 + (lvl - 1) % 3,
+      stepDuration: 1.5,
+      totalSteps: n === 1 ? 10 : n === 2 ? 14 : n === 3 ? 18 : 24
+    };
   }
 
   const NBACK_ICONS = [
@@ -1354,6 +1371,8 @@
 
   function generateNBackSequence(lvl, totalSteps = 12, targetRatio = 0.35) {
     const n = getNForLevel(lvl);
+    const size = getNBackConfig(lvl).size;
+    const positions = Array.from({ length: size * size }, (_, i) => i);
     const sequence = [];
 
     for (let i = 0; i < totalSteps; i++) {
@@ -1362,7 +1381,7 @@
 
       if (i < n) {
         const ic = NBACK_ICONS[Math.floor(Math.random() * NBACK_ICONS.length)];
-        const p = Math.floor(Math.random() * 9);
+        const p = Math.floor(Math.random() * positions.length);
         item = { pos: p, icon: ic.icon, id: ic.id };
         expectedMatch = false;
       } else {
@@ -1383,12 +1402,12 @@
             item = { pos: prev.pos, icon: pick.icon, id: pick.id };
           } else if (lureType < 0.70) {
             // 不同位置，相同图标 (考验空间抗扰)
-            const otherPos = [0, 1, 2, 3, 4, 5, 6, 7, 8].filter(x => x !== prev.pos);
+            const otherPos = positions.filter(x => x !== prev.pos);
             const pickPos = otherPos[Math.floor(Math.random() * otherPos.length)];
             item = { pos: pickPos, icon: prev.icon, id: prev.id };
           } else {
             // 位置与图标均不同
-            const otherPos = [0, 1, 2, 3, 4, 5, 6, 7, 8].filter(x => x !== prev.pos);
+            const otherPos = positions.filter(x => x !== prev.pos);
             const others = NBACK_ICONS.filter(x => x.id !== prev.id);
             const pickPos = otherPos[Math.floor(Math.random() * otherPos.length)];
             const pick = others[Math.floor(Math.random() * others.length)];
@@ -1410,9 +1429,7 @@
 
   function renderNBackFlow(lvl, onConfirmStart) {
     el.stage.innerHTML = '';
-    const n = getNForLevel(lvl);
-    const totalSteps = (lvl <= 3) ? 10 : (lvl <= 7 ? 14 : 18);
-    const stepDuration = Math.max(0.9, 1.6 - (lvl * 0.07));
+    const { n, size, totalSteps, stepDuration } = getNBackConfig(lvl);
     const { sequence } = generateNBackSequence(lvl, totalSteps, 0.35);
 
     // 1. 构建主舞台（骨架常驻，绝不整体闪烁）
@@ -1432,12 +1449,15 @@
 
     const card = document.getElementById('nback-stage-card');
 
-    // 2. 统一九宫格架构：开局挂载 3×3 矩阵，永久常驻
+    // 棋盘在关卡内常驻，按关卡使用 3×3、4×4 或 5×5。
     const grid = document.createElement('div');
     grid.className = 'nback-grid-matrix';
     grid.id = 'nback-grid-matrix';
+    grid.style.gridTemplateColumns = `repeat(${size}, minmax(0, 1fr))`;
+    grid.style.gridTemplateRows = `repeat(${size}, minmax(0, 1fr))`;
+    grid.style.setProperty('--nback-icon-size', size === 3 ? '32px' : size === 4 ? '24px' : '20px');
     const gridCells = [];
-    for (let p = 0; p < 9; p++) {
+    for (let p = 0; p < size * size; p++) {
       const cell = document.createElement('div');
       cell.className = 'nback-grid-cell';
       cell.dataset.pos = p;
@@ -1480,8 +1500,8 @@
     function updateHeaderUI(curStep) {
       const counterEl = document.getElementById('nback-step-counter');
       const fillEl = document.getElementById('nback-progress-fill');
-      if (counterEl) counterEl.innerText = n === 2
-        ? `第 ${Math.floor(curStep / 2) + 1} 组 · ${curStep % 2 + 1}/2 项`
+      if (counterEl) counterEl.innerText = n >= 2
+        ? `第 ${Math.floor(curStep / n) + 1} 组 · ${curStep % n + 1}/${n} 项`
         : `${curStep + 1} / ${totalSteps}`;
       if (fillEl) {
         const pct = Math.round((curStep / totalSteps) * 100);
@@ -1582,10 +1602,10 @@
         });
       }
 
-      const groupFinished = sub.n === 2 && (sub.stepIdx + 1) % 2 === 0;
+      const groupFinished = sub.n >= 2 && (sub.stepIdx + 1) % sub.n === 0;
       if (groupFinished && sub.stepIdx + 1 < sub.totalSteps) {
         const counterEl = document.getElementById('nback-step-counter');
-        if (counterEl) counterEl.innerText = `第 ${Math.floor(sub.stepIdx / 2) + 1} 组 · 停顿`;
+        if (counterEl) counterEl.innerText = `第 ${Math.floor(sub.stepIdx / sub.n) + 1} 组 · 停顿`;
       }
       sub.awaitingAnswer = false;
       const btnMatch = document.getElementById('btn-nback-match');
@@ -1593,7 +1613,7 @@
       sub.isiTimerHandle = setTimeout(() => {
         sub.stepIdx++;
         advanceToNext();
-      }, groupFinished ? 1200 : 360); // 2-Back 每两项后停顿，形成明确分组节拍
+      }, groupFinished ? 1200 : sub.n >= 2 ? 180 : 360);
     }
 
     state.subState.advanceToNext = advanceToNext;
@@ -1603,14 +1623,14 @@
     if (onConfirmStart) {
       const notice = document.createElement('div');
       notice.className = 'nback-transition-notice';
-      notice.innerHTML = `<h3>接下来：2-Back</h3>
-        <p>现在每两项为一组，组与组之间会停顿。</p>
-        <p>先记住第一组。之后每项与<strong>两步前</strong>比较：第 1 项对上一组第 1 项，第 2 项对上一组第 2 项。</p>
+      notice.innerHTML = `<h3>接下来：${n}-Back</h3>
+        <p>现在每 ${n} 项为一组，组与组之间会停顿。</p>
+        <p>先记住第一组。之后每项与<strong>${n} 步前</strong>比较，即上一组中相同顺序的那一项。</p>
         <p>位置和图标都相同才点击。</p>`;
       card.appendChild(notice);
-      el.gamePrompt.innerText = '从 1-Back 升级到 2-Back，准备好后点击开始';
+      el.gamePrompt.innerText = `从 ${n - 1}-Back 升级到 ${n}-Back，准备好后点击开始`;
       const btnMatch = document.getElementById('btn-nback-match');
-      btnMatch.innerText = '开始 2-Back';
+      btnMatch.innerText = `开始 ${n}-Back`;
       card.onclick = null;
       btnMatch.onclick = () => {
         notice.remove();
@@ -1672,7 +1692,7 @@
       if (typeof sub.doISITransition === 'function') {
         sub.doISITransition();
       }
-    }, sub.n === 2 ? Math.max(0, sub.stepDuration * 1000 - rt) : 200);
+    }, Math.max(0, sub.stepDuration * 1000 - rt));
   }
 
   // 0. 空间 2-Back 九宫格位置记忆挑战 (第 2 款游戏)
