@@ -1378,7 +1378,7 @@
       isStimulusEqual(step.item, sequence[start - n + index].item));
   }
 
-  function generateNBackSequence(lvl, totalSteps = 12, targetRatio = 0.35) {
+  function generateNBackSequence(lvl, totalSteps = 12, targetRatio = 0.35, previousFirstItem = null) {
     const n = getNForLevel(lvl);
     const size = getNBackConfig(lvl).size;
     const positions = Array.from({ length: size * size }, (_, i) => i);
@@ -1394,6 +1394,10 @@
         const ic = NBACK_ICONS[Math.floor(Math.random() * NBACK_ICONS.length)];
         const p = Math.floor(Math.random() * positions.length);
         item = { pos: p, icon: ic.icon, id: ic.id };
+        if (i === 0 && isStimulusEqual(item, previousFirstItem)) {
+          const otherPositions = positions.filter(pos => pos !== previousFirstItem.pos);
+          item.pos = otherPositions[Math.floor(Math.random() * otherPositions.length)];
+        }
         expectedMatch = false;
       } else {
         const prev = sequence[i - n].item;
@@ -1685,6 +1689,7 @@
       const sub = state.subState;
       clearTimeout(sub.stepTimerHandle);
       clearTimeout(sub.isiTimerHandle);
+      sub.sequence = generateNBackSequence(sub.lvl, sub.totalSteps, 0.35, sub.sequence[0].item).sequence;
       sub.stepIdx = 0;
       sub.awaitingAnswer = false;
       sub.userResponded = false;

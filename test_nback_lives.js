@@ -13,7 +13,7 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
       await page.locator('#level-select').selectOption('4');
       await page.getByRole('button', { name: '开始 2-Back' }).click();
       assert.equal(await page.locator('#timer-badge').isVisible(), false, 'N-Back has no level countdown');
-      const firstItem = await page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText }));
+      let firstItem = await page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText }));
       const initialGrid = await page.locator('#nback-grid-matrix').boundingBox();
       await page.clock.runFor(7560);
       for (let mistake = 1; mistake <= 3; mistake++) {
@@ -28,7 +28,9 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
           assert.match(await page.locator('#level-badge').innerText(), /L4/);
           await page.clock.runFor(300);
           assert.equal(await page.locator('.active-lit').count(), 1);
-          assert.deepEqual(await page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText })), firstItem);
+          const newFirstItem = await page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText }));
+          assert.notDeepEqual(newFirstItem, firstItem, 'Restart must display a different first group');
+          firstItem = newFirstItem;
           assert.deepEqual(await page.locator('#nback-grid-matrix').boundingBox(), initialGrid);
           await page.clock.runFor(7560);
         }

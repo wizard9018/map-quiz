@@ -27,6 +27,12 @@ function runTests() {
     assert.strictEqual(sequence.length, 20);
     const size = getNBackConfig(lvl).size;
     sequence.forEach(step => assert(step.item.pos >= 0 && step.item.pos < size * size));
+    const restarted = generateNBackSequence(lvl, 20, 0.35, sequence[0].item).sequence;
+    assert(!isStimulusEqual(restarted[0].item, sequence[0].item), 'Restarted first group must differ');
+    restarted.forEach(step => assert(step.item.pos >= 0 && step.item.pos < size * size));
+    for (let i = n; i < restarted.length; i++) {
+      assert.strictEqual(restarted[i].expectedMatch, isStimulusEqual(restarted[i].item, restarted[i - n].item));
+    }
 
     for (let i = n; i < sequence.length; i++) {
       const current = sequence[i].item;
