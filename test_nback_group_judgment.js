@@ -16,10 +16,15 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
         await page.clock.runFor(60000);
         assert.equal(await page.locator('#timer-badge').isVisible(), false);
         await page.getByRole('button', { name: `开始 ${n}-Back` }).click();
-        const groupDuration = n * 1500 + (n - 1) * 180;
-        await page.clock.runFor(groupDuration + 1200);
+        const previous = [];
+        const current = [];
+        for (let item = 0; item < n; item++) {
+          previous.push(await page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText })));
+          await page.clock.runFor(1500 + (item < n - 1 ? 180 : 1200));
+        }
         const button = page.locator('#btn-nback-match');
         for (let item = 0; item < n; item++) {
+          current.push(await page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText })));
           assert.equal(await button.isDisabled(), true, 'No answers while group items are displaying');
           await page.keyboard.press('Space');
           assert.equal(await page.locator('.heart.active').count(), 3);
@@ -30,7 +35,7 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
         assert.equal(await page.locator('.active-lit').count(), 0);
         const grid = await page.locator('#nback-grid-matrix').boundingBox();
         await button.click();
-        assert.equal(await page.locator('.heart.active').count(), random === 0.1 ? 3 : 2,
+        assert.equal(await page.locator('.heart.active').count(), JSON.stringify(previous) === JSON.stringify(current) ? 3 : 2,
           'One different item makes the whole group different');
         assert.deepEqual(await page.locator('#nback-grid-matrix').boundingBox(), grid);
         await page.close();

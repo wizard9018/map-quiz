@@ -23,11 +23,11 @@ function runTests() {
 
   // 测试 2: 序列生成与位置+图标双重精确比对
   Array.from({ length: 12 }, (_, i) => i + 1).forEach(lvl => {
-    const { n, sequence } = generateNBackSequence(lvl, 20, 0.35);
-    assert.strictEqual(sequence.length, 20);
+    const { n, sequence } = generateNBackSequence(lvl);
+    assert.strictEqual(sequence.length, n * 11);
     const size = getNBackConfig(lvl).size;
     sequence.forEach(step => assert(step.item.pos >= 0 && step.item.pos < size * size));
-    const restarted = generateNBackSequence(lvl, 20, 0.35, sequence[0].item).sequence;
+    const restarted = generateNBackSequence(lvl, sequence[0].item).sequence;
     assert(!isStimulusEqual(restarted[0].item, sequence[0].item), 'Restarted first group must differ');
     restarted.forEach(step => assert(step.item.pos >= 0 && step.item.pos < size * size));
     for (let i = n; i < restarted.length; i++) {
@@ -58,20 +58,25 @@ function runTests() {
   assert.strictEqual(isStimulusEqual(dummy1, dummySameBoth), true, '同位同图必须判为匹配');
   console.log('✅ 测试 3 通过: 干扰诱饵项 (同位异图/异位同图) 均正确拦截');
 
-  // 测试 4: 靶向匹配率蒙特卡洛统计
-  let totalTargets = 0;
-  let totalComparisons = 0;
-  for (let s = 0; s < 200; s++) {
-    const { n, sequence } = generateNBackSequence(1, 15, 0.35);
-    for (let i = n; i < sequence.length; i++) {
-      totalComparisons++;
-      if (sequence[i].expectedMatch) totalTargets++;
+  // Every level and retry must have exactly ten decisions, five matching.
+  for (let level = 1; level <= 12; level++) {
+    const orders = new Set();
+    for (let run = 0; run < 100; run++) {
+      const { n, sequence } = generateNBackSequence(level);
+      const retry = generateNBackSequence(level, sequence[0].item).sequence;
+      for (const stream of [sequence, retry]) {
+        const matches = [];
+        for (let end = 2 * n - 1; end < stream.length; end += n) {
+          matches.push(isNBackGroupEqual(stream, end, n));
+        }
+        assert.strictEqual(matches.length, 10);
+        assert.strictEqual(matches.filter(Boolean).length, 5);
+        orders.add(matches.join(','));
+      }
     }
+    assert(orders.size > 1, 'Judgment order must be randomized');
   }
-  const measuredRatio = totalTargets / totalComparisons;
-  console.log(`📊 蒙特卡洛实测匹配率: ${(measuredRatio * 100).toFixed(2)}% (预期 35%)`);
-  assert(measuredRatio >= 0.28 && measuredRatio <= 0.42);
-  console.log('✅ 测试 4 通过: 匹配率统计平稳');
+  console.log('✅ 全部 12 关及重开：10 组判断、5 组相同、5 组不同，顺序随机');
 
   // Group equality requires every position, icon and order to match.
   const a = { item: dummy1 };
@@ -79,21 +84,6 @@ function runTests() {
   assert(isNBackGroupEqual([a, b, a, b], 3, 2));
   assert(!isNBackGroupEqual([a, b, b, a], 3, 2));
   assert(!isNBackGroupEqual([a, b, a, { item: dummySamePosDiffIcon }], 3, 2));
-  for (const level of [4, 7, 10]) {
-    const n = getNForLevel(level);
-    let matches = 0;
-    let groups = 0;
-    for (let run = 0; run < 100; run++) {
-      const { sequence } = generateNBackSequence(level, n * 30, 0.35);
-      for (let end = 2 * n - 1; end < sequence.length; end += n) {
-        groups++;
-        if (isNBackGroupEqual(sequence, end, n)) matches++;
-      }
-    }
-    assert(matches / groups > 0.28 && matches / groups < 0.42);
-  }
-  console.log('✅ 整组一致、顺序和局部差异判定以及 35% 整组匹配率通过');
-
   console.log('🎉 母版 01 N-Back [九宫格位置+图标双重特征绑定] 算法验证全通！');
 }
 

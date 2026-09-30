@@ -15,11 +15,20 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
       assert.equal(await page.locator('#timer-badge').isVisible(), false, 'N-Back has no level countdown');
       let firstItem = await page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText }));
       const initialGrid = await page.locator('#nback-grid-matrix').boundingBox();
-      await page.clock.runFor(7560);
+
       for (let mistake = 1; mistake <= 3; mistake++) {
+        const groups = [];
+        for (let group = 0; group < 2; group++) {
+          const items = [];
+          for (let item = 0; item < 2; item++) {
+            items.push(await page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText })));
+            await page.clock.runFor(1500 + (item === 0 ? 180 : group === 0 ? 1200 : 0));
+          }
+          groups.push(items);
+        }
         assert.equal(await page.locator('#btn-nback-match').isEnabled(), true);
-        if (random === 0.9) await page.locator('#btn-nback-match').click();
-        else await page.clock.runFor(1500);
+        if (JSON.stringify(groups[0]) === JSON.stringify(groups[1])) await page.clock.runFor(1500);
+        else await page.locator('#btn-nback-match').click();
         assert.equal(await page.locator('.heart.active').count(), 3 - mistake);
         assert.equal(await page.locator('#report-modal').isVisible(), mistake === 3);
         if (mistake < 3) {
@@ -32,7 +41,7 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
           assert.notDeepEqual(newFirstItem, firstItem, 'Restart must display a different first group');
           firstItem = newFirstItem;
           assert.deepEqual(await page.locator('#nback-grid-matrix').boundingBox(), initialGrid);
-          await page.clock.runFor(7560);
+
         }
       }
       await page.clock.runFor(10000);
@@ -46,12 +55,25 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
     await page.clock.pauseAt(new Date());
     await page.addInitScript(() => { Math.random = () => 0.9; });
     await page.goto(process.env.FOCUS_TEST_URL || 'http://127.0.0.1:8080/focus.html');
-    await page.clock.runFor(2160);
-    await page.locator('#btn-nback-match').click();
-    await page.clock.runFor(2160);
-    await page.locator('#btn-nback-match').click();
+    const readItem = () => page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText }));
+    for (let mistake = 0; mistake < 2; mistake++) {
+      await page.clock.runFor(300);
+      const previous = await readItem();
+      await page.clock.runFor(1860);
+      const current = await readItem();
+      if (JSON.stringify(previous) === JSON.stringify(current)) await page.clock.runFor(1500);
+      else await page.locator('#btn-nback-match').click();
+    }
     assert.equal(await page.locator('.heart.active').count(), 1);
-    await page.clock.runFor(300 + 10 * 1860);
+    await page.clock.runFor(300);
+    let previous = await readItem();
+    await page.clock.runFor(1860);
+    for (let judgment = 0; judgment < 10; judgment++) {
+      const current = await readItem();
+      if (JSON.stringify(previous) === JSON.stringify(current)) await page.locator('#btn-nback-match').click();
+      previous = current;
+      await page.clock.runFor(1860);
+    }
     await page.clock.runFor(1000);
     assert.equal(await page.locator('.heart.active').count(), 3);
     assert.match(await page.locator('#level-badge').innerText(), /L2/);

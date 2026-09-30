@@ -1353,7 +1353,7 @@
       n,
       size: 3 + (lvl - 1) % 3,
       stepDuration: 1.5,
-      totalSteps: n === 1 ? 10 : n === 2 ? 14 : n === 3 ? 18 : 24
+      totalSteps: n * 11
     };
   }
 
@@ -1378,11 +1378,16 @@
       isStimulusEqual(step.item, sequence[start - n + index].item));
   }
 
-  function generateNBackSequence(lvl, totalSteps = 12, targetRatio = 0.35, previousFirstItem = null) {
-    const n = getNForLevel(lvl);
-    const size = getNBackConfig(lvl).size;
+  function generateNBackSequence(lvl, previousFirstItem = null) {
+    const { n, size, totalSteps } = getNBackConfig(lvl);
     const positions = Array.from({ length: size * size }, (_, i) => i);
     const sequence = [];
+    // Exactly five matching and five different groups, in random order.
+    const targets = Array.from({ length: 10 }, (_, i) => i < 5);
+    for (let i = targets.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [targets[i], targets[j]] = [targets[j], targets[i]];
+    }
     let groupMatches = false;
     let changedIndex = 0;
 
@@ -1401,11 +1406,11 @@
         expectedMatch = false;
       } else {
         const prev = sequence[i - n].item;
-        if (n >= 2 && i % n === 0) {
-          groupMatches = Math.random() < targetRatio;
+        if (i % n === 0) {
+          groupMatches = targets[Math.floor(i / n) - 1];
           changedIndex = Math.floor(Math.random() * n);
         }
-        const matchPrev = n === 1 ? Math.random() < targetRatio : groupMatches || i % n !== changedIndex;
+        const matchPrev = groupMatches || i % n !== changedIndex;
 
         if (matchPrev) {
           // 真匹配：位置与图标均完全相同！
@@ -1449,7 +1454,7 @@
   function renderNBackFlow(lvl, requireConfirmation) {
     el.stage.innerHTML = '';
     const { n, size, totalSteps, stepDuration } = getNBackConfig(lvl);
-    const { sequence } = generateNBackSequence(lvl, totalSteps, 0.35);
+    const { sequence } = generateNBackSequence(lvl);
 
     // 1. 构建主舞台（骨架常驻，绝不整体闪烁）
     const wrap = document.createElement('div');
@@ -1689,7 +1694,7 @@
       const sub = state.subState;
       clearTimeout(sub.stepTimerHandle);
       clearTimeout(sub.isiTimerHandle);
-      sub.sequence = generateNBackSequence(sub.lvl, sub.totalSteps, 0.35, sub.sequence[0].item).sequence;
+      sub.sequence = generateNBackSequence(sub.lvl, sub.sequence[0].item).sequence;
       sub.stepIdx = 0;
       sub.awaitingAnswer = false;
       sub.userResponded = false;

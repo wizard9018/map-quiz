@@ -27,7 +27,7 @@ class NBackSimulator {
     this.lives = 3; // 每关开始满血 3 命
     const n = getNForLevel(lvl);
     const totalSteps = getNBackConfig(lvl).totalSteps;
-    const { sequence } = generateNBackSequence(lvl, totalSteps, 0.35);
+    const { sequence } = generateNBackSequence(lvl);
 
     for (let stepIdx = 0; stepIdx < totalSteps; stepIdx++) {
       const step = sequence[stepIdx];
