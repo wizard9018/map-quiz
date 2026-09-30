@@ -927,6 +927,7 @@
     const g = REGISTRY[gid];
     el.gameTitle.innerText = g.title;
     el.gamePrompt.innerText = g.prompt;
+    el.gamePrompt.classList.toggle('nback-prompt', gid === 'nback_flow');
 
     // URL 同步 hash
     try {
@@ -1061,6 +1062,20 @@
     else { grade = 'D'; percentile = 25; }
     state.lastPercentile = percentile;
 
+    if (window.wx && window.wx.miniProgram && document.body.classList.contains('miniprogram-view')) {
+      window.wx.miniProgram.postMessage({ data: {
+        type: 'GAME_FINISH',
+        gameId: state.gameId,
+        gameTitle: REGISTRY[state.gameId].title,
+        uid: new URLSearchParams(window.location.search).get('uid') || '',
+        score: state.score,
+        level: achievedLevel,
+        accuracy: acc,
+        avgReactionTime: avgRt,
+        timestamp: Date.now()
+      } });
+    }
+
     el.reportGrade.innerText = grade;
     el.reportGrade.style.borderColor = (grade==='S'||grade==='A') ? '#58cc02' : (grade==='B' ? '#1cb0f6' : '#f97316');
     el.reportTitle.innerText = isFail ? `挑战结束 · 止步第 ${state.level} 关` : `🏆 恭喜！十关大满贯通关！`;
@@ -1149,7 +1164,7 @@
       const btnMatch = document.createElement('button');
       btnMatch.className = 'duo-btn-match-single';
       btnMatch.id = 'btn-nback-match';
-      btnMatch.innerHTML = `🎯 与【${n} 步前】相同 (Match) <span class="key-badge">空格 / F / 点击</span>`;
+      btnMatch.innerHTML = `🎯 相同：与【${n}步前】一致`;
       btnMatch.onclick = () => handleNBackMatchTap();
       el.controls.appendChild(btnMatch);
     }
@@ -1419,7 +1434,8 @@
     const warmupNotice = document.createElement('div');
     warmupNotice.className = 'nback-warmup-notice';
     warmupNotice.id = 'nback-warmup-notice';
-    warmupNotice.style.display = 'none';
+    warmupNotice.innerText = `👀 观察瞬记 [位置+图标]... (1/${n})`;
+    warmupNotice.style.visibility = 'hidden';
     warmupNotice.style.marginTop = '12px';
     wrap.appendChild(warmupNotice);
 
@@ -1487,7 +1503,7 @@
         el.gamePrompt.innerText = `👀 第 ${sub.stepIdx + 1} 项瞬记中（无需操作，第 ${sub.n + 1} 项起开始比对）`;
 
         if (sub.warmupNotice) {
-          sub.warmupNotice.style.display = 'block';
+          sub.warmupNotice.style.visibility = 'visible';
           sub.warmupNotice.innerText = `👀 观察瞬记 [位置+图标]... (${sub.stepIdx + 1}/${sub.n})`;
         }
         if (btnMatch) {
@@ -1501,11 +1517,11 @@
       } else {
         // 正式比对阶段 (只点相同，不点默认为不同)
         if (sub.warmupNotice) {
-          sub.warmupNotice.style.display = 'none';
+          sub.warmupNotice.style.visibility = 'hidden';
         }
         if (btnMatch) {
           btnMatch.disabled = false;
-          btnMatch.innerHTML = `🎯 相同：与【${sub.n} 步前】一致 <span class="key-badge">空格 / F / 点击</span>`;
+          btnMatch.innerHTML = `🎯 相同：与【${sub.n}步前】一致`;
         }
 
         sub.awaitingAnswer = true;
@@ -1552,7 +1568,7 @@
       sub.isiTimerHandle = setTimeout(() => {
         sub.stepIdx++;
         advanceToNext();
-      }, 180); // 180ms 间歇期，只有亮块熄灭
+      }, 360); // 360ms 间歇期，只有亮块熄灭
     }
 
     state.subState.advanceToNext = advanceToNext;
@@ -2358,6 +2374,12 @@
 
   // 8. 页面加载入口
   window.addEventListener('DOMContentLoaded', () => {
+    if (new URLSearchParams(window.location.search).get('miniprogram') === '1') {
+      document.body.classList.add('miniprogram-view');
+      const sdk = document.createElement('script');
+      sdk.src = 'https://res.wx.qq.com/open/js/jweixin-1.6.0.js';
+      document.head.appendChild(sdk);
+    }
     initToolbar();
 
     // 检测 URL hash 或 query param

@@ -1177,6 +1177,15 @@ body {
   gap: 14px;
 }
 
+.prompt-chip.nback-prompt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  min-height: 56px;
+  line-height: 16px;
+}
+
 .nback-meta-bar {
   display: flex;
   justify-content: space-between;
@@ -1294,6 +1303,7 @@ body {
 }
 
 .duo-btn-match-single {
+  white-space: nowrap;
   background: #0284c7;
   color: #ffffff;
   border: 2px solid #0369a1;
@@ -1376,4 +1386,28 @@ body {
     border-radius: 16px;
     border-width: 2px;
   }
+}
+
+body.miniprogram-view .top-toolbar {
+  display: none;
+}
+
+body.miniprogram-view .main-workspace {
+  flex: none;
+  padding: 0;
+  height: 100dvh;
+}
+
+body.miniprogram-view #phone-container {
+  max-width: 100%;
+  min-height: 0;
+  max-height: none;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+body.miniprogram-view .controls-container {
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
 }
