@@ -1555,7 +1555,7 @@
         targetCell.classList.add('active-lit');
         targetCell.innerText = curStep.item.icon;
       }
-      playTone(440 + curStep.item.pos * 35, 'triangle', 0.12, 0.12);
+      playTone(440, 'triangle', 0.12, 0.12);
 
       if (sub.n >= 2) {
         sub.awaitingAnswer = false;
@@ -1705,7 +1705,15 @@
       btnMatch.disabled = true;
       btnMatch.innerText = '👀 重新观察第一组';
       el.gamePrompt.innerText = '本关重新开始：先记住第一组图形';
-      sub.stepTimerHandle = setTimeout(advanceToNext, 300);
+      const notice = document.createElement('div');
+      notice.className = 'nback-transition-notice nback-error-notice';
+      notice.setAttribute('role', 'alert');
+      notice.innerHTML = '<h3>判断错误</h3><p>本轮重新开始，要认真对待哦！</p><p>即将重新显示第一组…</p>';
+      card.appendChild(notice);
+      sub.stepTimerHandle = setTimeout(() => {
+        notice.remove();
+        advanceToNext();
+      }, 2000);
     };
 
     // 启动第一步

@@ -35,7 +35,16 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
           assert.match(await page.locator('#nback-step-counter').innerText(), /第 1 组/);
           assert.equal(await page.locator('#btn-nback-match').isDisabled(), true);
           assert.match(await page.locator('#level-badge').innerText(), /L4/);
-          await page.clock.runFor(300);
+          const notice = page.locator('.nback-error-notice');
+          assert.equal(await notice.isVisible(), true);
+          assert.match(await notice.innerText(), /本轮重新开始，要认真对待哦/);
+          assert.equal(await notice.locator('button').count(), 0);
+          await page.keyboard.press('Space');
+          await page.clock.runFor(1999);
+          assert.equal(await page.locator('.active-lit').count(), 0);
+          assert.equal(await notice.isVisible(), true);
+          await page.clock.runFor(1);
+          assert.equal(await notice.count(), 0);
           assert.equal(await page.locator('.active-lit').count(), 1);
           const newFirstItem = await page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText }));
           assert.notDeepEqual(newFirstItem, firstItem, 'Restart must display a different first group');
@@ -57,7 +66,7 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
     await page.goto(process.env.FOCUS_TEST_URL || 'http://127.0.0.1:8080/focus.html');
     const readItem = () => page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText }));
     for (let mistake = 0; mistake < 2; mistake++) {
-      await page.clock.runFor(300);
+      await page.clock.runFor(mistake === 0 ? 300 : 2000);
       const previous = await readItem();
       await page.clock.runFor(1860);
       const current = await readItem();
@@ -65,7 +74,7 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
       else await page.locator('#btn-nback-match').click();
     }
     assert.equal(await page.locator('.heart.active').count(), 1);
-    await page.clock.runFor(300);
+    await page.clock.runFor(2000);
     let previous = await readItem();
     await page.clock.runFor(1860);
     for (let judgment = 0; judgment < 10; judgment++) {

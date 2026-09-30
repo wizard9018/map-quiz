@@ -9,7 +9,29 @@ const { getNBackConfig } = require('./test_nback_helpers');
     await page.clock.install();
     await page.clock.pauseAt(new Date());
     // Deterministic randomness exercises both matching and different groups.
-    await page.addInitScript(() => { Math.random = () => 0.9; });
+    await page.addInitScript(() => {
+      Math.random = () => 0.9;
+      window.tones = [];
+      window.AudioContext = class {
+        state = 'running';
+        currentTime = 0;
+        destination = {};
+        createOscillator() {
+          const tone = {};
+          return {
+            frequency: { setValueAtTime: value => { tone.frequency = value; } },
+            connect: gain => { tone.gain = gain; },
+            start() { tone.type = this.type; },
+            stop(duration) { window.tones.push({ frequency: tone.frequency, type: tone.type, duration, gain: tone.gain.value }); }
+          };
+        }
+        createGain() {
+          const node = { value: null, connect() {} };
+          node.gain = { setValueAtTime: value => { node.value = value; }, exponentialRampToValueAtTime() {} };
+          return node;
+        }
+      };
+    });
     await page.route('https://res.wx.qq.com/**', route => route.fulfill({
       contentType: 'application/javascript',
       body: 'window.results=[];window.wx={miniProgram:{postMessage:function(message){window.results.push(message.data)}}};'
@@ -68,6 +90,10 @@ const { getNBackConfig } = require('./test_nback_helpers');
       await page.clock.runFor(1000);
       console.log(`L${level}: ${cfg.n}-Back, ${cfg.size}x${cfg.size}, fixed exposure and group gaps passed`);
     }
+    const presentationTones = await page.evaluate(() => window.tones.filter(tone => tone.duration === 0.12));
+    assert.equal(presentationTones.length, 330, 'All 330 displayed items across 12 levels emit a tone');
+    assert(presentationTones.every(tone => tone.frequency === 440 && tone.type === 'triangle' && tone.gain === 0.12),
+      'Every item must sound identical regardless of position, icon or match');
     assert.equal(await page.locator('#report-modal').isVisible(), true);
     assert.match(await page.locator('#report-title').innerText(), /12 关/);
     assert.match(await page.locator('#stat-level').innerText(), /12/);
