@@ -5,6 +5,8 @@
 
 ---
 
+> **2026-09-30 更新**：主小程序训练专区已增加母版 02《空间网格暂留闪记》入口。共用 `pages/train/focus/focus` 页面，通过 `game=nback_flow` / `game=matrix_flash` 选择游戏，成绩接收及分享均跟随当前游戏。在线地址：`https://wizard9018.github.io/map-quiz/focus.html?game=matrix_flash&miniprogram=1&v=20260930_2`。
+
 ## 快速导航：本地工程与在线测试地址
 
 ### 1. 本地微信小程序工程源码目录

@@ -86,7 +86,7 @@ const { getNBackConfig } = require('./test_nback_helpers');
         assert.deepEqual(await grid.boundingBox(), bounds, 'Group changes must not move the grid');
         await page.clock.runFor(1);
       }
-      assert.equal(matchingGroups, 5);
+      assert.equal(matchingGroups, 4);
       await page.clock.runFor(1000);
       console.log(`L${level}: ${cfg.n}-Back, ${cfg.size}x${cfg.size}, fixed exposure and group gaps passed`);
     }

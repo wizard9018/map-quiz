@@ -1247,6 +1247,54 @@ body {
   box-shadow: 0 0 20px rgba(239, 68, 68, 0.35) !important;
 }
 
+.matrix-flash-stage {
+  width: min(312px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.matrix-flash-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 16px;
+  box-sizing: border-box;
+  border: 3px solid var(--line);
+  border-radius: 24px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.matrix-flash-grid {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  gap: 6px;
+}
+
+.matrix-flash-cell {
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: #f7f5ef;
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.matrix-flash-cell:disabled { cursor: default; }
+.matrix-flash-cell:focus-visible { outline: 3px solid var(--blue-d); outline-offset: 2px; }
+.matrix-lit-blue { background: #0284c7; border-color: #0369a1; color: #fff; }
+.matrix-lit-yellow { background: #facc15; border-color: #a16207; color: #422006; }
+.matrix-correct { background: #16a34a; border-color: #15803d; color: #fff; }
+.matrix-wrong { background: #fee2e2; border-color: #dc2626; }
+#matrix-phase-label { min-height: 42px; margin: 0; font-size: 14px; text-align: center; color: var(--text); }
+
 .nback-transition-notice {
   position: absolute;
   inset: 0;

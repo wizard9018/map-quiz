@@ -33,6 +33,18 @@
       engine: "nback_flow"
     },
 
+    matrix_flash: {
+      masterId: 2,
+      title: "母版 02 · 空间网格暂留闪记",
+      academy: "memory",
+      prompt: "记住闪亮方格，熄灭后点选还原；双色关先蓝后黄",
+      modality: "matrix_flash",
+      gesture: "multi_target_tap",
+      layout: "adaptive_matrix",
+      stimulus: "flash_cells",
+      engine: "matrix_flash"
+    },
+
     // 第一个游戏：舒尔特方格注意力阶梯训练
     schulte_classic: {
       title: "舒尔特方格注意力训练",
@@ -918,7 +930,7 @@
       });
     }
     state.gameId = gid;
-    el.timerBadge.hidden = gid === 'nback_flow';
+    el.timerBadge.hidden = gid === 'nback_flow' || gid === 'matrix_flash';
     state.level = lvl;
     state.lives = 3;
     state.score = 0;
@@ -969,6 +981,8 @@
       finishGame(true);
     } else if (state.gameId === 'nback_flow') {
       state.subState.restart();
+    } else if (state.gameId === 'matrix_flash') {
+      state.subState.restart();
     }
   }
 
@@ -1016,9 +1030,10 @@
     state.level++;
     el.levelSelect.value = state.level;
     showToast(`🎉 达成第 ${state.level - 1} 关！晋级第 ${state.level} 关`, 1000);
-    setTimeout(() => {
+    const promotionHandle = setTimeout(() => {
       startLevel(state.level);
     }, 600);
+    if (state.gameId === 'matrix_flash') state.subState.timerHandle = promotionHandle;
   }
 
   // 省份天梯战报动态评定计算
@@ -1043,6 +1058,7 @@
 
   function finishGame(isFail) {
     clearInterval(state.timerInterval);
+    if (state.subState && state.subState.destroy) state.subState.destroy();
     if (state.gameId === 'nback_flow' && state.subState) {
       clearTimeout(state.subState.stepTimerHandle);
       clearTimeout(state.subState.isiTimerHandle);
@@ -1139,6 +1155,7 @@
 
   // 7. 各游戏模态动态关卡生成器
   function startLevel(lvl, isRestart = false) {
+    if (state.subState && state.subState.destroy) state.subState.destroy();
     if (!isRestart) {
       state.lives = 3;
       renderLives();
@@ -1149,7 +1166,7 @@
     if (state.subState && state.subState.timerHandle) {
       clearTimeout(state.subState.timerHandle);
     }
-    if (state.gameId === 'nback_flow' && state.subState) {
+    if (state.subState) {
       clearTimeout(state.subState.stepTimerHandle);
       clearTimeout(state.subState.isiTimerHandle);
     }
@@ -1157,7 +1174,7 @@
 
     const g = REGISTRY[state.gameId];
     let duration;
-    if (state.gameId === 'nback_flow') {
+    if (state.gameId === 'nback_flow' || state.gameId === 'matrix_flash') {
       clearInterval(state.timerInterval);
       state.timer = 0;
     } else if (state.gameId === 'schulte_classic') {
@@ -1169,7 +1186,7 @@
       duration = Math.max(5.0, 16.0 - (lvl * 0.9)); // 关卡越高，限时越短
     }
     const waitForNewBack = state.gameId === 'nback_flow' && [4, 7, 10].includes(lvl) && !isRestart;
-    if (state.gameId !== 'nback_flow') {
+    if (state.gameId !== 'nback_flow' && state.gameId !== 'matrix_flash') {
       startTimer(duration);
     }
 
@@ -1275,7 +1292,10 @@
     const g = REGISTRY[state.gameId];
 
     // 00. 母版 01: N-Back 工作记忆刷新流 (自适应 1~3 Back)
-    if (state.gameId === 'nback_flow' || modality === 'nback_flow') {
+    if (state.gameId === 'matrix_flash') {
+      renderMatrixFlash(lvl);
+    }
+    else if (state.gameId === 'nback_flow' || modality === 'nback_flow') {
       renderNBackFlow(lvl);
     }
     // 0. 空间 2-Back 九宫格位置记忆 (第 2 款游戏: nback_spatial)
@@ -1343,6 +1363,150 @@
   // ---------------- 具体模态渲染器 ----------------
 
   // ==================== 母版 01: N-Back 工作记忆刷新流 引擎 ====================
+  function getMatrixFlashConfig(lvl) {
+    const levels = [
+      [3, 3, 1200, 2], [3, 4, 1100, 2], [4, 4, 1100, 3],
+      [4, 5, 1000, 3], [4, 6, 950, 3], [5, 5, 900, 3],
+      [5, 6, 850, 3], [5, 7, 800, 3], [5, 7, 850, 3], [5, 8, 800, 3]
+    ];
+    const [size, count, exposure, required] = levels[lvl - 1];
+    return { size, count, exposure, required, blueCount: lvl >= 9 ? 3 : count };
+  }
+
+  function generateMatrixFlashTargets(lvl) {
+    const { size, count, blueCount } = getMatrixFlashConfig(lvl);
+    const positions = Array.from({ length: size * size }, (_, i) => i);
+    for (let i = positions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [positions[i], positions[j]] = [positions[j], positions[i]];
+    }
+    return positions.slice(0, count).map((pos, i) => ({ pos, color: i < blueCount ? 'blue' : 'yellow' }));
+  }
+
+  function renderMatrixFlash(lvl) {
+    const cfg = getMatrixFlashConfig(lvl);
+    const wrap = document.createElement('div');
+    wrap.className = 'matrix-flash-stage';
+    wrap.innerHTML = `<div class="nback-meta-bar"><span class="nback-mode-pill">${cfg.size}×${cfg.size} · 记住 ${cfg.count} 格</span><span id="matrix-round-counter"></span></div>
+      <div class="matrix-flash-card"><div id="matrix-flash-grid" class="matrix-flash-grid"></div></div>
+      <p id="matrix-phase-label" role="status" aria-live="polite"></p>`;
+    el.stage.appendChild(wrap);
+    const grid = wrap.querySelector('#matrix-flash-grid');
+    const card = wrap.querySelector('.matrix-flash-card');
+    const status = wrap.querySelector('#matrix-phase-label');
+    grid.style.gridTemplateColumns = `repeat(${cfg.size}, minmax(0, 1fr))`;
+    grid.style.gridTemplateRows = `repeat(${cfg.size}, minmax(0, 1fr))`;
+    const sub = state.subState = { phase: 'ready', completed: 0, selected: new Set(), targets: [], timerHandle: null };
+    const cells = [];
+    for (let pos = 0; pos < cfg.size * cfg.size; pos++) {
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'matrix-flash-cell';
+      cell.dataset.pos = pos;
+      cell.setAttribute('aria-label', `第 ${Math.floor(pos / cfg.size) + 1} 行第 ${pos % cfg.size + 1} 列`);
+      cell.disabled = true;
+      cell.onclick = () => selectCell(pos);
+      grid.appendChild(cell);
+      cells.push(cell);
+    }
+
+    function updateProgress() {
+      wrap.querySelector('#matrix-round-counter').innerText = `连续正确 ${sub.completed}/${cfg.required} 组`;
+    }
+
+    function beginRound() {
+      sub.phase = 'flash';
+      sub.targets = generateMatrixFlashTargets(lvl);
+      sub.selected.clear();
+      cells.forEach(cell => { cell.className = 'matrix-flash-cell'; cell.innerText = ''; cell.disabled = true; });
+      sub.targets.forEach(target => {
+        cells[target.pos].classList.add(`matrix-lit-${target.color}`);
+        cells[target.pos].innerText = target.color === 'blue' ? '●' : '◆';
+      });
+      updateProgress();
+      status.innerText = '观察并记住位置';
+      el.gamePrompt.innerText = cfg.blueCount < cfg.count ? '记住蓝色圆点与黄色菱形：还原时先蓝后黄' : `记住 ${cfg.count} 个闪亮方格，熄灭后再点击`;
+      playTone(440, 'triangle', 0.12, 0.12);
+      sub.timerHandle = setTimeout(() => {
+        sub.phase = 'retention';
+        cells.forEach(cell => { cell.className = 'matrix-flash-cell'; cell.innerText = ''; });
+        status.innerText = '在脑中保留刚才的图形…';
+        sub.timerHandle = setTimeout(() => {
+          sub.phase = 'recall';
+          sub.recallStart = Date.now();
+          cells.forEach(cell => { cell.disabled = false; });
+          status.innerText = cfg.blueCount < cfg.count ? '先点蓝色圆点的位置，再点黄色菱形的位置' : `请找回 ${cfg.count} 个方格（顺序不限）`;
+        }, 200);
+      }, cfg.exposure);
+    }
+
+    function selectCell(pos) {
+      if (sub.phase !== 'recall' || sub.selected.has(pos)) return;
+      state.stats.clicks++;
+      const target = sub.targets.find(item => item.pos === pos);
+      const blueRemaining = sub.targets.some(item => item.color === 'blue' && !sub.selected.has(item.pos));
+      if (!target || (target.color === 'yellow' && blueRemaining)) {
+        sub.phase = 'error';
+        cells.forEach(cell => { cell.disabled = true; });
+        cells[pos].classList.add('matrix-wrong');
+        deductLife(target ? '顺序错误：请先找齐蓝色方格' : '位置错误：这格刚才没有亮起');
+        return;
+      }
+      sub.selected.add(pos);
+      cells[pos].classList.add('matrix-correct');
+      cells[pos].innerText = '✓';
+      cells[pos].disabled = true;
+      state.stats.correct++;
+      state.stats.reactionTimes.push(Date.now() - sub.recallStart);
+      sub.recallStart = Date.now();
+      soundSuccess();
+      status.innerText = `已找回 ${sub.selected.size}/${cfg.count} 格`;
+      if (sub.selected.size === cfg.count) {
+        sub.phase = 'complete';
+        sub.completed++;
+        cells.forEach(cell => { cell.disabled = true; });
+        updateProgress();
+        status.innerText = sub.completed === cfg.required ? '本关完成！' : '本组正确，准备下一组';
+        sub.timerHandle = setTimeout(sub.completed === cfg.required ? nextLevel : beginRound, 600);
+      }
+    }
+
+    sub.restart = () => {
+      clearTimeout(sub.timerHandle);
+      sub.completed = 0;
+      updateProgress();
+      const notice = document.createElement('div');
+      notice.className = 'nback-transition-notice matrix-error-notice';
+      notice.setAttribute('role', 'alert');
+      notice.innerHTML = '<h3>判断错误</h3><p>连续进度已重置，认真记住下一组哦！</p><p>即将重新开始…</p>';
+      card.appendChild(notice);
+      status.innerText = '休息一下，重新观察';
+      sub.timerHandle = setTimeout(() => { notice.remove(); beginRound(); }, 2000);
+    };
+    sub.destroy = () => {
+      clearTimeout(sub.timerHandle);
+      sub.phase = 'finished';
+      cells.forEach(cell => { cell.disabled = true; });
+    };
+    sub.start = beginRound;
+    updateProgress();
+    if (lvl === 1 || lvl === 9) {
+      status.innerText = lvl === 9 ? '新规则：先蓝后黄' : '准备好后点击开始';
+      el.controls.innerHTML = '';
+      const start = document.createElement('button');
+      start.className = 'duo-btn';
+      start.innerText = lvl === 9 ? '开始双色挑战' : '开始记忆';
+      start.onclick = () => {
+        start.remove();
+        el.controls.innerText = '直接点击方格还原';
+        sub.start();
+      };
+      el.controls.appendChild(start);
+    } else {
+      sub.timerHandle = setTimeout(sub.start, 300);
+    }
+  }
+
   function getNForLevel(lvl) {
     return Math.ceil(lvl / 3);
   }
@@ -1382,14 +1546,16 @@
     const { n, size, totalSteps } = getNBackConfig(lvl);
     const positions = Array.from({ length: size * size }, (_, i) => i);
     const sequence = [];
-    // Exactly five matching and five different groups, in random order.
-    const targets = Array.from({ length: 10 }, (_, i) => i < 5);
-    for (let i = targets.length - 1; i > 0; i--) {
+    // Four targets in ten decisions, separated by at least one different group.
+    const slots = Array.from({ length: 7 }, (_, i) => i);
+    for (let i = slots.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [targets[i], targets[j]] = [targets[j], targets[i]];
+      [slots[i], slots[j]] = [slots[j], slots[i]];
     }
+    const targets = Array(10).fill(false);
+    slots.slice(0, 4).sort((a, b) => a - b).forEach((slot, i) => { targets[slot + i] = true; });
     let groupMatches = false;
-    let changedIndex = 0;
+    let keepPositions = false;
 
     for (let i = 0; i < totalSteps; i++) {
       let item;
@@ -1408,9 +1574,9 @@
         const prev = sequence[i - n].item;
         if (i % n === 0) {
           groupMatches = targets[Math.floor(i / n) - 1];
-          changedIndex = Math.floor(Math.random() * n);
+          keepPositions = Math.random() < 0.5;
         }
-        const matchPrev = groupMatches || i % n !== changedIndex;
+        const matchPrev = groupMatches;
 
         if (matchPrev) {
           // 真匹配：位置与图标均完全相同！
@@ -1418,24 +1584,16 @@
           expectedMatch = true;
         } else {
           // 干扰诱饵项 (Lure)：测试前额叶空间-客体绑定，防止单维度偷懒
-          const lureType = Math.random();
-          if (lureType < 0.35) {
+          if (keepPositions) {
             // 同位置，不同图标 (考验符号抗扰)
             const others = NBACK_ICONS.filter(x => x.id !== prev.id);
             const pick = others[Math.floor(Math.random() * others.length)];
             item = { pos: prev.pos, icon: pick.icon, id: pick.id };
-          } else if (lureType < 0.70) {
+          } else {
             // 不同位置，相同图标 (考验空间抗扰)
             const otherPos = positions.filter(x => x !== prev.pos);
             const pickPos = otherPos[Math.floor(Math.random() * otherPos.length)];
             item = { pos: pickPos, icon: prev.icon, id: prev.id };
-          } else {
-            // 位置与图标均不同
-            const otherPos = positions.filter(x => x !== prev.pos);
-            const others = NBACK_ICONS.filter(x => x.id !== prev.id);
-            const pickPos = otherPos[Math.floor(Math.random() * otherPos.length)];
-            const pick = others[Math.floor(Math.random() * others.length)];
-            item = { pos: pickPos, icon: pick.icon, id: pick.id };
           }
           expectedMatch = false;
         }

@@ -58,7 +58,7 @@ function runTests() {
   assert.strictEqual(isStimulusEqual(dummy1, dummySameBoth), true, '同位同图必须判为匹配');
   console.log('✅ 测试 3 通过: 干扰诱饵项 (同位异图/异位同图) 均正确拦截');
 
-  // Every level and retry must have exactly ten decisions, five matching.
+  // Every level and retry must have exactly ten decisions, four matching.
   for (let level = 1; level <= 12; level++) {
     const orders = new Set();
     for (let run = 0; run < 100; run++) {
@@ -70,13 +70,22 @@ function runTests() {
           matches.push(isNBackGroupEqual(stream, end, n));
         }
         assert.strictEqual(matches.length, 10);
-        assert.strictEqual(matches.filter(Boolean).length, 5);
+        assert.strictEqual(matches.filter(Boolean).length, 4);
+        assert(matches.every((match, i) => !match || !matches[i + 1]), 'Matching judgments must not be consecutive');
+        for (let start = n; start < stream.length; start += n) {
+          const current = stream.slice(start, start + n).map(step => step.item);
+          const previous = stream.slice(start - n, start).map(step => step.item);
+          if (isNBackGroupEqual(stream, start + n - 1, n)) continue;
+          const samePositions = current.every((item, i) => item.pos === previous[i].pos && item.id !== previous[i].id);
+          const sameIcons = current.every((item, i) => item.id === previous[i].id && item.pos !== previous[i].pos);
+          assert(samePositions || sameIcons, 'Different groups must share exactly one dimension throughout');
+        }
         orders.add(matches.join(','));
       }
     }
     assert(orders.size > 1, 'Judgment order must be randomized');
   }
-  console.log('✅ 全部 12 关及重开：10 组判断、5 组相同、5 组不同，顺序随机');
+  console.log('✅ 全部 12 关及重开：10 组判断、4 组相同、6 组不同，顺序随机');
 
   // Group equality requires every position, icon and order to match.
   const a = { item: dummy1 };
