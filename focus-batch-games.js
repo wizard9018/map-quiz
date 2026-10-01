@@ -367,7 +367,7 @@
         later(showChoices, 200);
       }, cfg.exposure);
     }
-    const colorNames = { blue: '蓝色', orange: '橙色', green: '绿色' };
+    const colorNames = { blue: '蓝色', orange: '橙色', green: '绿色', purple: '紫色', pink: '粉色', yellow: '黄色', red: '红色' };
     const colorValues = { blue: '#0284c7', orange: '#f97316', green: '#16a34a', purple: '#9333ea', pink: '#ec4899', yellow: '#eab308', red: '#dc2626' };
     const soundNames = { clear: '清亮音', soft: '柔和音' };
     function playBimodalSound(sound) { playTone(sound === 'clear' ? 880 : 220, sound === 'clear' ? 'sine' : 'triangle', 0.2, 0.12); }
@@ -426,6 +426,9 @@
     const start = document.createElement('button'); start.className = 'duo-btn'; start.textContent = `开始第 ${level} 关`; start.onclick = beginRound; el.controls.appendChild(start);
     if (id === 'schulte_ladder' || id === 'flanker_birds') { state.timer = cfg.limit / 1000; updateTimerDisplay(); }
     if (id === 'bimodal_divert') {
+      const guide = document.createElement('div'); guide.className = 'bimodal-color-guide';
+      guide.innerHTML = `<p><strong>本关只统计${colorNames[cfg.targetColor]}圆点的次数</strong>，其他颜色不计数。以下颜色均可能出现，干扰色每组随机更换。</p><div class="bimodal-color-previews">${Object.entries(colorValues).map(([color, value]) => `<div class="bimodal-color-preview${color === cfg.targetColor ? ' is-target' : ''}" data-color="${color}"><span role="img" aria-label="${colorNames[color]}圆点" class="bimodal-color-dot" style="background:${value}"></span><span>${colorNames[color]}${color === cfg.targetColor ? ' · 要数' : ''}</span></div>`).join('')}</div>`;
+      card.firstChild.insertBefore(guide, card.firstChild.children[2]);
       const samples = document.createElement('div'); samples.className = 'batch-audio-tools'; card.firstChild.appendChild(samples);
       button('试听清亮音' + (cfg.targetSound === 'clear' ? '（本关目标）' : ''), 'clear', () => playBimodalSound('clear'), samples);
       button('试听柔和音' + (cfg.targetSound === 'soft' ? '（本关目标）' : ''), 'soft', () => playBimodalSound('soft'), samples);

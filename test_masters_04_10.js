@@ -99,7 +99,21 @@ for (let level = 1; level <= 10; level++) {
   async function start(page, level) {
     await page.clock.runFor(60000);
     assert.equal(await page.locator('.heart.active').count(), 3);
+    if (new URL(page.url()).searchParams.get('game') === 'bimodal_divert') {
+      assert.equal(await page.locator('.bimodal-color-guide').count(), 1);
+      const cfg = api.getConfig('bimodal_divert', level);
+      assert.deepEqual(await page.locator('.bimodal-color-preview').evaluateAll(nodes => nodes.map(node => node.dataset.color)), ['blue', 'orange', 'green', 'purple', 'pink', 'yellow', 'red']);
+      assert.equal(await page.locator('.bimodal-color-preview.is-target').count(), 1);
+      assert.equal(await page.locator('.bimodal-color-preview.is-target').getAttribute('data-color'), cfg.targetColor);
+      assert.match(await page.locator('.bimodal-color-guide').innerText(), /其他颜色不计数/);
+      assert.equal(await page.locator('.batch-audio-tools button').count(), 2);
+      const before = await page.evaluate(() => window.audioTones.length);
+      await page.getByRole('button', { name: /^试听清亮音/ }).click();
+      await page.getByRole('button', { name: /^试听柔和音/ }).click();
+      assert.deepEqual(await page.evaluate(index => window.audioTones.slice(index).map(tone => tone.frequency), before), [880, 220]);
+    }
     await page.getByRole('button', { name: `开始第 ${level} 关` }).click();
+    assert.equal(await page.locator('.bimodal-color-guide').count(), 0);
   }
   async function collectStream(page, count, exposure, read) {
     const values = [];

@@ -1625,6 +1625,12 @@ body.miniprogram-view .controls-container {
 .batch-targets { font-size: 14px; line-height: 1.5; font-weight: 700; text-align: center; color: #075985; }
 .batch-audio-tools { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
 .batch-audio-tools .batch-choice { font-size: 12px; }
+.bimodal-color-guide p { font-size: 12px; line-height: 1.5; }
+.bimodal-color-previews { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
+.bimodal-color-preview { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 5px 0; border: 2px solid transparent; border-radius: 10px; font-size: 11px; white-space: nowrap; }
+.bimodal-color-preview.is-target { border-color: #0369a1; background: #e0f2fe; font-weight: 700; }
+.bimodal-color-dot { width: 28px; height: 28px; border-radius: 50%; }
+
 .batch-flanker-grid { display: grid; width: 100%; gap: 5px; }
 .batch-flanker-bird { min-width: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; border-bottom: 3px solid transparent; }
 .batch-flanker-bird .batch-object { width: 85%; height: 85%; }
