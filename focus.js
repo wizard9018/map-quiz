@@ -1008,6 +1008,7 @@
     state.gameId = gid;
     state.flankerPrevious = null;
     state.ufovPrevious = null;
+    state.semanticPrevious = null;
     document.body.classList.toggle('flanker-view', gid === 'flanker_birds');
     el.timerBadge.hidden = gid === 'nback_flow' || gid === 'matrix_flash' || gid === 'sequence_order' || (REGISTRY[gid].engine === 'batch_master' && !['schulte_ladder', 'flanker_birds'].includes(gid));
     el.controls.classList.toggle('batch-controls', REGISTRY[gid].engine === 'batch_master');

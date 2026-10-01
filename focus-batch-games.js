@@ -21,7 +21,8 @@
     交通工具: ['汽车', '火车', '飞机', '轮船', '自行车', '公交车'],
     蔬菜: ['白菜', '萝卜', '黄瓜', '菠菜', '茄子', '土豆'],
     学习用品: ['铅笔', '橡皮', '尺子', '书包', '作业本', '文具盒'],
-    家具: ['桌子', '椅子', '沙发', '衣柜', '床', '书架']
+    家具: ['桌子', '椅子', '沙发', '衣柜', '床', '书架'],
+    昆虫: ['蝴蝶', '蜜蜂', '蚂蚁', '蜻蜓', '瓢虫', '蚱蜢']
   };
   function outerPositions(size) { return Array.from({ length: size * size }, (_, i) => i).filter(i => Math.floor(i / size) === 0 || Math.floor(i / size) === size - 1 || i % size === 0 || i % size === size - 1); }
   function shuffle(values) {
@@ -36,7 +37,7 @@
   function getConfig(id, level) {
     const base = { required: 5 };
     if (id === 'tidal_treasures') return { required: 1, count: level + 3, size: level < 6 ? 4 : 5 };
-    if (id === 'semantic_synthesis') return { required: 3, count: 5 + 2 * Math.floor(level / 2), categories: Object.keys(vocabulary).slice(0, 2 + Math.floor((level - 1) / 2)), rate: 0.8 + level * 0.03 };
+    if (id === 'semantic_synthesis') return { required: 3, count: 5 + 2 * Math.floor(level / 2), categoryCount: 2 + Math.floor((level - 1) / 2), rate: 0.8 + level * 0.03 };
     if (id === 'schulte_ladder') return { required: 1, size: 3 + Math.floor((level - 1) / 3), limit: 20000 + 10000 * Math.floor((level - 1) / 3) - 5000 * ((level - 1) % 3) };
     if (id === 'cambridge_decoder') return { required: 3, count: level + 2, exposure: 800 - (level - 1) * 50 };
     if (id === 'flanker_birds') {
@@ -50,14 +51,17 @@
     const cfg = getConfig(id, level);
     if (id === 'tidal_treasures') return { objects: shuffle(objects).slice(0, cfg.count) };
     if (id === 'semantic_synthesis') {
-      const counts = Object.fromEntries(cfg.categories.map(category => [category, 1]));
-      for (let i = cfg.categories.length; i < cfg.count; i++) counts[pick(cfg.categories)]++;
+      const pool = Object.keys(vocabulary);
+      const oldCategories = previous ? previous.categories : [];
+      const categories = [...shuffle(pool.filter(value => !oldCategories.includes(value))), ...shuffle(oldCategories)].slice(0, cfg.categoryCount);
+      const counts = Object.fromEntries(categories.map(category => [category, 1]));
+      for (let i = categories.length; i < cfg.count; i++) counts[pick(categories.filter(value => counts[value] < vocabulary[value].length))]++;
       const maximum = Math.max(...Object.values(counts));
-      const leaders = cfg.categories.filter(category => counts[category] === maximum);
+      const leaders = categories.filter(category => counts[category] === maximum);
       const category = pick(leaders);
       if (leaders.length > 1) { counts[category]++; counts[leaders.find(value => value !== category)]--; }
-      const words = shuffle(cfg.categories.flatMap(value => Array.from({ length: counts[value] }, () => ({ word: pick(vocabulary[value]), category: value }))));
-      return { category, words };
+      const words = shuffle(categories.flatMap(value => shuffle(vocabulary[value]).slice(0, counts[value]).map(word => ({ word, category: value }))));
+      return { category, categories: shuffle(categories), words };
     }
     if (id === 'schulte_ladder') return { numbers: shuffle(Array.from({ length: cfg.size * cfg.size }, (_, i) => i + 1)) };
     if (id === 'cambridge_decoder') {
@@ -110,7 +114,7 @@
     const status = wrap.querySelector('#batch-status');
     const difficulty = wrap.querySelector('#batch-difficulty');
     difficulty.textContent = id === 'tidal_treasures' ? `${cfg.count} 件物体` : id === 'schulte_ladder' ? `${cfg.size}×${cfg.size} · ${cfg.limit / 1000} 秒` :
-      id === 'semantic_synthesis' ? `${cfg.count} 个词 · ${cfg.categories.length} 类` : id === 'cambridge_decoder' ? `${cfg.count} 个图标 · 顺序复原` :
+      id === 'semantic_synthesis' ? `${cfg.count} 个词 · ${cfg.categoryCount} 类` : id === 'cambridge_decoder' ? `${cfg.count} 个图标 · 顺序复原` :
       id === 'flanker_birds' ? `${cfg.rows}×${cfg.cols} · ${cfg.count} 只小鸟` : id === 'ufov_dual_field' ? `${cfg.size}×${cfg.size} · ${cfg.triple ? '三重' : '双重'}视野` : `${cfg.count} 次视听呈现`;
     function progress() { wrap.querySelector('#batch-progress').textContent = id === 'tidal_treasures' ? `已选 ${sub.picked ? sub.picked.size : 0}/${cfg.count} 件` : id === 'schulte_ladder' ? `完成 ${sub.completed}/1 张` : id === 'flanker_birds' ? `答对 ${sub.completed}/${cfg.required} 次` : `连续正确 ${sub.completed}/${cfg.required} 组`; }
     function later(fn, delay) {
@@ -207,7 +211,7 @@
       card.innerHTML = '<div class="batch-stream-display" id="batch-word">听一听词语</div><div class="batch-audio-tools"></div>';
       const word = card.querySelector('#batch-word');
       const tools = card.querySelector('.batch-audio-tools');
-      const row = choiceRow(cfg.categories.map(category => [category, category]), value => decide(value, trial.category));
+      const row = choiceRow(trial.categories.map(category => [category, category]), value => decide(value, trial.category));
       function unavailable() {
         if (sub.phase !== 'listening') return;
         sub.phase = 'audio-unavailable'; status.textContent = '声音暂不可用，请点击“再听一次”重试，或选择“文字练习”';
@@ -411,8 +415,9 @@
     }
     function beginRound() {
       clearTimers(); sub.token++; card.innerHTML = ''; el.controls.innerHTML = ''; progress();
-      const trial = generateTrial(id, level, id === 'flanker_birds' ? state.flankerPrevious : id === 'ufov_dual_field' ? state.ufovPrevious : id === 'bimodal_divert' ? sub.previousBimodal : undefined);
+      const trial = generateTrial(id, level, id === 'flanker_birds' ? state.flankerPrevious : id === 'ufov_dual_field' ? state.ufovPrevious : id === 'bimodal_divert' ? sub.previousBimodal : id === 'semantic_synthesis' ? state.semanticPrevious : undefined);
       if (id === 'bimodal_divert') sub.previousBimodal = trial;
+      if (id === 'semantic_synthesis') state.semanticPrevious = trial;
       if (id === 'tidal_treasures') treasures(trial);
       else if (id === 'semantic_synthesis') semantics(trial);
       else if (id === 'schulte_ladder') schulte(trial);

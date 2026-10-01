@@ -12,12 +12,12 @@ for (const [id] of api.definitions) {
       if (id === 'tidal_treasures') assert.equal(new Set(trial.objects).size, cfg.count);
       if (id === 'semantic_synthesis') {
         assert.equal(cfg.count, [5, 7, 7, 9, 9, 11, 11, 13, 13, 15][level - 1]);
-        assert.equal(cfg.categories.length, 2 + Math.floor((level - 1) / 2));
+        assert.equal(cfg.categoryCount, 2 + Math.floor((level - 1) / 2));
         assert.equal(trial.words.length, cfg.count);
-        const counts = Object.fromEntries(cfg.categories.map(category => [category, 0]));
+        const counts = Object.fromEntries(trial.categories.map(category => [category, 0]));
         trial.words.forEach(item => { assert(api.vocabulary[item.category].includes(item.word)); counts[item.category]++; });
         assert(Object.values(counts).every(count => count > 0));
-        assert(cfg.categories.every(category => category === trial.category || counts[category] < counts[trial.category]));
+        assert(trial.categories.every(category => category === trial.category || counts[category] < counts[trial.category]));
       }
       if (id === 'schulte_ladder') assert.deepEqual(trial.numbers.slice().sort((a, b) => a - b), Array.from({ length: cfg.size ** 2 }, (_, i) => i + 1));
       if (id === 'cambridge_decoder') {
@@ -51,6 +51,26 @@ for (const [id] of api.definitions) {
         if (level > 1) { const prev = api.getConfig(id, level - 1); assert.notEqual(cfg.targetColor, prev.targetColor); assert.notEqual(cfg.targetSound, prev.targetSound); }
       }
     }
+  }
+}
+
+let previousSemantic;
+for (let level = 1; level <= 10; level++) {
+  for (let round = 0; round < 1000; round++) {
+    const trial = api.generateTrial('semantic_synthesis', level, previousSemantic);
+    const cfg = api.getConfig('semantic_synthesis', level);
+    assert.equal(trial.categories.length, cfg.categoryCount);
+    assert.equal(trial.words.length, cfg.count);
+    assert.equal(new Set(trial.words.map(item => item.word)).size, cfg.count, 'Words must not repeat within a group');
+    const counts = trial.categories.map(category => trial.words.filter(item => item.category === category).length);
+    assert(counts.every(count => count > 0));
+    assert.equal(counts.filter(count => count === Math.max(...counts)).length, 1);
+    if (previousSemantic) {
+      const overlap = trial.categories.filter(category => previousSemantic.categories.includes(category)).length;
+      assert.equal(overlap, Math.max(0, cfg.categoryCount + previousSemantic.categories.length - Object.keys(api.vocabulary).length), 'Adjacent groups must use the minimum possible overlap');
+      assert.notDeepEqual(trial.categories.slice().sort(), previousSemantic.categories.slice().sort());
+    }
+    previousSemantic = trial;
   }
 }
 
@@ -142,9 +162,15 @@ for (let level = 1; level <= 10; level++) {
         await page.clock.runFor(300);
       }
       const words = await page.evaluate(count => window.spokenWords.slice(-count), cfg.count);
-      const counts = cfg.categories.map(category => words.filter(word => api.vocabulary[category].includes(word)).length);
-      const category = cfg.categories[counts.indexOf(Math.max(...counts))];
-      await page.locator(`.batch-choice[data-choice="${wrong ? cfg.categories.find(value => value !== category) : category}"]`).click();
+      const categories = await page.locator('.batch-choice-row button').evaluateAll(nodes => nodes.map(node => node.dataset.choice));
+      assert.equal(new Set(words).size, cfg.count);
+      if (page.semanticCategories) {
+        assert.equal(categories.filter(category => page.semanticCategories.includes(category)).length, Math.max(0, categories.length + page.semanticCategories.length - Object.keys(api.vocabulary).length), 'Browser rounds, upgrades and failure restarts must rotate categories');
+      }
+      page.semanticCategories = categories;
+      const counts = categories.map(category => words.filter(word => api.vocabulary[category].includes(word)).length);
+      const category = categories[counts.indexOf(Math.max(...counts))];
+      await page.locator(`.batch-choice[data-choice="${wrong ? categories.find(value => value !== category) : category}"]`).click();
     } else if (id === 'schulte_ladder') {
       if (wrong) { await page.clock.runFor(cfg.limit); return; }
       for (let number = 1; number <= cfg.size ** 2; number++) await page.locator(`.batch-cell[data-number="${number}"]`).click();

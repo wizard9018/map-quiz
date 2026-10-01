@@ -44,6 +44,16 @@ for (let index = 1; index <= words.length; index++) {
     assert.equal(await page.locator('#batch-word').innerText(), '哪个类别出现最多？');
     assert.match(await page.locator('#batch-status').innerText(), /请选择出现次数最多/);
     assert.equal(await page.evaluate(() => JSON.stringify(window.playedWords.slice(0, 5)) === JSON.stringify(window.playedWords.slice(5))), true);
-    console.log('36 nonempty WAV recordings, real browser audio playback without SpeechSynthesis, replay from text mode passed.');
+    await page.evaluate(async () => {
+      for (let index = 37; index <= 42; index++) {
+        await new Promise((resolve, reject) => {
+          const audio = new Audio(`assets/semantic-audio/word-${index}.wav`);
+          audio.playbackRate = 2;
+          audio.onended = resolve; audio.onerror = () => reject(new Error(`Insect audio ${index} failed`));
+          audio.play().catch(reject);
+        });
+      }
+    });
+    console.log('42 nonempty WAV recordings, real browser audio playback without SpeechSynthesis, replay from text mode passed.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
