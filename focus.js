@@ -58,6 +58,7 @@
     },
 
     ...window.FocusBatchGames.registry,
+    ...window.FocusNextGames.registry,
 
     // 第一个游戏：舒尔特方格注意力阶梯训练
     schulte_classic: {
@@ -570,7 +571,7 @@
     }
   };
 
-  const GAME_IDS = ['nback_flow', 'matrix_flash', 'sequence_order', ...window.FocusBatchGames.definitions.map(([id]) => id)];
+  const GAME_IDS = ['nback_flow', 'matrix_flash', 'sequence_order', ...window.FocusBatchGames.definitions.map(([id]) => id), ...window.FocusNextGames.definitions.map(([id]) => id)];
   Object.keys(REGISTRY).filter(id => !GAME_IDS.includes(id)).forEach(id => delete REGISTRY[id]);
 
   // 2. 音效生成器 (基于 Web Audio API 纯合成，零延迟免外部资源)
@@ -854,6 +855,7 @@
       });
     }
 
+    state.populateGameSelect = populateSelect;
     populateSelect('all');
 
     el.gameSelect.addEventListener('change', () => {
@@ -866,15 +868,15 @@
     });
 
     el.prevBtn.addEventListener('click', () => {
-      const curIdx = keys.indexOf(state.gameId);
-      const nextIdx = (curIdx - 1 + keys.length) % keys.length;
-      switchGame(keys[nextIdx], 1);
+      const available = Array.from(el.gameSelect.options, option => option.value);
+      const curIdx = available.indexOf(state.gameId);
+      switchGame(available[(curIdx - 1 + available.length) % available.length], 1);
     });
 
     el.nextBtn.addEventListener('click', () => {
-      const curIdx = keys.indexOf(state.gameId);
-      const nextIdx = (curIdx + 1) % keys.length;
-      switchGame(keys[nextIdx], 1);
+      const available = Array.from(el.gameSelect.options, option => option.value);
+      const curIdx = available.indexOf(state.gameId);
+      switchGame(available[(curIdx + 1) % available.length], 1);
     });
 
     // 学堂筛选按钮
@@ -901,9 +903,9 @@
     if (el.btnNextGame) {
       el.btnNextGame.addEventListener('click', () => {
         el.reportModal.classList.add('hidden');
-        const curIdx = keys.indexOf(state.gameId);
-        const nextIdx = (curIdx + 1) % keys.length;
-        switchGame(keys[nextIdx], 1);
+        const available = Array.from(el.gameSelect.options, option => option.value);
+        const curIdx = available.indexOf(state.gameId);
+        switchGame(available[(curIdx + 1) % available.length], 1);
       });
     }
 
@@ -988,6 +990,10 @@
   // 5. 切换游戏主函数
   function switchGame(gid, lvl = 1) {
     if (!REGISTRY[gid]) gid = 'nback_flow';
+    if (!Array.from(el.gameSelect.options).some(option => option.value === gid)) {
+      state.populateGameSelect('all');
+      el.academyPills.querySelectorAll('.pill-btn').forEach(button => button.classList.toggle('active', button.dataset.academy === 'all'));
+    }
     document.body.classList.remove('focus-home-view');
     document.getElementById('focus-home').hidden = true;
     state.runFinished = false;
@@ -1384,7 +1390,7 @@
 
     // 00. 母版 01: N-Back 工作记忆刷新流 (自适应 1~3 Back)
     if (g.engine === 'batch_master') {
-      window.FocusBatchGames.render(lvl, { state, el, playTone, soundSuccess, deductLife, nextLevel, updateTimerDisplay });
+      (window.FocusNextGames.registry[state.gameId] ? window.FocusNextGames : window.FocusBatchGames).render(lvl, { state, el, playTone, soundSuccess, deductLife, nextLevel, updateTimerDisplay });
     }
     else if (state.gameId === 'sequence_order') {
       renderSequenceOrder(lvl);

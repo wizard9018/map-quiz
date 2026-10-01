@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>专注力游戏 · 10 款试玩总览</title>
+  <title>专注力游戏 · 20 款试玩总览</title>
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; background: #f7f5ef; color: #23313a; font-family: "Microsoft YaHei", system-ui, sans-serif; line-height: 1.6; }
@@ -40,10 +40,11 @@
     <h1>专注力游戏试玩总览</h1>
     <p class="intro">先看图片预览和玩法说明，再点击“试玩这款”直接体验。切换游戏会重开上一款，避免声音互相干扰。</p>
     <nav aria-label="游戏目录" id="directory"></nav>
-    <p><a href="games04-10-report.html">查看游戏 4～10 的玩法与关卡参数</a></p>
+    <p><a href="games04-10-report.html">游戏 4～10 的玩法与参数</a> · <a href="games11-20-report.html">游戏 11～20 的玩法与参数</a></p>
     <p class="intro">每关三颗心，第三次失误结束并显示报告；升级补满三颗心。N-Back 每关 10 组判断；游戏 4 物体各选一次升级；游戏 5 连续正确 3 组升级；游戏 6 完成一张数字表升级；游戏 7 连续正确 3 组升级；游戏 8 在本关限时内达到正确次数要求升级；其余连续正确 5 组升级。</p>
     <div class="games" id="games"></div>
   </main>
+  <script src="focus-next-games.js?v=20261001_local24"></script>
   <script>
     const games = [
       ['nback_flow', 'N-Back 工作记忆刷新流', '依次观察一组图形，与上一整组比较。整组展示完后点击“一致”或“不一致”，每关判断 10 组。12 关，每组由 1 项增至 4 项。'],
@@ -57,6 +58,7 @@
       ['ufov_dual_field', '双重视野捕获', '观察后才显示选项，依次选择中心图形和星星位置；L6 起为 5×5，目标位于最外圈。每两级增加一个选项至 6 个；L11～L14 加入心形位置，三项都正确才完成一组。'],
       ['bimodal_divert', '视听双通道分流', '每关更换目标颜色和音色，每组从 2 次逐级增加至 11 次，播放速度固定。L6 起三种颜色，干扰配色每组随机更换；播放后点击选择两项次数，开始前可试听。']
     ];
+    games.push(...window.FocusNextGames.definitions.map(([id, number, title, academy, prompt]) => [id, title, prompt + '。10 级，每关连续正确 3 组升级。']));
     let active = null;
     function activate(article) {
       if (active) {
@@ -77,7 +79,7 @@
     }
     games.forEach(([id, title, rule], index) => {
       const number = String(index + 1).padStart(2, '0');
-      const url = `focus.html?game=${id}&miniprogram=1&v=local23#${id}`;
+      const url = `focus.html?game=${id}&miniprogram=1&v=local24#${id}`;
       const article = document.createElement('article'); article.id = id;
       article.dataset.url = url; article.dataset.title = title;
       article.innerHTML = `<h2>${number} · ${title}</h2><div class="preview"><img class="preview-image" src="reports/game-previews/${id}.png" alt="${title}实际游戏画面${id === 'semantic_synthesis' ? '（文字练习模式）' : ''}" loading="lazy"><button class="cover" aria-label="试玩${title}"><span>点击启用试玩</span></button></div><p class="rule"><strong>怎么玩：</strong>${rule}</p><div class="actions"><button class="toggle" aria-pressed="false">试玩这款</button><a href="${url}" target="_blank" rel="noopener">单独打开</a></div>`;
