@@ -25,7 +25,7 @@
       title: "母版 01 · N-Back 工作记忆刷新流",
       academy: "memory",
       brainCircuit: "背外侧前额叶 (DLPFC) + 顶内沟 (IPS)",
-      prompt: "👀 当刺激与【N 步前】相同时点击【相同】（不同则无需点击，自动通过）",
+      prompt: "每组展示完后点击【一致】或【不一致】，每关判断 10 组",
       modality: "nback_flow",
       gesture: "single_match_tap",
       layout: "nback_flow_stage",
@@ -1293,13 +1293,15 @@
   // 渲染操作按键
   function renderControlsForGesture(gesture) {
     if (gesture === 'single_match_tap') {
-      const n = (state.subState && state.subState.n) ? state.subState.n : getNForLevel(state.level);
       const btnMatch = document.createElement('button');
       btnMatch.className = 'duo-btn-match-single';
       btnMatch.id = 'btn-nback-match';
-      btnMatch.innerHTML = `🎯 相同：与【${n}步前】一致`;
+      btnMatch.innerText = '一致';
       btnMatch.onclick = () => handleNBackMatchTap();
       el.controls.appendChild(btnMatch);
+      const btnDifferent = document.createElement('button');
+      btnDifferent.className = 'duo-btn-match-single'; btnDifferent.id = 'btn-nback-different'; btnDifferent.innerText = '不一致'; btnDifferent.disabled = true;
+      btnDifferent.onclick = () => handleNBackMatchTap(false); el.controls.appendChild(btnDifferent);
     }
     else if (gesture === '2way_same_diff') {
       const isNBackFlow = (state.gameId === 'nback_flow');
@@ -1907,7 +1909,7 @@
     wrap.appendChild(warmupNotice);
 
     // 点击舞台卡片也可触发命中判定
-    card.onclick = () => handleNBackMatchTap();
+    card.onclick = null;
 
     state.subState = {
       n: n,
@@ -1966,79 +1968,19 @@
       }
       playTone(440, 'triangle', 0.12, 0.12);
 
-      if (sub.n >= 2) {
-        sub.awaitingAnswer = false;
-        sub.userResponded = false;
-        const itemNumber = sub.stepIdx % sub.n + 1;
-        el.gamePrompt.innerText = `观察本组 ${sub.n} 项，全部出现完再与上一组比较（${itemNumber}/${sub.n}）`;
-        sub.warmupNotice.style.visibility = sub.stepIdx < sub.n ? 'visible' : 'hidden';
-        sub.warmupNotice.innerText = `👀 记住第一组... (${itemNumber}/${sub.n})`;
-        if (btnMatch) {
-          btnMatch.disabled = true;
-          btnMatch.innerText = `👀 观察本组（${itemNumber}/${sub.n}）`;
-        }
-        sub.stepTimerHandle = setTimeout(() => {
-          if ((sub.stepIdx + 1) % sub.n === 0 && sub.stepIdx >= sub.n) {
-            clearStimulus();
-            showGroupDecision();
-          } else {
-            doISITransition();
-          }
-        }, sub.stepDuration * 1000);
-        return;
-      }
-
-      if (sub.stepIdx < sub.n) {
-        // 瞬记预热阶段 (前 N 项只需观察记忆，无需点击)
-        sub.awaitingAnswer = false;
-        sub.userResponded = false;
-        el.gamePrompt.innerText = `👀 第 ${sub.stepIdx + 1} 项瞬记中（无需操作，第 ${sub.n + 1} 项起开始比对）`;
-
-        if (sub.warmupNotice) {
-          sub.warmupNotice.style.visibility = 'visible';
-          sub.warmupNotice.innerText = `👀 观察瞬记 [位置+图标]... (${sub.stepIdx + 1}/${sub.n})`;
-        }
-        if (btnMatch) {
-          btnMatch.disabled = true;
-          btnMatch.innerHTML = `👀 观察记忆中... (${sub.stepIdx + 1}/${sub.n})`;
-        }
-
-        sub.stepTimerHandle = setTimeout(() => {
-          doISITransition();
-        }, sub.stepDuration * 1000);
-      } else {
-        // 正式比对阶段 (只点相同，不点默认为不同)
-        if (sub.warmupNotice) {
-          sub.warmupNotice.style.visibility = 'hidden';
-        }
-        if (btnMatch) {
-          btnMatch.disabled = false;
-          btnMatch.innerHTML = `🎯 相同：与【${sub.n}步前】一致`;
-        }
-
-        sub.awaitingAnswer = true;
-        sub.userResponded = false;
-        sub.stepStartStamp = Date.now();
-        el.gamePrompt.innerText = `第 ${lvl} 关 · 【位置与图标】均与【${sub.n} 步前】相同时点击【相同】（不同无需点击）`;
-
-        sub.stepTimerHandle = setTimeout(() => {
-          // 步进时间耗尽：若玩家未点击，检查是否为漏报
-          if (!sub.userResponded && sub.awaitingAnswer) {
-            sub.awaitingAnswer = false;
-            if (curStep.expectedMatch) {
-              // 实际相同却漏报
-              sub.misses++;
-              deductLife(`超时漏报：此方块【位置与图标】均与 ${sub.n} 步前相同！`);
-              return;
-            } else {
-              // 实际不同且未按：正确放行克制
-              sub.correctRejections++;
-              state.stats.correct++;
-            }
-          }
-          doISITransition();
-        }, sub.stepDuration * 1000);
-      }
+      sub.awaitingAnswer = false;
+      sub.userResponded = false;
+      const itemNumber = sub.stepIdx % sub.n + 1;
+      el.gamePrompt.innerText = '观察本组 ' + sub.n + ' 项，全部出现完再判断一致或不一致（' + itemNumber + '/' + sub.n + '）';
+      sub.warmupNotice.style.visibility = sub.stepIdx < sub.n ? 'visible' : 'hidden';
+      sub.warmupNotice.innerText = '记住第一组… (' + itemNumber + '/' + sub.n + ')';
+      btnMatch.disabled = true; btnMatch.innerText = '一致';
+      document.getElementById('btn-nback-different').disabled = true;
+      sub.stepTimerHandle = setTimeout(() => {
+        clearStimulus();
+        if ((sub.stepIdx + 1) % sub.n === 0 && sub.stepIdx >= sub.n) showGroupDecision();
+        else doISITransition();
+      }, sub.stepDuration * 1000);
     }
 
     function clearStimulus() {
@@ -2059,20 +2001,16 @@
       sub.stepStartStamp = Date.now();
       const btnMatch = document.getElementById('btn-nback-match');
       btnMatch.disabled = false;
-      btnMatch.innerText = '🎯 整组相同：与上一组一致';
-      document.getElementById('nback-step-counter').innerText = `第 ${Math.floor(sub.stepIdx / sub.n) + 1} 组 · 请判断`;
-      el.gamePrompt.innerText = '本组每项的位置、图标和顺序都与上一组一致，才点【整组相同】；不同无需点击';
+      btnMatch.innerText = '一致';
+      document.getElementById('btn-nback-different').disabled = false;
+      document.getElementById('nback-step-counter').innerText = `判断 ${Math.floor(sub.stepIdx / sub.n)} / 10 组`;
+      el.gamePrompt.innerText = '位置、图标和顺序都相同点【一致】，否则点【不一致】；本关共 10 组判断';
       sub.stepTimerHandle = setTimeout(() => {
         if (!sub.userResponded) {
           sub.awaitingAnswer = false;
-          if (isNBackGroupEqual(sub.sequence, sub.stepIdx, sub.n)) {
-            sub.misses++;
-            deductLife('漏报：这一整组与上一组完全一致');
-            return;
-          } else {
-            sub.correctRejections++;
-            state.stats.correct++;
-          }
+          sub.misses++;
+          deductLife('未作答：每组都需要选择一致或不一致');
+          return;
         }
         doISITransition();
       }, 1500);
@@ -2115,6 +2053,7 @@
       sub.awaitingAnswer = false;
       const btnMatch = document.getElementById('btn-nback-match');
       if (btnMatch) btnMatch.disabled = true;
+      document.getElementById('btn-nback-different').disabled = true;
       const gap = (sub.stepIdx + 1) % sub.n === 0 ? 2000 : 180;
       if ((sub.stepIdx + 1) % sub.n === 0 && sub.stepIdx + 1 < sub.totalSteps) showDistraction(gap);
       sub.isiTimerHandle = setTimeout(() => {
@@ -2145,7 +2084,8 @@
       card.classList.remove('shake-error', 'hit-pulse');
       const btnMatch = document.getElementById('btn-nback-match');
       btnMatch.disabled = true;
-      btnMatch.innerText = '👀 重新观察第一组';
+      btnMatch.innerText = '一致';
+      document.getElementById('btn-nback-different').disabled = true;
       el.gamePrompt.innerText = '本关重新开始：先记住第一组图形';
       const notice = document.createElement('div');
       notice.className = 'nback-transition-notice nback-error-notice';
@@ -2164,7 +2104,7 @@
       notice.className = 'nback-transition-notice';
       notice.innerHTML = `<h3>第 ${lvl} 关 · ${n}-Back</h3>
         <p>${n === 1 ? '先记住第一项，再将每一项与上一项比较。' : `每 ${n} 项为一组，等整组显示完再与上一组比较。`}</p>
-        <p>位置与图标都相同才点击，不同无需点击。</p>
+        <p>每关判断 10 组：位置、图标和顺序都相同选“一致”，否则选“不一致”。</p>
         <p>组间从不同方向飞过的物体只是干扰，不需要判断。</p>`;
       card.appendChild(notice);
       el.gamePrompt.innerText = `第 ${lvl} 关 · ${n}-Back，准备好后点击开始`;
@@ -2174,7 +2114,7 @@
       btnMatch.onclick = () => {
         notice.remove();
         btnMatch.onclick = () => handleNBackMatchTap();
-        card.onclick = () => handleNBackMatchTap();
+        card.onclick = null;
         btnMatch.disabled = true;
         advanceToNext();
       };
@@ -2183,7 +2123,7 @@
     }
   }
 
-  function handleNBackMatchTap() {
+  function handleNBackMatchTap(chosenSame = true) {
     const sub = state.subState;
     if (!sub) return;
 
@@ -2197,6 +2137,7 @@
     sub.userResponded = true;
     sub.awaitingAnswer = false;
     document.getElementById('btn-nback-match').disabled = true;
+    document.getElementById('btn-nback-different').disabled = true;
     clearTimeout(sub.stepTimerHandle);
 
     const rt = Date.now() - sub.stepStartStamp;
@@ -2206,12 +2147,11 @@
     const card = document.getElementById('nback-stage-card');
 
     const expectedMatch = sub.n >= 2 ? isNBackGroupEqual(sub.sequence, sub.stepIdx, sub.n) : curStep.expectedMatch;
-    if (expectedMatch) {
-      // 命中 (Hit)
-      sub.correctHits++;
+    if (chosenSame === expectedMatch) {
+      if (chosenSame) sub.correctHits++; else sub.correctRejections++;
       state.stats.correct++;
       soundSuccess();
-      showToast(`🎯 精准命中！位置与图标均完全一致 (+${15 * sub.lvl}分)`, 400);
+      showToast(chosenSame ? '判断正确：整组一致' : '判断正确：整组不一致', 400);
 
       if (card) {
         card.classList.add('hit-pulse');
@@ -2220,7 +2160,7 @@
     } else {
       // 虚报手抖 (False Alarm)
       sub.falseAlarms++;
-      deductLife(sub.n >= 2 ? '误点：这一整组与上一组不同' : '误点：位置或图标与上一步不同');
+      deductLife(expectedMatch ? '判断错误：这一整组与上一组一致' : '判断错误：这一整组与上一组不一致');
       return;
     }
 

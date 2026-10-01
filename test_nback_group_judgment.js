@@ -11,7 +11,7 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
         await page.clock.install();
         await page.clock.pauseAt(new Date());
         await page.addInitScript(value => { Math.random = () => value; }, random);
-        await page.goto(process.env.FOCUS_TEST_URL || 'http://127.0.0.1:8080/focus.html');
+        await page.goto(process.env.FOCUS_TEST_URL || 'http://127.0.0.1:8080/focus.html?game=nback_flow');
         await page.locator('#level-select').selectOption(String(level));
         await page.clock.runFor(60000);
         assert.equal(await page.locator('#timer-badge').isVisible(), false);

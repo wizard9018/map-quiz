@@ -52,6 +52,7 @@ const { getNBackConfig } = require('./test_nback_helpers');
       const bounds = await grid.boundingBox();
       const items = [];
       let matchingGroups = 0;
+      let decisions = 0;
       for (let step = 0; step < cfg.totalSteps; step++) {
         const active = page.locator('.active-lit');
         assert.equal(await active.count(), 1);
@@ -63,21 +64,18 @@ const { getNBackConfig } = require('./test_nback_helpers');
           const previous = items[step - 2 * cfg.n + 1 + index];
           return previous && item.pos === previous.pos && item.icon === previous.icon;
         });
-        if (cfg.n === 1 && matches) {
-          matchingGroups++;
-          await page.locator('#btn-nback-match').click();
-        }
         await page.clock.runFor(1499);
         assert.equal(await active.count(), 1, 'Every item must stay visible for 1500ms');
         await page.clock.runFor(1);
         assert.equal(await active.count(), 0);
-        const groupEnd = cfg.n >= 2 && (step + 1) % cfg.n === 0;
+        const groupEnd = (step + 1) % cfg.n === 0;
         if (groupEnd && step >= cfg.n) {
+          decisions++;
           assert.equal(await page.locator('#btn-nback-match').isEnabled(), true);
-          if (matches) {
-            matchingGroups++;
-            await page.locator('#btn-nback-match').click();
-          }
+          assert.equal(await page.locator('#btn-nback-different').isEnabled(), true);
+          if (matches) matchingGroups++;
+          await page.locator(matches ? '#btn-nback-match' : '#btn-nback-different').click();
+          assert.equal(await page.locator('#btn-nback-different').isDisabled(), true);
           await page.clock.runFor(1500);
         }
         const gap = (step + 1) % cfg.n === 0 ? 2000 : 180;
@@ -87,6 +85,7 @@ const { getNBackConfig } = require('./test_nback_helpers');
         await page.clock.runFor(1);
       }
       assert.equal(matchingGroups, 4);
+      assert.equal(decisions, 10);
       await page.clock.runFor(1000);
       console.log(`L${level}: ${cfg.n}-Back, ${cfg.size}x${cfg.size}, fixed exposure and group gaps passed`);
     }
