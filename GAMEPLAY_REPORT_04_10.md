@@ -15,13 +15,13 @@
 
 ## 试玩目录
 
-- [母版 04 · 排他性情景记忆提取](http://127.0.0.1:8080/focus.html?game=tidal_treasures&miniprogram=1&v=local26#tidal_treasures)
-- [母版 05 · 听觉语义概念综摄](http://127.0.0.1:8080/focus.html?game=semantic_synthesis&miniprogram=1&v=local26#semantic_synthesis)
-- [母版 06 · 舒尔特注意力阶梯](http://127.0.0.1:8080/focus.html?game=schulte_ladder&miniprogram=1&v=local26#schulte_ladder)
-- [母版 07 · 图标顺序复原](http://127.0.0.1:8080/focus.html?game=cambridge_decoder&miniprogram=1&v=local26#cambridge_decoder)
-- [母版 08 · 迷途鸟群侧抑制](http://127.0.0.1:8080/focus.html?game=flanker_birds&miniprogram=1&v=local26#flanker_birds)
-- [母版 09 · 双重视野捕获](http://127.0.0.1:8080/focus.html?game=ufov_dual_field&miniprogram=1&v=local26#ufov_dual_field)
-- [母版 10 · 视听双通道分流](http://127.0.0.1:8080/focus.html?game=bimodal_divert&miniprogram=1&v=local26#bimodal_divert)
+- [母版 04 · 排他性情景记忆提取](http://127.0.0.1:8080/focus.html?game=tidal_treasures&miniprogram=1&v=local27#tidal_treasures)
+- [母版 05 · 听觉语义概念综摄](http://127.0.0.1:8080/focus.html?game=semantic_synthesis&miniprogram=1&v=local27#semantic_synthesis)
+- [母版 06 · 舒尔特注意力阶梯](http://127.0.0.1:8080/focus.html?game=schulte_ladder&miniprogram=1&v=local27#schulte_ladder)
+- [母版 07 · 图标顺序复原](http://127.0.0.1:8080/focus.html?game=cambridge_decoder&miniprogram=1&v=local27#cambridge_decoder)
+- [母版 08 · 迷途鸟群侧抑制](http://127.0.0.1:8080/focus.html?game=flanker_birds&miniprogram=1&v=local27#flanker_birds)
+- [母版 09 · 双重视野捕获](http://127.0.0.1:8080/focus.html?game=ufov_dual_field&miniprogram=1&v=local27#ufov_dual_field)
+- [母版 10 · 视听双通道分流](http://127.0.0.1:8080/focus.html?game=bimodal_divert&miniprogram=1&v=local27#bimodal_divert)
 
 ## 04 · 排他性情景记忆提取
 
@@ -31,7 +31,7 @@
 
 **挑战：**记住“选过哪些物体”，抵抗摆放位置改变带来的干扰。
 
-[本地试玩](http://127.0.0.1:8080/focus.html?game=tidal_treasures&miniprogram=1&v=local26#tidal_treasures)
+[本地试玩](http://127.0.0.1:8080/focus.html?game=tidal_treasures&miniprogram=1&v=local27#tidal_treasures)
 
 | 关卡 | 实际参数 |
 | --- | --- |
@@ -54,9 +54,9 @@
 
 **挑战：**边听边分类、分别累计各类别的次数，直到整组结束再比较。
 
-使用项目内置的 42 段中文词语录音，不依赖浏览器中文朗读服务。可点击“再听一次”重播；即使已进入文字练习，也会恢复听觉模式。播放失败会明确提示重试或选择文字练习。文字练习不当作纯听觉玩法。
+使用项目内置的 140 段中文词语录音，不依赖浏览器中文朗读服务。可点击“再听一次”重播；即使已进入文字练习，也会恢复听觉模式。播放失败会明确提示重试或选择文字练习。文字练习不当作纯听觉玩法。
 
-[本地试玩](http://127.0.0.1:8080/focus.html?game=semantic_synthesis&miniprogram=1&v=local26#semantic_synthesis)
+[本地试玩](http://127.0.0.1:8080/focus.html?game=semantic_synthesis&miniprogram=1&v=local27#semantic_synthesis)
 
 | 关卡 | 实际参数 |
 | --- | --- |
@@ -81,7 +81,7 @@
 
 L1～L3：3×3、20/15/10 秒；L4～L6：4×4、30/25/20 秒；L7～L9：5×5、40/35/30 秒；L10：6×6、50 秒。只有超时才扣心并重新随机开始本关，第三次超时结束游戏。
 
-[本地试玩](http://127.0.0.1:8080/focus.html?game=schulte_ladder&miniprogram=1&v=local26#schulte_ladder)
+[本地试玩](http://127.0.0.1:8080/focus.html?game=schulte_ladder&miniprogram=1&v=local27#schulte_ladder)
 
 | 关卡 | 实际参数 |
 | --- | --- |
@@ -106,7 +106,7 @@ L1～L3：3×3、20/15/10 秒；L4～L6：4×4、30/25/20 秒；L7～L9：5×5�
 
 L1 从 3 个图标开始，每级增加 1 个，L10 为 12 个。观察期间没有候选图标；点错扣心并重置本关进度，第三次失误结束，升级补满三颗心。
 
-[本地试玩](http://127.0.0.1:8080/focus.html?game=cambridge_decoder&miniprogram=1&v=local26#cambridge_decoder)
+[本地试玩](http://127.0.0.1:8080/focus.html?game=cambridge_decoder&miniprogram=1&v=local27#cambridge_decoder)
 
 | 关卡 | 实际参数 |
 | --- | --- |
@@ -131,7 +131,7 @@ L1 从 3 个图标开始，每级增加 1 个，L10 为 12 个。观察期间没
 
 L1～L10 正确次数为 8/10/12/14/16/18/20/22/24/26；网格为 2×2、2×3、3×3、3×4、4×4、4×5、5×5、5×6、6×6、6×6。点错或超时扣心并清零本关次数，2 秒提示后重新开始本关倒计时；第三次失败结束，升级补满三颗心。
 
-[本地试玩](http://127.0.0.1:8080/focus.html?game=flanker_birds&miniprogram=1&v=local26#flanker_birds)
+[本地试玩](http://127.0.0.1:8080/focus.html?game=flanker_birds&miniprogram=1&v=local27#flanker_birds)
 
 | 关卡 | 实际参数 |
 | --- | --- |
@@ -156,7 +156,7 @@ L1～L10 正确次数为 8/10/12/14/16/18/20/22/24/26；网格为 2×2、2×3、
 
 共 14 关。L1～L5 为 3×3，L6 起为 5×5；星星和心形只出现在最外圈，位置互不重叠。L1～L10 每两级增加一个图形选项，依次为 2/2/3/3/4/4/5/5/6/6；L11～L14 保持 6 个选项，曝光保持 280ms。中心图形从 12 种物体中随机选取。连续正确 5 组升级。
 
-[本地试玩](http://127.0.0.1:8080/focus.html?game=ufov_dual_field&miniprogram=1&v=local26#ufov_dual_field)
+[本地试玩](http://127.0.0.1:8080/focus.html?game=ufov_dual_field&miniprogram=1&v=local27#ufov_dual_field)
 
 | 关卡 | 实际参数 |
 | --- | --- |
@@ -185,7 +185,7 @@ L1～L10 正确次数为 8/10/12/14/16/18/20/22/24/26；网格为 2×2、2×3、
 
 L1～L5 使用目标色与 1 种随机干扰色，L6～L10 使用目标色与 2 种随机干扰色；每组干扰配色必定与上一组不同。清亮音为 880Hz 正弦波，柔和音为 220Hz 三角波，目标交替。每关开始前展示全部七种可能颜色的圆点，并标注本关只统计的目标颜色；保留两个声音的试听按钮及目标音色标记。次数可为 0，按钮范围为 0～本组次数；连续正确 5 组升级。真实音色和音量需本机试听确认。
 
-[本地试玩](http://127.0.0.1:8080/focus.html?game=bimodal_divert&miniprogram=1&v=local26#bimodal_divert)
+[本地试玩](http://127.0.0.1:8080/focus.html?game=bimodal_divert&miniprogram=1&v=local27#bimodal_divert)
 
 | 关卡 | 实际参数 |
 | --- | --- |

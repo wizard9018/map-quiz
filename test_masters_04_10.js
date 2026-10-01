@@ -110,7 +110,7 @@ for (let level = 1; level <= 10; level++) {
         createOscillator() { let freq; return { frequency: { setValueAtTime: value => { freq = value; } }, connect() {}, start() {}, stop: duration => window.audioTones.push({ frequency: freq, duration }) }; }
         createGain() { return { gain: { setValueAtTime() {}, exponentialRampToValueAtTime() {} }, connect() {} }; }
       };
-    }, Object.values(api.vocabulary).flat());
+    }, api.audioWords);
     await page.route('https://res.wx.qq.com/**', route => route.fulfill({ contentType: 'application/javascript', body: 'window.results=[];window.wx={miniProgram:{postMessage:function(m){window.results.push(m.data)}}};' }));
     await page.goto(`http://127.0.0.1:8080/focus.html?game=${id}&miniprogram=1`);
     if (level !== 1) await page.locator('#level-select').evaluate((select, value) => { select.value = value; select.dispatchEvent(new Event('change')); }, String(level));

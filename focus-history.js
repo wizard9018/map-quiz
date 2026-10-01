@@ -53,7 +53,8 @@
       const y = level => 134 - level / ceiling * 104;
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       svg.setAttribute('viewBox', '0 0 318 172'); svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-label', select.selectedOptions[0].textContent + '最近七天最高关卡：' + days.map(day => day.date + ' ' + (day.level === null ? '未训练' : 'L' + day.level)).join('，'));
+      const title = games.find(game => game.id === select.value).title.replace(/^母版 /, '');
+      svg.setAttribute('aria-label', title + '最近七天最高关卡：' + days.map(day => day.date + ' ' + (day.level === null ? '未训练' : 'L' + day.level)).join('，'));
       let content = `<line x1="30" y1="134" x2="302" y2="134" stroke="#cbd5e1"/><text x="4" y="138">0</text><line x1="30" y1="30" x2="302" y2="30" stroke="#e2e8f0"/><text x="4" y="34">${ceiling}</text>`;
       days.forEach((day, i) => {
         content += `<text x="${x(i)}" y="160" text-anchor="middle">${day.date.slice(5).replace('-', '/')}</text>`;

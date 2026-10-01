@@ -2,7 +2,13 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
-const words = Object.values(require('./focus-batch-games').vocabulary).flat();
+const api = require('./focus-batch-games');
+const words = api.audioWords;
+assert.equal(Object.keys(api.vocabulary).length, 7);
+Object.values(api.vocabulary).forEach(category => assert.equal(category.length, 20));
+assert.equal(words.length, 140);
+assert.equal(new Set(words).size, 140);
+assert.deepEqual(words.slice().sort(), Object.values(api.vocabulary).flat().sort());
 for (let index = 1; index <= words.length; index++) {
   const bytes = fs.readFileSync(path.join(__dirname, 'assets/semantic-audio', `word-${String(index).padStart(2, '0')}.wav`));
   assert.equal(bytes.toString('ascii', 0, 4), 'RIFF');
@@ -44,16 +50,16 @@ for (let index = 1; index <= words.length; index++) {
     assert.equal(await page.locator('#batch-word').innerText(), '哪个类别出现最多？');
     assert.match(await page.locator('#batch-status').innerText(), /请选择出现次数最多/);
     assert.equal(await page.evaluate(() => JSON.stringify(window.playedWords.slice(0, 5)) === JSON.stringify(window.playedWords.slice(5))), true);
-    await page.evaluate(async () => {
-      for (let index = 37; index <= 42; index++) {
+    await page.evaluate(async length => {
+      for (let index = 37; index <= length; index++) {
         await new Promise((resolve, reject) => {
           const audio = new Audio(`assets/semantic-audio/word-${index}.wav`);
-          audio.playbackRate = 2;
-          audio.onended = resolve; audio.onerror = () => reject(new Error(`Insect audio ${index} failed`));
+          audio.playbackRate = 4;
+          audio.onended = resolve; audio.onerror = () => reject(new Error(`Word audio ${index} failed`));
           audio.play().catch(reject);
         });
       }
-    });
-    console.log('42 nonempty WAV recordings, real browser audio playback without SpeechSynthesis, replay from text mode passed.');
+    }, words.length);
+    console.log('140 nonempty WAV recordings, real browser audio playback without SpeechSynthesis, replay from text mode passed.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

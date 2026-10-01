@@ -122,8 +122,9 @@
     }
     function stroop(trial) {
       sequence(trial, (item, done) => {
-        card.innerHTML = '<div class="next-rule">本题只选：' + (item.rule === 'ink' ? '墨水颜色' : '文字含义') + '</div><div class="next-color-word" style="color:' + colors[item.ink].hex + '">' + colors[item.word].name + '</div>';
+        card.innerHTML = '<div class="next-rule">本题只选：' + (item.rule === 'ink' ? '墨水颜色' : '文字含义') + '</div><div class="next-color-word" translate="no" style="color:' + colors[item.ink].hex + '">' + colors[item.word].name + '</div>';
         answer(); choices(colors.slice(0, cfg.colors).map((color, i) => [color.name + '色', String(i)]), value => { if (sub.phase !== 'answer') return; reaction(); Number(value) === item.answer ? done() : fail('混淆了文字与墨水颜色'); });
+        el.controls.querySelector('.next-choice-row').setAttribute('translate', 'no');
         later(() => fail('本题未在规定时间内作答'), cfg.limit);
       });
     }

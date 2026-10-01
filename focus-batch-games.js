@@ -24,6 +24,18 @@
     家具: ['桌子', '椅子', '沙发', '衣柜', '床', '书架'],
     昆虫: ['蝴蝶', '蜜蜂', '蚂蚁', '蜻蜓', '瓢虫', '蚱蜢']
   };
+  // Keep the existing recording numbers stable when extending a category.
+  const audioWords = Object.values(vocabulary).flat();
+  const extraWords = {
+    水果: ['梨子', '草莓', '芒果', '菠萝', '柠檬', '樱桃', '猕猴桃', '荔枝', '龙眼', '石榴', '柚子', '蓝莓', '李子', '杏子'],
+    动物: ['绵羊', '奶牛', '骏马', '狮子', '长颈鹿', '斑马', '猴子', '狐狸', '狼', '袋鼠', '松鼠', '河马', '企鹅', '海豚'],
+    交通工具: ['地铁', '出租车', '摩托车', '电动车', '三轮车', '卡车', '面包车', '救护车', '消防车', '警车', '高铁', '有轨电车', '帆船', '直升机'],
+    蔬菜: ['西红柿', '青椒', '南瓜', '冬瓜', '丝瓜', '苦瓜', '洋葱', '大蒜', '韭菜', '芹菜', '生菜', '花菜', '莲藕', '西兰花'],
+    学习用品: ['钢笔', '圆珠笔', '彩笔', '蜡笔', '毛笔', '水彩笔', '卷笔刀', '订书机', '剪刀', '胶水', '笔记本', '字典', '练习本', '计算器'],
+    家具: ['茶几', '餐桌', '书桌', '鞋柜', '电视柜', '床头柜', '梳妆台', '凳子', '摇椅', '躺椅', '橱柜', '酒柜', '电脑桌', '屏风'],
+    昆虫: ['蝉', '蟋蟀', '萤火虫', '螳螂', '蚕', '金龟子', '天牛', '蝈蝈', '豆娘', '竹节虫', '蟑螂', '白蚁', '蚊子', '苍蝇']
+  };
+  Object.entries(extraWords).forEach(([category, words]) => { vocabulary[category].push(...words); audioWords.push(...words); });
   function outerPositions(size) { return Array.from({ length: size * size }, (_, i) => i).filter(i => Math.floor(i / size) === 0 || Math.floor(i / size) === size - 1 || i % size === 0 || i % size === size - 1); }
   function shuffle(values) {
     const result = values.slice();
@@ -221,6 +233,7 @@
         sub.textMode = textMode;
         sub.phase = 'listening'; row.querySelectorAll('button').forEach(node => { node.disabled = true; });
         function show(index) {
+          word.setAttribute('translate', textMode ? 'no' : 'yes');
           word.textContent = textMode ? trial.words[index].word : '正在读词语…';
           status.textContent = `${textMode ? '文字练习（不是纯听觉任务）' : '听词语'} ${index + 1}/${cfg.count}，记住各类别的次数`;
           function done() {
@@ -228,13 +241,13 @@
             clearTimers();
             if (index + 1 < trial.words.length) later(() => show(index + 1), 300);
             else {
-              answerPhase(); word.textContent = '哪个类别出现最多？';
+              answerPhase(); word.setAttribute('translate', 'yes'); word.textContent = '哪个类别出现最多？';
               status.textContent = `${textMode ? '文字练习：' : ''}请选择出现次数最多的类别，可以点击“再听一次”重播整组`;
               row.querySelectorAll('button').forEach(node => { node.disabled = false; });
             }
           }
           if (textMode) { later(done, 1500); return; }
-          const wordIndex = Object.values(vocabulary).flat().indexOf(trial.words[index].word) + 1;
+          const wordIndex = audioWords.indexOf(trial.words[index].word) + 1;
           const audio = sub.audio = new root.Audio(`assets/semantic-audio/word-${String(wordIndex).padStart(2, '0')}.wav`);
           audio.playbackRate = cfg.rate; audio.volume = 1; audio.onended = done;
           audio.onerror = () => { if (sub.token === token) unavailable(); };
@@ -439,7 +452,7 @@
       button('试听柔和音' + (cfg.targetSound === 'soft' ? '（本关目标）' : ''), 'soft', () => playBimodalSound('soft'), samples);
     }
   }
-  const api = { registry, definitions, getConfig, generateTrial, vocabulary, render };
+  const api = { registry, definitions, getConfig, generateTrial, vocabulary, audioWords, render };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.FocusBatchGames = api;
 })(typeof window !== 'undefined' ? window : globalThis);

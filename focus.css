@@ -1747,3 +1747,15 @@ body.flanker-view .controls-container { flex-direction: column; gap: 8px; }
 .bimodal-count-options .batch-choice { min-height: 40px; padding: 4px; }
 .bimodal-count-options .bimodal-count-selected { background: #dbeafe; border-color: #0284c7; color: #075985; }
 .batch-orange-square { background: #f97316; border-radius: 10px; }
+
+.focus-language-switch { display: inline-flex; gap: 4px; padding: 3px; border: 1px solid var(--line); border-radius: 12px; background: #f7f7f7; }
+.focus-language-switch button { min-height: 44px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: #075985; font-size: 14px; font-weight: 700; cursor: pointer; }
+.focus-language-switch button[aria-pressed="true"] { background: #ddf4ff; }
+.focus-language-switch button:focus-visible { outline: 3px solid #0369a1; outline-offset: 2px; }
+html[lang="en"] .game-title-row h2 { font-size: 14px; }
+html[lang="en"] .batch-intro { font-size: 12px; line-height: 1.4; }
+html[lang="en"] .batch-intro h3 { font-size: 18px; margin-bottom: 8px; }
+html[lang="en"] .batch-intro p { margin-top: 8px; }
+html[lang="en"] .bimodal-color-preview { white-space: normal; text-align: center; }
+html[lang="en"] .batch-intro .batch-audio-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 8px; }
+html[lang="en"] .batch-intro .batch-audio-tools .batch-choice { min-height: 44px; padding: 6px; font-size: 11px; }

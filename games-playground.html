@@ -44,7 +44,7 @@
     <p class="intro">每关三颗心，第三次失误结束并显示报告；升级补满三颗心。N-Back 每关 10 组判断；游戏 4 物体各选一次升级；游戏 5 连续正确 3 组升级；游戏 6 完成一张数字表升级；游戏 7 连续正确 3 组升级；游戏 8 在本关限时内达到正确次数要求升级；其余连续正确 5 组升级。</p>
     <div class="games" id="games"></div>
   </main>
-  <script src="focus-next-games.js?v=20261001_local26"></script>
+  <script src="focus-next-games.js?v=20261001_local27"></script>
   <script>
     const games = [
       ['nback_flow', 'N-Back 工作记忆刷新流', '依次观察一组图形，与上一整组比较。整组展示完后点击“一致”或“不一致”，每关判断 10 组。12 关，每组由 1 项增至 4 项。'],
@@ -79,7 +79,7 @@
     }
     games.forEach(([id, title, rule], index) => {
       const number = String(index + 1).padStart(2, '0');
-      const url = `focus.html?game=${id}&miniprogram=1&v=local26#${id}`;
+      const url = `focus.html?game=${id}&miniprogram=1&v=local27#${id}`;
       const article = document.createElement('article'); article.id = id;
       article.dataset.url = url; article.dataset.title = title;
       article.innerHTML = `<h2>${number} · ${title}</h2><div class="preview"><img class="preview-image" src="reports/game-previews/${id}.png" alt="${title}实际游戏画面${id === 'semantic_synthesis' ? '（文字练习模式）' : ''}" loading="lazy"><button class="cover" aria-label="试玩${title}"><span>点击启用试玩</span></button></div><p class="rule"><strong>怎么玩：</strong>${rule}</p><div class="actions"><button class="toggle" aria-pressed="false">试玩这款</button><a href="${url}" target="_blank" rel="noopener">单独打开</a></div>`;
