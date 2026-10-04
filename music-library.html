@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>专注力游戏 · 配乐试听</title>
+<style>
+  body { margin: 0 auto; padding: 32px 20px; max-width: 1100px; background: #f7f5ef; color: #334155; font: 16px/1.6 system-ui, sans-serif; }
+  a { color: #0369a1; } h1 { margin-bottom: 8px; } h2 { margin-top: 32px; }
+  .tracks { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  article { padding: 16px; border: 1px solid #e2e8f0; border-radius: 12px; background: white; }
+  h3 { margin: 0; } p { margin: 8px 0 12px; } audio { width: 100%; } small { color: #64748b; }
+</style>
+<a href="index.html?tab=focus">← 返回专注力训练</a>
+<h1>30 首游戏配乐试听</h1>
+<p>无歌词原创合成器配乐：轻快拨弦、风铃、柔和钢琴、木琴探索、轻电子脉冲、柔和街机风。六个主题各有五个旋律、调性和速度版本，每首约 32～45 秒。游戏中以低音量循环播放，听觉训练期间自动暂停。</p>
+<h2>轻松愉快 · 15 首</h2><div id="relaxed" class="tracks"></div>
+<h2>稍显紧张 · 15 首</h2><div id="tense" class="tracks"></div>
+<script>
+fetch('assets/focus-music/catalog.json').then(response => response.json()).then(tracks => {
+  for (const track of tracks) {
+    const card = document.createElement('article');
+    const title = document.createElement('h3'); title.textContent = track.title;
+    const description = document.createElement('p'); description.textContent = track.bpm + ' BPM · ' + track.seconds + ' 秒';
+    const audio = document.createElement('audio'); audio.controls = true; audio.loop = true; audio.preload = 'none'; audio.volume = .5;
+    audio.src = 'assets/focus-music/' + track.file;
+    audio.onplay = () => document.querySelectorAll('audio').forEach(other => { if (other !== audio) other.pause(); });
+    card.append(title, description, audio); document.getElementById(track.mood).appendChild(card);
+  }
+});
+</script>
+</html>

@@ -44,18 +44,18 @@ for (let object = 0; object < objects.length; object++) {
     await page.goto('http://127.0.0.1:8080/focus.html?game=nback_flow&miniprogram=1');
     for (let i = 0; i < 16; i++) {
       await page.locator('#level-select').evaluate(select => { select.value = '1'; select.dispatchEvent(new Event('change')); });
-      await page.getByRole('button', { name: '开始 1-Back' }).click();
+      await page.getByRole('button', { name: '继续', exact: true }).click();
       const side = Math.floor(i / 2) % 4;
       const diagonal = i % 2 === 1;
       await page.evaluate(values => { Math.random = () => values.length ? values.shift() : 0.9; },
         [((i % 12) + 0.1) / 12, (side + 0.1) / 4, diagonal ? 0.1 : 0.9, 0.1]);
-      await page.clock.runFor(1500);
+      await page.clock.runFor(375);
       const image = page.locator('.nback-flying-picture');
       await page.waitForFunction(() => { const img = document.querySelector('.nback-flying-picture'); return img && img.complete && img.naturalWidth > 0; });
       assert.equal(await image.getAttribute('src'), `assets/distractions/${objects[i % 12]}.svg`);
       assert.equal(await page.locator('.nback-distraction').getAttribute('data-entry'), ['left', 'right', 'top', 'bottom'][side]);
       assert.equal(await page.locator('.nback-distraction').getAttribute('data-motion'), diagonal ? 'diagonal' : 'straight');
-      assert.equal(await image.evaluate(img => getComputedStyle(img).animationDuration), '1.9s');
+      assert.equal(await image.evaluate(img => getComputedStyle(img).animationDuration), '0.95s');
       assert.equal(await page.locator('#btn-nback-match').isDisabled(), true);
       await page.clock.runFor(1999);
       assert.equal(await page.locator('.active-lit').count(), 0);
@@ -63,6 +63,6 @@ for (let object = 0; object < objects.length; object++) {
       assert.equal(await image.count(), 0);
       assert.equal(await page.locator('.active-lit').count(), 1);
     }
-    console.log('12 images, all entry directions, straight/diagonal routes, 1.9s animation and cleanup passed.');
+    console.log('12 images, all entry directions, straight/diagonal routes, 0.95s animation and cleanup passed.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

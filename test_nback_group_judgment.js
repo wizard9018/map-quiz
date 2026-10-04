@@ -15,12 +15,12 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
         await page.locator('#level-select').selectOption(String(level));
         await page.clock.runFor(60000);
         assert.equal(await page.locator('#timer-badge').isVisible(), false);
-        await page.getByRole('button', { name: `开始 ${n}-Back` }).click();
+        await page.getByRole('button', { name: '继续', exact: true }).click();
         const previous = [];
         const current = [];
         for (let item = 0; item < n; item++) {
           previous.push(await page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText })));
-          await page.clock.runFor(1500);
+          await page.clock.runFor(level >= 7 ? 750 : 375);
           if (item < n - 1) {
             assert.equal(await page.locator('.nback-distraction').count(), 0, 'No distractions inside a group');
             await page.clock.runFor(180);
@@ -46,7 +46,7 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
           assert.equal(await button.isDisabled(), true, 'No answers while group items are displaying');
           await page.keyboard.press('Space');
           assert.equal(await page.locator('.heart.active').count(), 3);
-          await page.clock.runFor(1500);
+          await page.clock.runFor(level >= 7 ? 750 : 375);
           if (item < n - 1) await page.clock.runFor(180);
         }
         assert.equal(await button.isEnabled(), true, 'Answer only after all group items finish');

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>K12 专注力 · 20 款认知训练</title>
-  <link rel="stylesheet" href="focus.css?v=20261001_local27">
+  <link rel="stylesheet" href="focus.css?v=20261003_local61">
 </head>
 <body>
   <!-- 顶部交互式测试导航与学堂筛选栏 -->
@@ -49,6 +49,11 @@
     </div>
   </header>
 
+  <nav id="local-test-nav" class="local-test-nav" hidden>
+    <button type="button" class="tool-btn" id="local-home-btn">返回训练首页</button>
+    <button type="button" class="tool-btn" id="local-next-btn">下一个游戏</button>
+  </nav>
+
   <section id="focus-home" class="focus-home" hidden>
     <h1>选择今天的训练</h1>
     <p class="focus-home-intro">20 款认知小游戏，从记忆、注意到视听协作。选择一款开始，结束后查看训练记录。</p>
@@ -61,6 +66,11 @@
     <div id="phone-container">
       <!-- 顶部实时状态栏 -->
       <div class="game-header">
+        <div id="focus-music-controls" class="focus-music-controls" translate="no">
+          <button type="button" aria-pressed="true">音乐：开</button>
+          <select aria-label="音乐风格"><option value="auto">随游戏配乐</option><option value="relaxed">轻松愉快</option><option value="tense">稍显紧张</option></select>
+          <small></small>
+        </div>
         <div class="level-badge" id="level-badge">第 1 关 · L1</div>
         <div class="lives-box" id="lives-box">
           <span class="heart active">❤️</span>
@@ -69,6 +79,7 @@
         </div>
         <div class="timer-badge" id="timer-badge">⏱️ 15.0s</div>
         <button id="btn-test-fail" class="btn-test-fail" title="测试专用：立即失败并查看评定报告">💥 直接失败 (测试)</button>
+        <button id="btn-test-level-up" class="btn-test-fail btn-test-level-up" title="测试专用：跳到下一关">直接升级 (测试)</button>
       </div>
 
       <!-- 游戏标题与导引 -->
@@ -229,10 +240,11 @@
     </div>
   </main>
 
-  <script src="focus-language.js?v=20261001_local27"></script>
-  <script src="focus-batch-games.js?v=20261001_local27"></script>
-  <script src="focus-next-games.js?v=20261001_local27"></script>
-  <script src="focus-history.js?v=20261001_local27"></script>
-  <script src="focus.js?v=20261001_local27"></script>
+  <script src="focus-language.js?v=20261003_local61"></script>
+  <script src="focus-batch-games.js?v=20261003_local61"></script>
+  <script src="focus-next-games.js?v=20261003_local61"></script>
+  <script src="focus-history.js?v=20261003_local61"></script>
+  <script src="focus-music.js?v=20261003_local61"></script>
+  <script src="focus.js?v=20261003_local61"></script>
 </body>
 </html>

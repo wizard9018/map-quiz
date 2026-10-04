@@ -2,12 +2,13 @@ const assert = require('node:assert/strict');
 const api = require('./focus-next-games');
 const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
 for (const [id] of api.definitions) for (let level = 1; level <= 10; level++) {
-  const cfg = api.getConfig(id, level); assert.equal(cfg.required, 3);
+  const cfg = api.getConfig(id, level); assert.equal(cfg.required, id === 'stroop_dimension' ? 1 : 8);
+  if (id === 'stroop_dimension') { assert.equal(cfg.count, 10); assert.equal(cfg.colors, 2 + Math.floor((level - 1) / 2)); assert.equal(cfg.limit, level % 2 ? 20000 : 15000); }
   if (level > 1) assert.notDeepEqual(cfg, api.getConfig(id, level - 1), 'Every level must change the difficulty');
   for (let sample = 0; sample < 40; sample++) {
     const trial = api.generateTrial(id, level);
     if (id === 'stroop_dimension') trial.items.forEach(item => { assert.equal(item.answer, item[item.rule]); assert(item.ink < cfg.colors && item.word < cfg.colors); });
-    if (id === 'simon_reverse') trial.items.forEach(item => assert.equal(item.answer, item.reverse ? api.opposite[item.direction] : item.direction));
+    if (id === 'simon_reverse') { assert.equal(cfg.count, 1); assert.equal(cfg.size, 3); trial.items.forEach(item => { assert(item.position >= 0 && item.position < 9); assert.equal(item.answer, item.reverse ? api.opposite[item.direction] : item.direction); }); }
     if (id === 'sst_stop_signal') { assert.equal(trial.items.filter(item => item.stop).length, 2); assert(cfg.stopDelay < cfg.limit); }
     if (id === 'rhythm_seven') trial.items.forEach(item => assert.equal(item.stop, item.number % 7 === 0 || String(item.number).includes('7')));
     if (id === 'wcst_rule_switch') trial.items.forEach((item, i) => { assert.equal(item.answer, item[item.rule]); if (i && i % cfg.switchEvery === 0 && cfg.rules.length > 1) assert.notEqual(item.rule, trial.items[i - 1].rule); });
@@ -33,12 +34,12 @@ assert.equal(api.traceLaser(4, [{ x: 1, y: 1, slash: '\\' }, { x: 1, y: 2, slash
     if (level !== 1) await page.locator('#level-select').evaluate((select, value) => { select.value = value; select.dispatchEvent(new Event('change')); }, String(level));
     return page;
   }
-  async function start(page, level) { assert.equal(await page.locator('.heart.active').count(), 3); await page.getByRole('button', { name: '开始第 ' + level + ' 关' }).click(); }
+  async function start(page, level) { assert.equal(await page.locator('.heart.active').count(), 3); await page.getByRole('button', { name: level > 1 ? '继续' : '开始第 ' + level + ' 关', exact: true }).click(); }
   async function solve(page, id, level, wrong = false) {
     const cfg = api.getConfig(id, level);
-    const choice = value => page.locator('#game-controls [data-choice="' + value + '"]').click();
+    const choice = value => page.locator('#game-controls [data-choice="' + value + '"]' + (['simon_reverse', 'sst_stop_signal'].includes(id) ? ' span' : '')).click();
     if (['stroop_dimension', 'simon_reverse', 'sst_stop_signal', 'rhythm_seven', 'wcst_rule_switch'].includes(id)) {
-      for (let i = 0; i < cfg.count; i++) {
+      for (let i = 0; i < (['sst_stop_signal', 'rhythm_seven', 'wcst_rule_switch'].includes(id) ? 1 : cfg.count); i++) {
         if (id === 'stroop_dimension') {
           const word = await page.locator('.next-color-word').innerText();
           const ink = await page.locator('.next-color-word').evaluate(node => node.style.color);
@@ -47,13 +48,18 @@ assert.equal(api.traceLaser(4, [{ x: 1, y: 1, slash: '\\' }, { x: 1, y: 2, slash
           });
           await choice(wrong ? (answer + 1) % cfg.colors : answer);
         } else if (id === 'simon_reverse') {
+          assert.equal(await page.locator('.next-simon-cell').count(), 9);
+          assert.equal(await page.locator('.next-simon-arrow').count(), 1);
+          assert.equal(await page.locator('.flanker-dial button').count(), 4);
+          assert.equal(await page.locator('.flanker-dial button:enabled').count(), cfg.directions.length);
+          assert.match(await page.locator('#next-progress').innerText(), /连续正确 \d+\/8 次/);
           const arrow = await page.locator('.next-simon-arrow').innerText(); const direction = { '←': 'left', '→': 'right', '↑': 'up', '↓': 'down' }[arrow];
           const answer = (await page.locator('.next-rule').innerText()).includes('反') ? api.opposite[direction] : direction;
           await choice(wrong ? cfg.directions.find(value => value !== answer) : answer);
         } else if (id === 'sst_stop_signal') {
           await page.clock.runFor(cfg.stopDelay + 1);
           const stop = (await page.locator('.next-stop-cue').innerText()).includes('STOP');
-          const arrow = await page.locator('.next-inhibit-stimulus').innerText(); const direction = arrow === '←' ? 'left' : 'right';
+          const arrow = await page.locator('.next-simon-arrow').innerText(); const direction = arrow === '←' ? 'left' : 'right';
           if (!stop || wrong) await choice(wrong && !stop ? api.opposite[direction] : direction);
           await page.clock.runFor(cfg.limit - cfg.stopDelay - 1);
           if (wrong && stop) return;
@@ -69,7 +75,7 @@ assert.equal(api.traceLaser(4, [{ x: 1, y: 1, slash: '\\' }, { x: 1, y: 2, slash
           await choice(wrong ? (answer + 1) % 3 : answer);
         }
         if (wrong) return;
-        await page.clock.runFor(350);
+        if (!['sst_stop_signal', 'rhythm_seven', 'wcst_rule_switch'].includes(id)) await page.clock.runFor(350);
       }
     } else if (id === 'mot_trajectory') {
       const targets = await page.locator('.next-ball-target').evaluateAll(nodes => nodes.map(node => node.dataset.ball));
@@ -89,6 +95,7 @@ assert.equal(api.traceLaser(4, [{ x: 1, y: 1, slash: '\\' }, { x: 1, y: 2, slash
       const values = await page.locator('#game-controls button').evaluateAll(nodes => nodes.map(node => node.dataset.choice));
       await choice(wrong ? values.find(value => Number(value) !== time) : time);
     } else if (id === 'train_switch_dispatch') {
+      const beforeProgress = await page.locator('#next-progress').innerText();
       for (let t = 0; t < cfg.travel + (cfg.count - 1) * cfg.interval + 50; t += 100) {
         const trains = await page.locator('.next-train').evaluateAll(nodes => nodes.map(node => ({ destination: Number(node.dataset.destination), progress: Number(node.dataset.progress || 0), next: node.dataset.nextSwitch || '0' })));
         const handled = new Set();
@@ -101,7 +108,7 @@ assert.equal(api.traceLaser(4, [{ x: 1, y: 1, slash: '\\' }, { x: 1, y: 2, slash
           }
         }
         await page.clock.runFor(100);
-        if ((await page.locator('.next-error').count()) || (await page.locator('#next-status').innerText()) === '本组正确！') break;
+        if ((await page.locator('.next-error').count()) || (await page.locator('#next-progress').innerText()) !== beforeProgress) break;
       }
     } else {
       const mirrors = await page.locator('.next-mirror-cell').evaluateAll((nodes, size) => nodes.flatMap((node, i) => node.textContent ? [{ x: i % size, y: Math.floor(i / size), slash: node.textContent }] : []), cfg.size);
@@ -118,7 +125,7 @@ assert.equal(api.traceLaser(4, [{ x: 1, y: 1, slash: '\\' }, { x: 1, y: 2, slash
       const page = await create(id);
       for (let level = 1; level <= 10; level++) {
         await start(page, level);
-        for (let group = 0; group < 3; group++) { await solve(page, id, level); await page.clock.runFor(600); }
+        for (let group = 0; group < api.getConfig(id, level).required; group++) { await solve(page, id, level); await page.clock.runFor(['sst_stop_signal', 'rhythm_seven', 'wcst_rule_switch'].includes(id) ? 350 : id === 'train_switch_dispatch' && await page.locator('#game-controls button:enabled').count() ? 0 : 600); }
         if (level < 10) await page.clock.runFor(600);
       }
       assert.equal(await page.locator('#report-modal').isVisible(), true); assert.equal(await page.evaluate(() => window.results[0].level), 10);
@@ -134,5 +141,5 @@ assert.equal(api.traceLaser(4, [{ x: 1, y: 1, slash: '\\' }, { x: 1, y: 2, slash
     }
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
-  console.log('All ten new masters: generators and 100 playable levels verified.');
+  console.log(api.definitions.length + ' masters: generators and ' + api.definitions.length * 10 + ' playable levels verified.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

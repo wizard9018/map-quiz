@@ -454,6 +454,8 @@ renderTodayResults();
 // data-tab="bio", so a new biology topic is just another tagged section.
 const TAB_KEY = "map-quiz-tab";
 function showTab(tab) {
+  document.body.classList.toggle('focus-tab-view', tab === 'focus');
+  document.querySelector('.focus-frame')?.contentWindow?.postMessage({ type: 'focus-host-visible', visible: tab === 'focus' }, location.origin);
   document.querySelectorAll(".home-main .continent-group").forEach(section => {
     section.style.display = (section.dataset.tab || "geo") === tab ? "" : "none";
   });

@@ -1,0 +1,709 @@
+{
+  "project": "https://github.com/cosin2077/easyVoice",
+  "generated": "2026-10-03",
+  "rate": "0%",
+  "pitch": "0Hz",
+  "volume": "0%",
+  "words": [
+    {
+      "word": "苹果",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-01.wav"
+    },
+    {
+      "word": "香蕉",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-02.wav"
+    },
+    {
+      "word": "葡萄",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-03.wav"
+    },
+    {
+      "word": "西瓜",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-04.wav"
+    },
+    {
+      "word": "桃子",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-05.wav"
+    },
+    {
+      "word": "橙子",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-06.wav"
+    },
+    {
+      "word": "小猫",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-07.wav"
+    },
+    {
+      "word": "小狗",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-08.wav"
+    },
+    {
+      "word": "大象",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-09.wav"
+    },
+    {
+      "word": "老虎",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-10.wav"
+    },
+    {
+      "word": "兔子",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-11.wav"
+    },
+    {
+      "word": "熊猫",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-12.wav"
+    },
+    {
+      "word": "汽车",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-13.wav"
+    },
+    {
+      "word": "火车",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-14.wav"
+    },
+    {
+      "word": "飞机",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-15.wav"
+    },
+    {
+      "word": "轮船",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-16.wav"
+    },
+    {
+      "word": "自行车",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-17.wav"
+    },
+    {
+      "word": "公交车",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-18.wav"
+    },
+    {
+      "word": "白菜",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-19.wav"
+    },
+    {
+      "word": "萝卜",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-20.wav"
+    },
+    {
+      "word": "黄瓜",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-21.wav"
+    },
+    {
+      "word": "菠菜",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-22.wav"
+    },
+    {
+      "word": "茄子",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-23.wav"
+    },
+    {
+      "word": "土豆",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-24.wav"
+    },
+    {
+      "word": "铅笔",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-25.wav"
+    },
+    {
+      "word": "橡皮",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-26.wav"
+    },
+    {
+      "word": "尺子",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-27.wav"
+    },
+    {
+      "word": "书包",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-28.wav"
+    },
+    {
+      "word": "作业本",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-29.wav"
+    },
+    {
+      "word": "文具盒",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-30.wav"
+    },
+    {
+      "word": "桌子",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-31.wav"
+    },
+    {
+      "word": "椅子",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-32.wav"
+    },
+    {
+      "word": "沙发",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-33.wav"
+    },
+    {
+      "word": "衣柜",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-34.wav"
+    },
+    {
+      "word": "床",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-35.wav"
+    },
+    {
+      "word": "书架",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-36.wav"
+    },
+    {
+      "word": "蝴蝶",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-37.wav"
+    },
+    {
+      "word": "蜜蜂",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-38.wav"
+    },
+    {
+      "word": "蚂蚁",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-39.wav"
+    },
+    {
+      "word": "蜻蜓",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-40.wav"
+    },
+    {
+      "word": "瓢虫",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-41.wav"
+    },
+    {
+      "word": "蚱蜢",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-42.wav"
+    },
+    {
+      "word": "梨子",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-43.wav"
+    },
+    {
+      "word": "草莓",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-44.wav"
+    },
+    {
+      "word": "芒果",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-45.wav"
+    },
+    {
+      "word": "菠萝",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-46.wav"
+    },
+    {
+      "word": "柠檬",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-47.wav"
+    },
+    {
+      "word": "樱桃",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-48.wav"
+    },
+    {
+      "word": "猕猴桃",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-49.wav"
+    },
+    {
+      "word": "荔枝",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-50.wav"
+    },
+    {
+      "word": "龙眼",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-51.wav"
+    },
+    {
+      "word": "石榴",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-52.wav"
+    },
+    {
+      "word": "柚子",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-53.wav"
+    },
+    {
+      "word": "蓝莓",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-54.wav"
+    },
+    {
+      "word": "李子",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-55.wav"
+    },
+    {
+      "word": "杏子",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-56.wav"
+    },
+    {
+      "word": "绵羊",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-57.wav"
+    },
+    {
+      "word": "奶牛",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-58.wav"
+    },
+    {
+      "word": "骏马",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-59.wav"
+    },
+    {
+      "word": "狮子",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-60.wav"
+    },
+    {
+      "word": "长颈鹿",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-61.wav"
+    },
+    {
+      "word": "斑马",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-62.wav"
+    },
+    {
+      "word": "猴子",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-63.wav"
+    },
+    {
+      "word": "狐狸",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-64.wav"
+    },
+    {
+      "word": "狼",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-65.wav"
+    },
+    {
+      "word": "袋鼠",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-66.wav"
+    },
+    {
+      "word": "松鼠",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-67.wav"
+    },
+    {
+      "word": "河马",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-68.wav"
+    },
+    {
+      "word": "企鹅",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-69.wav"
+    },
+    {
+      "word": "海豚",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-70.wav"
+    },
+    {
+      "word": "地铁",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-71.wav"
+    },
+    {
+      "word": "出租车",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-72.wav"
+    },
+    {
+      "word": "摩托车",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-73.wav"
+    },
+    {
+      "word": "电动车",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-74.wav"
+    },
+    {
+      "word": "三轮车",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-75.wav"
+    },
+    {
+      "word": "卡车",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-76.wav"
+    },
+    {
+      "word": "面包车",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-77.wav"
+    },
+    {
+      "word": "救护车",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-78.wav"
+    },
+    {
+      "word": "消防车",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-79.wav"
+    },
+    {
+      "word": "警车",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-80.wav"
+    },
+    {
+      "word": "高铁",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-81.wav"
+    },
+    {
+      "word": "有轨电车",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-82.wav"
+    },
+    {
+      "word": "帆船",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-83.wav"
+    },
+    {
+      "word": "直升机",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-84.wav"
+    },
+    {
+      "word": "西红柿",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-85.wav"
+    },
+    {
+      "word": "青椒",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-86.wav"
+    },
+    {
+      "word": "南瓜",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-87.wav"
+    },
+    {
+      "word": "冬瓜",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-88.wav"
+    },
+    {
+      "word": "丝瓜",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-89.wav"
+    },
+    {
+      "word": "苦瓜",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-90.wav"
+    },
+    {
+      "word": "洋葱",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-91.wav"
+    },
+    {
+      "word": "大蒜",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-92.wav"
+    },
+    {
+      "word": "韭菜",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-93.wav"
+    },
+    {
+      "word": "芹菜",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-94.wav"
+    },
+    {
+      "word": "生菜",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-95.wav"
+    },
+    {
+      "word": "花菜",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-96.wav"
+    },
+    {
+      "word": "莲藕",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-97.wav"
+    },
+    {
+      "word": "西兰花",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-98.wav"
+    },
+    {
+      "word": "钢笔",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-99.wav"
+    },
+    {
+      "word": "圆珠笔",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-100.wav"
+    },
+    {
+      "word": "彩笔",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-101.wav"
+    },
+    {
+      "word": "蜡笔",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-102.wav"
+    },
+    {
+      "word": "毛笔",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-103.wav"
+    },
+    {
+      "word": "水彩笔",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-104.wav"
+    },
+    {
+      "word": "卷笔刀",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-105.wav"
+    },
+    {
+      "word": "订书机",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-106.wav"
+    },
+    {
+      "word": "剪刀",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-107.wav"
+    },
+    {
+      "word": "胶水",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-108.wav"
+    },
+    {
+      "word": "笔记本",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-109.wav"
+    },
+    {
+      "word": "字典",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-110.wav"
+    },
+    {
+      "word": "练习本",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-111.wav"
+    },
+    {
+      "word": "计算器",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-112.wav"
+    },
+    {
+      "word": "茶几",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-113.wav"
+    },
+    {
+      "word": "餐桌",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-114.wav"
+    },
+    {
+      "word": "书桌",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-115.wav"
+    },
+    {
+      "word": "鞋柜",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-116.wav"
+    },
+    {
+      "word": "电视柜",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-117.wav"
+    },
+    {
+      "word": "床头柜",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-118.wav"
+    },
+    {
+      "word": "梳妆台",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-119.wav"
+    },
+    {
+      "word": "凳子",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-120.wav"
+    },
+    {
+      "word": "摇椅",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-121.wav"
+    },
+    {
+      "word": "躺椅",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-122.wav"
+    },
+    {
+      "word": "橱柜",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-123.wav"
+    },
+    {
+      "word": "酒柜",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-124.wav"
+    },
+    {
+      "word": "电脑桌",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-125.wav"
+    },
+    {
+      "word": "屏风",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-126.wav"
+    },
+    {
+      "word": "蝉",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-127.wav"
+    },
+    {
+      "word": "蟋蟀",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-128.wav"
+    },
+    {
+      "word": "萤火虫",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-129.wav"
+    },
+    {
+      "word": "螳螂",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-130.wav"
+    },
+    {
+      "word": "蚕",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-131.wav"
+    },
+    {
+      "word": "金龟子",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-132.wav"
+    },
+    {
+      "word": "天牛",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-133.wav"
+    },
+    {
+      "word": "蝈蝈",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-134.wav"
+    },
+    {
+      "word": "豆娘",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-135.wav"
+    },
+    {
+      "word": "竹节虫",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-136.wav"
+    },
+    {
+      "word": "蟑螂",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-137.wav"
+    },
+    {
+      "word": "白蚁",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-138.wav"
+    },
+    {
+      "word": "蚊子",
+      "voice": "zh-CN-YunyangNeural",
+      "file": "word-139.wav"
+    },
+    {
+      "word": "苍蝇",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "file": "word-140.wav"
+    }
+  ]
+}

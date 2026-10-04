@@ -1,0 +1,212 @@
+[
+  {
+    "file": "sunny-steps.mp3",
+    "title": "晴天脚步 1",
+    "mood": "relaxed",
+    "bpm": 100,
+    "seconds": 38.4
+  },
+  {
+    "file": "sunny-steps-2.mp3",
+    "title": "晴天脚步 2",
+    "mood": "relaxed",
+    "bpm": 94,
+    "seconds": 40.85
+  },
+  {
+    "file": "sunny-steps-3.mp3",
+    "title": "晴天脚步 3",
+    "mood": "relaxed",
+    "bpm": 104,
+    "seconds": 36.92
+  },
+  {
+    "file": "sunny-steps-4.mp3",
+    "title": "晴天脚步 4",
+    "mood": "relaxed",
+    "bpm": 97,
+    "seconds": 39.59
+  },
+  {
+    "file": "sunny-steps-5.mp3",
+    "title": "晴天脚步 5",
+    "mood": "relaxed",
+    "bpm": 106,
+    "seconds": 36.23
+  },
+  {
+    "file": "garden-bells.mp3",
+    "title": "花园风铃 1",
+    "mood": "relaxed",
+    "bpm": 92,
+    "seconds": 41.74
+  },
+  {
+    "file": "garden-bells-2.mp3",
+    "title": "花园风铃 2",
+    "mood": "relaxed",
+    "bpm": 86,
+    "seconds": 44.65
+  },
+  {
+    "file": "garden-bells-3.mp3",
+    "title": "花园风铃 3",
+    "mood": "relaxed",
+    "bpm": 96,
+    "seconds": 40.0
+  },
+  {
+    "file": "garden-bells-4.mp3",
+    "title": "花园风铃 4",
+    "mood": "relaxed",
+    "bpm": 89,
+    "seconds": 43.15
+  },
+  {
+    "file": "garden-bells-5.mp3",
+    "title": "花园风铃 5",
+    "mood": "relaxed",
+    "bpm": 98,
+    "seconds": 39.18
+  },
+  {
+    "file": "cloud-picnic.mp3",
+    "title": "云上野餐 1",
+    "mood": "relaxed",
+    "bpm": 96,
+    "seconds": 40.0
+  },
+  {
+    "file": "cloud-picnic-2.mp3",
+    "title": "云上野餐 2",
+    "mood": "relaxed",
+    "bpm": 90,
+    "seconds": 42.67
+  },
+  {
+    "file": "cloud-picnic-3.mp3",
+    "title": "云上野餐 3",
+    "mood": "relaxed",
+    "bpm": 100,
+    "seconds": 38.4
+  },
+  {
+    "file": "cloud-picnic-4.mp3",
+    "title": "云上野餐 4",
+    "mood": "relaxed",
+    "bpm": 93,
+    "seconds": 41.29
+  },
+  {
+    "file": "cloud-picnic-5.mp3",
+    "title": "云上野餐 5",
+    "mood": "relaxed",
+    "bpm": 102,
+    "seconds": 37.65
+  },
+  {
+    "file": "curious-path.mp3",
+    "title": "好奇小径 1",
+    "mood": "tense",
+    "bpm": 108,
+    "seconds": 35.56
+  },
+  {
+    "file": "curious-path-2.mp3",
+    "title": "好奇小径 2",
+    "mood": "tense",
+    "bpm": 102,
+    "seconds": 37.65
+  },
+  {
+    "file": "curious-path-3.mp3",
+    "title": "好奇小径 3",
+    "mood": "tense",
+    "bpm": 112,
+    "seconds": 34.29
+  },
+  {
+    "file": "curious-path-4.mp3",
+    "title": "好奇小径 4",
+    "mood": "tense",
+    "bpm": 105,
+    "seconds": 36.57
+  },
+  {
+    "file": "curious-path-5.mp3",
+    "title": "好奇小径 5",
+    "mood": "tense",
+    "bpm": 114,
+    "seconds": 33.68
+  },
+  {
+    "file": "quiet-mission.mp3",
+    "title": "安静任务 1",
+    "mood": "tense",
+    "bpm": 112,
+    "seconds": 34.29
+  },
+  {
+    "file": "quiet-mission-2.mp3",
+    "title": "安静任务 2",
+    "mood": "tense",
+    "bpm": 106,
+    "seconds": 36.23
+  },
+  {
+    "file": "quiet-mission-3.mp3",
+    "title": "安静任务 3",
+    "mood": "tense",
+    "bpm": 116,
+    "seconds": 33.1
+  },
+  {
+    "file": "quiet-mission-4.mp3",
+    "title": "安静任务 4",
+    "mood": "tense",
+    "bpm": 109,
+    "seconds": 35.23
+  },
+  {
+    "file": "quiet-mission-5.mp3",
+    "title": "安静任务 5",
+    "mood": "tense",
+    "bpm": 118,
+    "seconds": 32.54
+  },
+  {
+    "file": "puzzle-spark.mp3",
+    "title": "谜题火花 1",
+    "mood": "tense",
+    "bpm": 104,
+    "seconds": 36.92
+  },
+  {
+    "file": "puzzle-spark-2.mp3",
+    "title": "谜题火花 2",
+    "mood": "tense",
+    "bpm": 98,
+    "seconds": 39.18
+  },
+  {
+    "file": "puzzle-spark-3.mp3",
+    "title": "谜题火花 3",
+    "mood": "tense",
+    "bpm": 108,
+    "seconds": 35.56
+  },
+  {
+    "file": "puzzle-spark-4.mp3",
+    "title": "谜题火花 4",
+    "mood": "tense",
+    "bpm": 101,
+    "seconds": 38.02
+  },
+  {
+    "file": "puzzle-spark-5.mp3",
+    "title": "谜题火花 5",
+    "mood": "tense",
+    "bpm": 110,
+    "seconds": 34.91
+  }
+]

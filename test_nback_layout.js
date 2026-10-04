@@ -9,10 +9,10 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
       const page = await browser.newPage({ viewport: { width, height: 900 } });
       await page.clock.install();
       await page.clock.pauseAt(new Date());
-      await page.goto('http://127.0.0.1:8080/focus.html');
+      await page.goto('http://127.0.0.1:8080/focus.html?game=nback_flow');
       await page.locator('#level-select').selectOption(String(level));
       const n = Math.ceil(level / 3);
-      await page.getByRole('button', { name: `开始 ${n}-Back` }).click();
+      await page.getByRole('button', { name: '继续', exact: true }).click();
       const grid = page.locator('#nback-grid-matrix');
       await grid.waitFor();
       const size = 3 + (level - 1) % 3;
@@ -23,7 +23,7 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
 
       const before = await grid.boundingBox();
       assert.deepEqual(before, initial, 'Grid must stay fixed when observation starts');
-      await page.clock.runFor(n === 1 ? 3510 : 2 * (n * 1500 + (n - 1) * 180) + 2000 + 10);
+      await page.clock.runFor(n === 1 ? 2760 : 2 * (n * (level >= 7 ? 750 : 375) + (n - 1) * 180) + 2000 + 10);
       assert.equal(await page.locator('#btn-nback-match').isEnabled(), true);
       const after = await grid.boundingBox();
       console.log(JSON.stringify({ width, level, before, after }));

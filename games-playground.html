@@ -41,24 +41,24 @@
     <p class="intro">先看图片预览和玩法说明，再点击“试玩这款”直接体验。切换游戏会重开上一款，避免声音互相干扰。</p>
     <nav aria-label="游戏目录" id="directory"></nav>
     <p><a href="games04-10-report.html">游戏 4～10 的玩法与参数</a> · <a href="games11-20-report.html">游戏 11～20 的玩法与参数</a></p>
-    <p class="intro">每关三颗心，第三次失误结束并显示报告；升级补满三颗心。N-Back 每关 10 组判断；游戏 4 物体各选一次升级；游戏 5 连续正确 3 组升级；游戏 6 完成一张数字表升级；游戏 7 连续正确 3 组升级；游戏 8 在本关限时内达到正确次数要求升级；其余连续正确 5 组升级。</p>
+    <p class="intro">每关三颗心，第三次失误结束并显示报告；升级补满三颗心。N-Back 不限作答时间，连续答对 8 组升级；游戏 4 物体各选一次升级；游戏 5 连续正确 3 组升级；游戏 6 完成一张数字表升级；游戏 7 连续正确 3 组升级；游戏 8 在本关限时内达到正确次数要求升级；其余连续正确 5 组升级。</p>
     <div class="games" id="games"></div>
   </main>
-  <script src="focus-next-games.js?v=20261001_local27"></script>
+  <script src="focus-next-games.js?v=20261001_local35"></script>
   <script>
     const games = [
-      ['nback_flow', 'N-Back 工作记忆刷新流', '依次观察一组图形，与上一整组比较。整组展示完后点击“一致”或“不一致”，每关判断 10 组。12 关，每组由 1 项增至 4 项。'],
+      ['nback_flow', 'N-Back 工作记忆刷新流', '依次观察一组图形，与上一整组比较。整组展示完后点击“一致”或“不一致”，不限作答时间，连续答对 8 组升级。12 关，每组由 1 项增至 4 项。'],
       ['matrix_flash', '空间网格暂留闪记', '记住亮起的格子，熄灭后点出原来的位置。后面双色关要先点蓝色，再点黄色。15 关，需要记忆的格子逐级增加。'],
-      ['sequence_order', '时序先后正逆组块复原', '记住方格依次亮起的顺序，全部熄灭后按顺序点选。前 5 关正序，后 5 关倒序；例如 1→3→2，倒序应点 2→3→1。'],
-      ['tidal_treasures', '排他性情景记忆提取', '每次选一个本关没选过的物体，选择后位置重新打乱。所有物体各选一次就升级。L1～L5 用 4×4，L6～L10 用 5×5；物体由 4 件逐级增加到 13 件。'],
-      ['semantic_synthesis', '听觉语义概念综摄', '听完整组词语，选择出现次数最多的类别。词数由 5 增至 15，类别由 2 增至 6；连续正确 3 组升级。相邻组类别轮换，同组词语不重复；播放时不能答题。'],
-      ['schulte_ladder', '舒尔特注意力阶梯', '在限时内从 1 开始依次找齐数字，每关完成一张表就升级。点错只提示，可继续，不重置、不扣心；只有超时扣心。3×3 为 20/15/10 秒，4×4 为 30/25/20 秒，5×5 为 40/35/30 秒，6×6 为 50 秒。'],
-      ['cambridge_decoder', '图标顺序复原', '先记住图标依次出现的顺序，再在打乱排列的图标中按原顺序依次点击，无需填空。图标由 3 个增至 12 个，连续正确 3 组升级。'],
-      ['flanker_birds', '迷途鸟群侧抑制', '找到网格里带下划线的小鸟，L1～L5 判断左右，L6 起判断上下左右；支持方向键、WASD 或点击按钮。L1～L5 每关 20 秒，L6～L10 每关 25 秒，需答对 8～26 次；点击圆形方向盘的对应扇区；鸟群从 2×2 增至 6×6，目标随机出现在任何位置。'],
+      ['sequence_order', '时序先后正逆组块复原', '记住方格依次亮起的顺序，全部熄灭后按顺序点选。L1～L6 正序记忆 4～9 格，L7～L12 倒序记忆 4～9 格；例如 1→3→2，倒序应点 2→3→1。'],
+      ['tidal_treasures', '排他性情景记忆提取', '每次选一个本关没选过的物体，选择后潮水涌上并退去，900ms 内重新洗牌并暂时禁点。所有物体各选一次就升级。L1～L5 用 4×4，L6～L10 用 5×5；物体由 4 件逐级增加到 13 件。'],
+      ['semantic_synthesis', '听觉语义概念综摄', '听完整组词语，选择出现次数最多的类别。词数由 5 增至 15，最多 4 类；连续正确 3 组升级。相邻组类别轮换，同组词语不重复；录音播放有声波动画，播放时不能答题，不提供重播或文字练习。'],
+      ['schulte_ladder', '舒尔特注意力阶梯', '在限时内从 1 开始依次找齐数字，每关完成一张表就升级。点错只提示，可继续，不重置、不扣心；只有超时扣心。3×3 为 15/10/5 秒，4×4 为 20/15/10 秒，5×5 为 30/25/20 秒，6×6 为 40 秒。'],
+      ['cambridge_decoder', '图标顺序复原', '固定九宫格，每次只显示一个图标，最后一项结束播放 900ms 潮水动画，再将图标随机放在九宫格任意位置供点击。单数关正序、双数关倒序点击；每两级增加一个图标，L1/2 为 3 个，L13/14 为 9 个，连续正确 3 组升级。'],
+      ['flanker_birds', '迷途鸟群侧抑制', '鸟群中混入动物和文具，任一图标都可能带下划线：动物看头部、文具看尖端。L1～L5 判断左右，L6 起判断上下左右；支持方向键、WASD 或点击圆形方向盘。L1～L5 每关 20 秒，L6～L10 每关 25 秒，需答对 8～26 次；网格从 2×2 增至 6×6。'],
       ['ufov_dual_field', '双重视野捕获', '观察后才显示选项，依次选择中心图形和星星位置；L6 起为 5×5，目标位于最外圈。每两级增加一个选项至 6 个；L11～L14 加入心形位置，三项都正确才完成一组。'],
-      ['bimodal_divert', '视听双通道分流', '每关更换目标颜色和音色，每组从 2 次逐级增加至 11 次，播放速度固定。L6 起三种颜色，干扰配色每组随机更换；播放后点击选择两项次数，每关开始前展示全部可能颜色并标记目标色，可试听两个声音。']
+      ['bimodal_divert', '视听双通道分流', '每关更换目标颜色和音色，每组从 2 次逐级增加至 11 次，播放速度固定。L6 起三种颜色，颜色池去掉黄色，每关固定配色；播放后点击选择两项次数，每关开始前只展示本关可能颜色并标记目标色，可试听两个声音。']
     ];
-    games.push(...window.FocusNextGames.definitions.map(([id, number, title, academy, prompt]) => [id, title, prompt + '。10 级，每关连续正确 3 组升级。']));
+    games.push(...window.FocusNextGames.definitions.map(([id, number, title, academy, prompt]) => [id, title, prompt + (id === 'simon_reverse' ? '。3×3 九宫格，圆形四向按钮；10 级，每关连续正确 8 次升级。' : '。10 级，每次判断单独计数，每关连续正确 8 次升级。')]));
     let active = null;
     function activate(article) {
       if (active) {
@@ -79,7 +79,7 @@
     }
     games.forEach(([id, title, rule], index) => {
       const number = String(index + 1).padStart(2, '0');
-      const url = `focus.html?game=${id}&miniprogram=1&v=local27#${id}`;
+      const url = `focus.html?game=${id}&miniprogram=1&v=local35#${id}`;
       const article = document.createElement('article'); article.id = id;
       article.dataset.url = url; article.dataset.title = title;
       article.innerHTML = `<h2>${number} · ${title}</h2><div class="preview"><img class="preview-image" src="reports/game-previews/${id}.png" alt="${title}实际游戏画面${id === 'semantic_synthesis' ? '（文字练习模式）' : ''}" loading="lazy"><button class="cover" aria-label="试玩${title}"><span>点击启用试玩</span></button></div><p class="rule"><strong>怎么玩：</strong>${rule}</p><div class="actions"><button class="toggle" aria-pressed="false">试玩这款</button><a href="${url}" target="_blank" rel="noopener">单独打开</a></div>`;

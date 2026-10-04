@@ -7,11 +7,11 @@ const context = { module: { exports: {} } };
 vm.runInNewContext(source.slice(source.indexOf('  function getSequenceOrderConfig('), source.indexOf('  function renderSequenceOrder(')) +
   '\nmodule.exports = {getSequenceOrderConfig, generateSequenceOrder};', context);
 const { getSequenceOrderConfig, generateSequenceOrder } = context.module.exports;
-for (let level = 1; level <= 10; level++) {
+for (let level = 1; level <= 12; level++) {
   const cfg = getSequenceOrderConfig(level);
   assert.equal(cfg.size, 3);
-  assert.equal(cfg.count, [4,5,6,7,8,4,5,6,7,8][level - 1]);
-  assert.equal(cfg.reverse, level > 5);
+  assert.equal(cfg.count, [4,5,6,7,8,9,4,5,6,7,8,9][level - 1]);
+  assert.equal(cfg.reverse, level > 6);
   assert.equal(cfg.required, 5);
   const orders = new Set();
   for (let run = 0; run < 100; run++) {
@@ -41,7 +41,7 @@ for (let level = 1; level <= 10; level++) {
   async function start(page, level) {
     await page.clock.runFor(60000);
     assert.equal(await page.locator('.sequence-order-cell:enabled').count(), 0);
-    await page.getByRole('button', { name: level > 5 ? '开始倒序训练' : '开始正序训练' }).click();
+    await page.getByRole('button', { name: level > 1 ? '继续' : '开始正序训练', exact: true }).click();
   }
   async function observe(page, level) {
     const cfg = getSequenceOrderConfig(level);
@@ -74,7 +74,7 @@ for (let level = 1; level <= 10; level++) {
   try {
     const page = await createPage();
     assert.equal(await page.locator('#timer-badge').isVisible(), false);
-    for (let level = 1; level <= 10; level++) {
+    for (let level = 1; level <= 12; level++) {
       await start(page, level);
       for (let round = 0; round < 5; round++) {
         const sequence = await observe(page, level);
@@ -82,16 +82,16 @@ for (let level = 1; level <= 10; level++) {
         assert.match(await page.locator('#sequence-round-counter').innerText(), new RegExp(`${round + 1}/5`));
         await page.clock.runFor(600);
       }
-      if (level < 10) await page.clock.runFor(600);
-      console.log(`Sequence L${level}: ${level > 5 ? 'reverse' : 'forward'}, five rounds passed`);
+      if (level < 12) await page.clock.runFor(600);
+      console.log(`Sequence L${level}: ${level > 6 ? 'reverse' : 'forward'}, five rounds passed`);
     }
     assert.equal(await page.locator('#report-modal').isVisible(), true);
     const report = await page.evaluate(() => window.results[0]);
     assert.equal(report.gameId, 'sequence_order');
-    assert.equal(report.level, 10);
+    assert.equal(report.level, 12);
     await page.close();
 
-    for (const level of [1, 6]) {
+    for (const level of [1, 7]) {
       const failure = await createPage(390, level);
       await start(failure, level);
       let sequence = await observe(failure, level);

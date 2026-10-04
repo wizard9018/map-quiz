@@ -4,12 +4,30 @@
   const key = 'focus_interface_language';
   let language = localStorage.getItem(key) === 'en' ? 'en' : 'zh';
   const labels = {
+    '声音暂不可用，请返回训练首页后重新开始': 'Audio is unavailable. Return to training home and start again.',
+    '请选择出现次数最多的类别': 'Choose the category that appeared most often',
+    '找到带下划线的图标，判断动物头部或文具尖端的方向': 'Find the underlined icon. Judge the direction of the animal’s head or the stationery’s tip.',
+    '找到带下划线的图标，判断头部或尖端的方向': 'Judge the direction of the underlined icon’s head or tip.',
+    '记住九宫格图标的出现顺序，按本关要求正序或倒序点击': 'Remember the icon sequence in the 3×3 grid. Recall it forward or backward as instructed.',
+    '先观察全部图标，随后按倒序依次点击': 'Observe all icons, then click in reverse order',
+    '请从最后出现的图标开始，按倒序点击': 'Start with the last icon and click in reverse order',
+    '按出现顺序倒着点击图标；每个图标只点一次': 'Click icons in reverse order; select each icon once',
     '专注力 · 10 款认知训练': 'Focus · 20 cognitive games',
     '专注力 · 20 款认知训练': 'Focus · 20 cognitive games',
     'K12 专注力 · 20 款认知训练': 'K12 Focus · 20 cognitive games',
     '全部游戏': 'All games', '认知母版 (20)': 'Cognitive games (20)',
     '工作记忆': 'Working memory', '深度专注': 'Attention', '抑制与切换': 'Control & switching', '视觉与空间': 'Visual & spatial',
     '训练首页': 'Training home', '返回训练首页': 'Back to training home',
+    '确认': 'Confirm',
+    '继续': 'Continue', '退出': 'Exit',
+    '还原规则：单色、顺序不限 → 蓝黄双色、先蓝后黄': 'Recall rule: one color, any order → blue and yellow, blue first',
+    '词语播放速率：': 'Word playback rate: ', '干扰方向比例：': 'Distractor direction rate: ',
+    '本关变化，准备好后点击继续': 'Changes this level. Click Continue when ready.',
+    '网格：': 'Grid: ', '每组图形：': 'Items per group: ',
+    '项。整组显示完后，与上一整组比较。': 'items. Compare with the previous whole group after all items appear.',
+    '顺序错误：请先找齐蓝色方格': 'Wrong order: select all blue cells first',
+    '位置错误：这格刚才没有亮起': 'Wrong position: this cell was not highlighted',
+    '。蓝色/黄色显示正确答案；✓ 是已选格，× 是本次错选。': '. Blue/yellow show the correct pattern; ✓ marks your selections and × marks the wrong choice.',
     '上一款': 'Previous', '下一款': 'Next', '上一个游戏': 'Previous game', '下一个游戏': 'Next game',
     '选择游戏': 'Choose a game', '选择关卡': 'Choose a level', '选择趋势游戏': 'Choose a trend game',
     '初阶': 'Beginner', '中阶': 'Intermediate', '高阶': 'Advanced', '极限': 'Expert',
@@ -24,6 +42,7 @@
     '节奏逢7克制': 'Hold on seven', '规则切换分拣': 'Rule-switch sorting', '多目标轨迹追踪': 'Multiple-object tracking',
     '成双物体找孤品': 'Find the unpaired object', '镜中时钟还原': 'Mirror clock recall', '火车变轨调度': 'Train routing', '激光镜面推演': 'Laser reflection',
     '记住上一组的位置、图标和顺序，判断整组是否相同；从 1 项逐步增加到 4 项。': 'Remember the previous group’s positions, icons and order. Decide whether the whole group matches. Groups grow from 1 to 4 items.',
+    '潮水正在打乱图标位置': 'The tide is shuffling the icon positions.',
     '每次选一个本组从未选过的物体，潮水会打乱位置': 'Choose an object you have not picked in this group. Positions change after each choice.',
     '听完整组词语，选择出现次数最多的类别': 'Listen to all the words, then choose the most frequent category.',
     '在限时内从 1 开始，按数字顺序找齐方格': 'Find every number in order, starting at 1, within the time limit.',
@@ -58,7 +77,7 @@
     '判断错误，请认真观察下一组': 'Incorrect. Watch the next group carefully.', '重新准备，先记住任务规则': 'Get ready again. Remember the task rules.',
     '组间从不同方向飞过的物体只是干扰，不需要判断。': 'Flying objects between groups are distractions. Ignore them.',
     '先记住第一项，再将每一项与上一项比较。': 'Remember the first item, then compare each item with the one before it.',
-    '每关判断 10 组：位置、图标和顺序都相同选“一致”，否则选“不一致”。': 'Judge 10 groups per level. Choose Match only if positions, icons and order all match; otherwise choose Different.',
+    '不限作答时间，连续答对 8 组升级：位置、图标和顺序都相同选“一致”，否则选“不一致”。': 'No answer time limit. Get 8 consecutive judgments correct to advance. Choose Match only if positions, icons and order all match; otherwise choose Different.',
     '一致': 'Match', '不一致': 'Different', '观察': 'Observe', '正序': 'Forward', '倒序': 'Reverse',
     '重复选择了本组已经选过的物体': 'You already picked this object in this group.',
     '只记物体是否选过，不要只记位置': 'Remember which objects you have picked, not their positions.',
@@ -83,6 +102,9 @@
     '观察结束后再显示图形选项': 'Choices appear after observation.', '同时记住中心图形、星星和心形的位置': 'Remember the object, star and heart positions.',
     '保留中心和周边的信息…': 'Keep both center and surrounding information in mind…',
     '记住中心图形、星星和心形；观察结束后依次选择图形、星星位置、心形位置': 'Remember the object, star and heart. After observation, select the object, star position and heart position.',
+    'W 上、A 左、S 下、D 右，也可使用方向键': 'W up, A left, S down, D right; arrow keys also work.',
+    '按规则完成当前判断': 'Complete this response using the rule.', '火车已正确送达': 'The train reached the correct station.', '即将开始下一题': 'The next question will begin shortly.',
+    '忽略格子位置，按颜色规则选择方向': 'Ignore the cell position and choose the direction using the color rule.',
     '蓝色': 'Blue', '橙色': 'Orange', '绿色': 'Green', '紫色': 'Purple', '粉色': 'Pink', '黄色': 'Yellow', '红色': 'Red',
     '清亮音': 'Clear tone', '柔和音': 'Soft tone', '视觉：只数': 'Color: count only ', '声音：只数': 'Sound: count only ',
     '提交两项统计': 'Submit both counts', '请分别选择两个次数，再提交': 'Select both counts before submitting.',
@@ -122,6 +144,10 @@
     '火箭': 'Rocket', '星星': 'Star', '苹果': 'Apple', '雨伞': 'Umbrella', '树叶': 'Leaf', '时钟': 'Clock', '心形': 'Heart'
   };
   Object.assign(labels, {
+    '记住刚才的顺序，2 秒后开始选择': 'Remember the sequence. Choices appear in 2 seconds.',
+    '准备观察：图标将从左到右依次出现': 'Get ready: icons will appear from left to right',
+    '直接升级 (测试)': 'Level up (test)', '测试专用：跳到下一关': 'Test: skip to the next level', '已是最高关卡': 'Already at the highest level',
+    '组间的图片飞过与空白格翻转交替出现，只是干扰，不需要判断。': 'Flying pictures and blank tile flips alternate between groups. Ignore these distractions.',
     '时序先后正逆组块复原': 'Forward and reverse sequence recall',
     '记住闪亮方格，熄灭后点选还原；双色关先蓝后黄': 'Remember the highlighted cells, then select them after they go dark. In two-color levels, select blue before yellow.',
     '记住方格亮起的先后顺序，按要求正序或倒序复现': 'Remember the order of the lit cells, then repeat it forward or backward as instructed.',
@@ -141,7 +167,7 @@
     '陕西省': 'Shaanxi', '甘肃省': 'Gansu', '青海省': 'Qinghai', '海南省': 'Hainan', '贵州省': 'Guizhou', '云南省': 'Yunnan', '台湾省': 'Taiwan',
     '北京市': 'Beijing', '上海市': 'Shanghai', '天津市': 'Tianjin', '重庆市': 'Chongqing', '内蒙古': 'Inner Mongolia', '广西': 'Guangxi', '西藏': 'Tibet', '宁夏': 'Ningxia', '新疆': 'Xinjiang',
     '榜#': 'Rank #', '均分': 'Average ', '未作答：每组都需要选择一致或不一致': 'No answer: choose Match or Different for every group.',
-    '位置、图标和顺序都相同点【一致】，否则点【不一致】；本关共 10 组判断': 'Choose Match only when positions, icons and order all match. Otherwise choose Different. Judge 10 groups this level.',
+    '位置、图标和顺序都相同点【一致】，否则点【不一致】；不限作答时间，连续答对 8 组升级': 'Choose Match only when positions, icons and order all match. Otherwise choose Different. No answer time limit; get 8 consecutive judgments correct to advance.',
     '保留中心和周边的信息…': 'Remember the center and surrounding positions…',
     '星星位置正确！本组完成': 'Star correct! Group complete.', '心形位置正确！本组完成': 'Heart correct! Group complete.',
     '等整组显示完再判断': 'Wait for the whole group before answering',
@@ -169,7 +195,10 @@
     '先点蓝色圆点的位置，再点黄色菱形的位置': 'Select blue circle positions, then yellow diamond positions',
     '休息一下，重新观察': 'Take a breath and observe again', '新规则：先蓝后黄': 'New rule: blue first, then yellow',
     '开始双色挑战': 'Start two-color challenge', '直接点击方格还原': 'Click cells to recall the pattern',
-    '本关重新开始：先记住第一组图形': 'Restarting this level: remember the first group', '停顿': 'Pause',
+    '本关重新开始：先记住第一组图形': 'Restarting this level: remember the first group', '停顿': 'Pause', '黄': 'Yellow',
+    '限时内答对 10 题，倒计时持续进行': 'Get 10 correct answers before time runs out. The timer keeps running.',
+    '本关时间耗尽，未完成 10 题': 'Time is up. You did not finish 10 questions.',
+    '不分组。': 'No groups.', '即将重新开始本关挑战': 'This level will restart shortly',
     '按键一致性误判': 'Incorrect match judgment', '键盘或按钮均可操作': 'Use the keyboard or buttons',
     '专属挑战链接已复制！快发给微信好友/群聊 PK 吧！': 'Challenge link copied. Send it to a friend or group.',
     '挑战链接已复制！': 'Challenge link copied!', '请复制当前页面链接发给好友挑战': 'Copy this page’s link to challenge a friend.',
@@ -178,7 +207,13 @@
     '已切换为伴学导师：': 'Learning mentor changed to: '
 
   });
+  Object.assign(labels, Object.fromEntries(Object.entries({ '本关变化': 'Changes this level', '记忆格数：': 'Cells to remember: ', '物体数量：': 'Objects: ', '词语数量：': 'Words: ', '图标数量：': 'Icons: ', '小鸟数量：': 'Birds: ', '播放次数：': 'Presentations: ', '小球数量：': 'Balls: ', '图形数量：': 'Shapes: ', '火车数量：': 'Trains: ', '每组题数：': 'Questions per group: ', '类别数量：': 'Categories: ', '颜色数量：': 'Colors: ', '选项数量：': 'Options: ', '目标数量：': 'Targets: ', '镜面数量：': 'Mirrors: ', '车站数量：': 'Stations: ', '干扰图形数量：': 'Distractors: ', '正确次数要求：': 'Correct answers required: ', '时间：': 'Time: ', '图形显示时间：': 'Display time: ', '观察时间：': 'Preview time: ', '运动时间：': 'Motion time: ', '火车行驶时间：': 'Train travel time: ', '发车间隔：': 'Train interval: ', '停止信号延迟：': 'Stop-signal delay: ', '运动速度：': 'Speed: ', '起始数字范围：': 'Starting number range: ', '规则切换间隔：': 'Rule-switch interval: ', '时间精度：': 'Time precision: ', '判断方向：': 'Directions: ', '判断规则：': 'Rule: ', '旋转角度：': 'Rotation: ', '要数的颜色：': 'Color to count: ', '要数的声音：': 'Sound to count: ', '复现顺序：': 'Recall order: ', '表盘数字：': 'Clock numbers: ', '记忆目标：': 'Memory targets: ', '蓝色/黄色格数：': 'Blue/yellow cells: ', '色词冲突比例：': 'Color-word conflict rate: ', '墨色/字义随机切换': 'Random ink/word rule', '同向/反向随机切换': 'Random same/opposite rule', '只判断墨色': 'Ink color only', '只判断反向': 'Opposite direction only', '显示数字': 'Numbers shown', '隐藏数字': 'Numbers hidden', '图形、星星、心形': 'Shape, star and heart', '图形、星星': 'Shape and star', '本关参数与上一关相同，继续巩固练习。': 'Same settings as the previous level. Keep practicing.' })));
   const patterns = [
+    [/正确次数要求：/g, 'Correct answers required: '], [/播放次数：/g, 'Presentations: '],
+    [/每组图形：(\d+) 项 → (\d+) 项。整组显示完后，与上一整组比较。/g, 'Items per group: $1 → $2. Compare with the previous whole group after all items appear.'],
+    [/整关 (\d+) 秒内答对 10 题即可升级，不分组。/g, 'Answer 10 questions correctly within $1 seconds to advance. No groups.'],
+    [/(\d+) 色 · (\d+) 秒/g, '$1 colors · $2 seconds'],
+    [/答对 (\d+)\/10 题/g, 'Correct $1/10'],
     [/下一格：(\d+)/g, 'Next number: $1'],
     [/出口 ([A-D])/g, 'Exit $1'],
     [/已复现 (\d+)\/(\d+) 格/g, 'Recalled $1/$2 cells'],
@@ -210,17 +245,22 @@
 
     [/每 (\d+) 项为一组，等整组显示完再与上一组比较。/g, 'Each group has $1 items. Wait for the whole group, then compare it with the previous group.'],
     [/本关只统计(.+?)圆点的次数/g, 'Count only $1 circles'],
-    [/，其他颜色不计数。以下颜色均可能出现，干扰色每组随机更换。/g, '. Ignore other colors. Any color below may appear. Distractors change each group.'],
+    [/，其他颜色不计数。本关只会出现以下颜色，配色在本关内保持不变。/g, '. Ignore other colors. Only the colors below can appear in this level; the palette stays the same throughout.'],
     [/分别统计(.+?)和(.+?)，每组 (\d+) 次/g, 'Count $1 and $2 separately · $3 items per group'],
     [/点击选择(.+?)和(.+?)的次数/g, 'Select the counts for $1 and $2'],
     [/试听(.+)/g, 'Listen: $1'], [/准备播放 · (\d+)/g, 'Starting in $1'],
     [/第 (\d+) 关/g, 'Level $1'], [/开始第 (\d+) 关/g, 'Start level $1'],
+    [/连续正确 (\d+)\/(\d+) 次/g, 'Correct streak $1/$2 answers'],
+    [/连续正确 (\d+) 次升级/g, 'Advance after $1 correct answers in a row'],
     [/连续正确 (\d+)\/(\d+) 组/g, 'Correct streak $1/$2 groups'],
     [/连续正确 (\d+) 组升级/g, 'Advance after $1 correct groups in a row'],
     [/；失误重置进度，第三次失误结束。/g, '. An error resets progress. The third error ends the run.'],
     [/在 (\d+)×(\d+) 棋盘中，将 (\d+) 件物体各选一次即可升级/g, 'Pick each of the $3 objects once in the $1×$2 grid to advance'],
     [/(\d+) 秒内答对 (\d+) 次升级，换题时倒计时继续/g, 'Get $2 correct answers in $1 seconds to advance. The timer continues between trials'],
     [/(\d+) 个词 · (\d+) 类/g, '$1 words · $2 categories'], [/(\d+) 个图标 · 顺序复原/g, '$1 icons · Recall the order'],
+    [/(\d+) 个图标 · 正序复原/g, '$1 icons · Forward recall'], [/(\d+) 个图标 · 倒序复原/g, '$1 icons · Reverse recall'],
+    [/(\d+)×(\d+) · (\d+) 个图标/g, '$1×$2 · $3 icons'],
+    [/(\d+) 种规则/g, '$1 rules'], [/(\d+) 颗球/g, '$1 balls'], [/(\d+) 座车站/g, '$1 stations'], [/(\d+(?:\.\d+)?) 秒\/题/g, '$1 s per response'],
     [/(\d+) 件物体/g, '$1 objects'], [/(\d+) 只小鸟/g, '$1 birds'], [/(\d+) 次视听呈现/g, '$1 audiovisual items'],
     [/(\d+) 项\/组/g, '$1 items/group'], [/(\d+) 个选项/g, '$1 choices'],
     [/已选 (\d+)\/(\d+) 件/g, 'Picked $1/$2 objects'], [/完成 (\d+)\/1 张/g, 'Completed $1/1 grid'],
@@ -252,6 +292,7 @@
     if (language !== 'en') return source;
     if (labels[source.trim()]) return source.replace(source.trim(), labels[source.trim()]);
     let result = source;
+    if (source.includes('→')) result = result.replace(/像素\/秒/g, 'px/s').replace(/分钟/g, 'min').replace(/ 秒/g, ' s').replace(/ 倍/g, '×').replace(/每 (\d+) 题/g, 'every $1 questions');
     patterns.forEach(([pattern, value]) => { result = result.replace(pattern, value); });
     entries.forEach(([zh, en]) => { result = result.split(zh).join(en); });
     return result.replace(/母版 /g, 'Game ').replace(/开始Level/g, 'Start level').replace(/，/g, ', ').replace(/；/g, '; ').replace(/。/g, '.');

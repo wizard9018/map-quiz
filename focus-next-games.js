@@ -14,7 +14,7 @@
     ['laser_prism_deflect', 20, '激光镜面推演', 'agility', '记住镜面，隐藏后推算激光经过反射的出口']
   ];
   const registry = Object.fromEntries(definitions.map(([id, masterId, title, academy, prompt]) => [id, { masterId, title: `母版 ${masterId} · ${title}`, academy, prompt, engine: 'batch_master', modality: 'next_master', gesture: 'task_specific' }]));
-  const colors = [{ name: '红', hex: '#dc2626' }, { name: '蓝', hex: '#2563eb' }, { name: '绿', hex: '#15803d' }, { name: '橙', hex: '#c2410c' }, { name: '紫', hex: '#9333ea' }];
+  const colors = [{ name: '红', hex: '#dc2626' }, { name: '蓝', hex: '#2563eb' }, { name: '绿', hex: '#15803d' }, { name: '橙', hex: '#c2410c' }, { name: '紫', hex: '#9333ea' }, { name: '黄', hex: '#ca8a04' }];
   const shapes = ['●', '▲', '■'];
   const objects = ['bird', 'football', 'balloon', 'plane', 'kite', 'butterfly', 'fish', 'rocket', 'star', 'apple', 'umbrella', 'leaf', 'clock', 'heart'];
   const directions = ['left', 'right', 'up', 'down'];
@@ -24,9 +24,9 @@
   function pick(items) { return items[Math.floor(Math.random() * items.length)]; }
   function integer(max) { return Math.floor(Math.random() * max); }
   function getConfig(id, level) {
-    const base = { required: 3 };
-    if (id === 'stroop_dimension') return { ...base, count: 6 + Math.floor((level - 1) / 2), colors: Math.min(5, 2 + Math.floor((level - 1) / 2)), mixed: level >= 6, conflict: Math.min(.9, .3 + level * .06), limit: 5000 - (level - 1) * 250 };
-    if (id === 'simon_reverse') return { ...base, count: 6 + Math.floor((level - 1) / 2), directions: level < 6 ? directions.slice(0, 2) : directions, mixed: level >= 8, limit: 5000 - (level - 1) * 300 };
+    const base = { required: 8 };
+    if (id === 'stroop_dimension') return { required: 1, count: 10, colors: 2 + Math.floor((level - 1) / 2), mixed: level >= 6, conflict: Math.min(.9, .3 + level * .06), limit: level % 2 ? 20000 : 15000 };
+    if (id === 'simon_reverse') return { required: 8, count: 1, size: 3, directions: level < 6 ? directions.slice(0, 2) : directions, mixed: level >= 8, limit: 5000 - (level - 1) * 300 };
     if (id === 'sst_stop_signal') return { ...base, count: 8, stops: 2, limit: 1800 - (level - 1) * 70, stopDelay: 250 + (level - 1) * 35 };
     if (id === 'rhythm_seven') return { ...base, count: 10, limit: 2000 - (level - 1) * 100, range: 15 + level * 10 };
     if (id === 'wcst_rule_switch') return { ...base, count: level + 5, rules: level < 3 ? ['color'] : level < 6 ? ['color', 'shape'] : ['color', 'shape', 'quantity'], switchEvery: Math.max(1, 5 - Math.floor((level - 1) / 2)) };
@@ -70,8 +70,8 @@
   function generateTrial(id, level) {
     const cfg = getConfig(id, level);
     if (id === 'stroop_dimension') return { items: Array.from({ length: cfg.count }, () => { const word = integer(cfg.colors), ink = Math.random() < cfg.conflict ? pick(Array.from({ length: cfg.colors }, (_, i) => i).filter(i => i !== word)) : word; const rule = cfg.mixed ? pick(['word', 'ink']) : 'ink'; return { word, ink, rule, answer: rule === 'word' ? word : ink }; }) };
-    if (id === 'simon_reverse') return { items: Array.from({ length: cfg.count }, () => { const direction = pick(cfg.directions), position = pick(cfg.directions), reverse = cfg.mixed ? Math.random() < .5 : true; return { direction, position, reverse, answer: reverse ? opposite[direction] : direction }; }) };
-    if (id === 'sst_stop_signal') { const stops = new Set(shuffle(Array.from({ length: cfg.count }, (_, i) => i)).slice(0, cfg.stops)); return { items: Array.from({ length: cfg.count }, (_, i) => ({ direction: pick(['left', 'right']), stop: stops.has(i) })) }; }
+    if (id === 'simon_reverse') return { items: Array.from({ length: cfg.count }, () => { const direction = pick(cfg.directions), position = integer(9), reverse = cfg.mixed ? Math.random() < .5 : true; return { direction, position, reverse, answer: reverse ? opposite[direction] : direction }; }) };
+    if (id === 'sst_stop_signal') { const stops = new Set(shuffle(Array.from({ length: cfg.count }, (_, i) => i)).slice(0, cfg.stops)); return { items: Array.from({ length: cfg.count }, (_, i) => ({ direction: pick(['left', 'right']), position: integer(9), stop: stops.has(i) })) }; }
     if (id === 'rhythm_seven') { const start = 1 + integer(cfg.range); return { items: Array.from({ length: cfg.count }, (_, i) => ({ number: start + i, stop: (start + i) % 7 === 0 || String(start + i).includes('7') })) }; }
     if (id === 'wcst_rule_switch') { let rule = pick(cfg.rules); return { items: Array.from({ length: cfg.count }, (_, i) => { if (i && i % cfg.switchEvery === 0 && cfg.rules.length > 1) rule = pick(cfg.rules.filter(value => value !== rule)); const item = { color: integer(3), shape: integer(3), quantity: integer(3), rule }; return { ...item, answer: item[rule] }; }) }; }
     if (id === 'mot_trajectory') { const targets = shuffle(Array.from({ length: cfg.count }, (_, i) => i)).slice(0, cfg.targets); return { balls: Array.from({ length: cfg.count }, (_, i) => { const angle = Math.random() * Math.PI * 2; return { x: 28 + (i % 4) * 70, y: 30 + Math.floor(i / 4) * 65, vx: Math.cos(angle) * cfg.speed, vy: Math.sin(angle) * cfg.speed }; }), targets }; }
@@ -88,61 +88,116 @@
   }
   function clockLabel(time) { return `${Math.floor(time / 60) || 12}:${String(time % 60).padStart(2, '0')}`; }
   function render(level, host) {
-    const { state, el, playTone, soundSuccess, deductLife, nextLevel } = host;
+    const { state, el, playTone, soundSuccess, deductLife, nextLevel, updateTimerDisplay } = host;
     const id = state.gameId, cfg = getConfig(id, level);
     const sub = state.subState = { phase: 'ready', completed: 0, timers: new Set(), itemIndex: 0, motionTimer: null, timerHandle: null };
     const wrap = document.createElement('div'); wrap.className = 'next-master-stage';
     wrap.innerHTML = '<div class="nback-meta-bar"><span class="nback-mode-pill" id="next-difficulty"></span><span id="next-progress"></span></div><div class="next-task-card" id="next-card"></div><p class="next-status" id="next-status" role="status" aria-live="polite"></p>';
     el.stage.appendChild(wrap);
     const card = wrap.querySelector('#next-card'), status = wrap.querySelector('#next-status');
-    wrap.querySelector('#next-difficulty').textContent = 'L' + level + ' · ' + (cfg.size ? cfg.size + '×' + cfg.size : cfg.count ? cfg.count + ' 项/组' : cfg.options + ' 个选项');
-    function progress() { wrap.querySelector('#next-progress').textContent = '连续正确 ' + sub.completed + '/3 组'; }
+    wrap.querySelector('#next-difficulty').textContent = 'L' + level + ' · ' + (id === 'stroop_dimension' ? cfg.colors + ' 色 · ' + cfg.limit / 1000 + ' 秒' : cfg.size ? cfg.size + '×' + cfg.size : cfg.count ? id === 'mot_trajectory' ? cfg.count + ' 颗球' : id === 'odd_one_out' ? cfg.count + ' 件物体' : id === 'train_switch_dispatch' ? cfg.stations + ' 座车站' : cfg.limit ? cfg.limit / 1000 + ' 秒/题' : cfg.rules ? cfg.rules.length + ' 种规则' : cfg.count + ' 项' : cfg.options + ' 个选项');
+    function progress() { wrap.querySelector('#next-progress').textContent = id === 'stroop_dimension' ? '答对 ' + sub.completed + '/10 题' : '连续正确 ' + sub.completed + '/' + cfg.required + ' 次'; }
     function later(action, duration) { const timer = setTimeout(() => { sub.timers.delete(timer); if (state.subState === sub && sub.phase !== 'finished') action(); }, duration); sub.timers.add(timer); return timer; }
-    function clear() { sub.timers.forEach(clearTimeout); sub.timers.clear(); clearInterval(sub.motionTimer); sub.motionTimer = null; }
+    function clear() { sub.timers.forEach(clearTimeout); sub.timers.clear(); clearInterval(sub.motionTimer); sub.motionTimer = null; clearInterval(sub.levelTicker); sub.levelTicker = null; }
     function lock() { card.querySelectorAll('button').forEach(button => { button.disabled = true; }); el.controls.querySelectorAll('button').forEach(button => { button.disabled = true; }); }
     function button(text, value, action, parent = el.controls) { const node = document.createElement('button'); node.type = 'button'; node.className = 'batch-choice next-choice'; node.textContent = text; node.dataset.choice = value; node.onclick = () => action(value, node); parent.appendChild(node); return node; }
-    function choices(items, action) { el.controls.innerHTML = '<div class="next-choice-row"></div>'; const row = el.controls.firstChild; items.forEach(([label, value]) => button(label, value, action, row)); }
+    function choices(items, action) { el.controls.innerHTML = '<div class="next-choice-row"></div>'; const row = el.controls.firstChild; row.style.setProperty('--next-choices', items.length); items.forEach(([label, value]) => button(label, value, action, row)); }
     function fail(reason) { if (['error', 'finished', 'pause'].includes(sub.phase)) return; sub.phase = 'error'; clear(); lock(); deductLife(reason); }
-    function pass() {
-      clear(); lock(); sub.phase = 'pause'; sub.completed++; state.stats.correct++; progress(); soundSuccess(); status.textContent = '本组正确！';
-      sub.timerHandle = later(() => { if (sub.completed === cfg.required) nextLevel(); else beginRound(); }, 600);
+    function credit() { sub.completed++; state.stats.correct++; progress(); soundSuccess(); }
+    function pass(continuePlaying = beginRound, delay = 600) {
+      clear(); lock(); sub.phase = 'pause'; credit(); status.textContent = '正确！';
+      sub.timerHandle = later(() => { if (sub.completed === cfg.required) nextLevel(); else continuePlaying(); }, delay);
     }
     sub.destroy = () => { clear(); sub.phase = 'finished'; lock(); };
-    sub.restart = () => { clear(); sub.completed = 0; progress(); sub.phase = 'error'; lock(); card.innerHTML = '<div class="next-error" role="alert"><h3>本轮重新开始</h3><p>要认真对待哦！</p><p>即将随机生成新的一组</p></div>'; status.textContent = '失误后重新开始本关'; later(beginRound, 2000); };
+    sub.restart = () => { clear(); sub.completed = 0; progress(); sub.phase = 'error'; lock(); card.innerHTML = '<div class="next-error" role="alert"><h3>本轮重新开始</h3><p>要认真对待哦！</p><p>' + (id === 'stroop_dimension' ? '即将重新开始本关挑战' : '即将开始下一题') + '</p></div>'; status.textContent = '失误后重新开始本关'; later(beginRound, 2000); };
     function answer() { sub.phase = 'answer'; sub.answerStart = Date.now(); }
     function reaction() { state.stats.clicks++; state.stats.reactionTimes.push(Date.now() - sub.answerStart); }
-    function itemProgress(index, total) { status.textContent = '本组第 ' + (index + 1) + '/' + total + ' 项'; }
     function sequence(trial, draw) {
       function show(index) {
-        clear(); if (index >= trial.items.length) { pass(); return; }
-        sub.itemIndex = index; card.innerHTML = ''; el.controls.innerHTML = ''; itemProgress(index, trial.items.length);
-        draw(trial.items[index], () => { clear(); lock(); sub.phase = 'pause'; soundSuccess(); status.textContent = '正确！'; later(() => show(index + 1), 350); });
+        clear(); if (index >= trial.items.length) { beginRound(); return; }
+        sub.itemIndex = index; card.innerHTML = ''; el.controls.innerHTML = ''; status.textContent = '按规则完成当前判断';
+        draw(trial.items[index], () => pass(() => show(index + 1), 350));
       }
       show(0);
     }
     function stroop(trial) {
-      sequence(trial, (item, done) => {
+      sub.deadline = Date.now() + cfg.limit;
+      state.timer = cfg.limit / 1000; updateTimerDisplay();
+      sub.levelTicker = setInterval(() => {
+        state.timer = Math.max(0, (sub.deadline - Date.now()) / 1000); updateTimerDisplay();
+      }, 100);
+      later(() => { state.timer = 0; updateTimerDisplay(); fail('本关时间耗尽，未完成 10 题'); }, cfg.limit);
+      function show(index) {
+        const item = trial.items[index];
         card.innerHTML = '<div class="next-rule">本题只选：' + (item.rule === 'ink' ? '墨水颜色' : '文字含义') + '</div><div class="next-color-word" translate="no" style="color:' + colors[item.ink].hex + '">' + colors[item.word].name + '</div>';
-        answer(); choices(colors.slice(0, cfg.colors).map((color, i) => [color.name + '色', String(i)]), value => { if (sub.phase !== 'answer') return; reaction(); Number(value) === item.answer ? done() : fail('混淆了文字与墨水颜色'); });
+        answer(); status.textContent = '限时内答对 10 题，倒计时持续进行';
+        choices(colors.slice(0, cfg.colors).map((color, i) => [color.name + '色', String(i)]), value => {
+          if (sub.phase !== 'answer') return;
+          if (Date.now() >= sub.deadline) { fail('本关时间耗尽，未完成 10 题'); return; }
+          reaction();
+          if (Number(value) !== item.answer) { fail('混淆了文字与墨水颜色'); return; }
+          sub.completed++; state.stats.correct++; progress(); soundSuccess(); lock();
+          if (sub.completed === cfg.count) {
+            clear(); sub.phase = 'pause'; status.textContent = '本关完成！';
+            sub.timerHandle = later(nextLevel, 600);
+          } else {
+            sub.phase = 'transition'; status.textContent = '正确！';
+            sub.timerHandle = later(() => show(index + 1), 350);
+          }
+        });
         el.controls.querySelector('.next-choice-row').setAttribute('translate', 'no');
-        later(() => fail('本题未在规定时间内作答'), cfg.limit);
+      }
+      show(0);
+    }
+    function directionGrid(item, rule, color) {
+      card.innerHTML = '<div class="next-rule">' + rule + '</div><div class="next-simon-field"></div>';
+      const grid = card.querySelector('.next-simon-field');
+      for (let position = 0; position < 9; position++) {
+        const cell = document.createElement('div'); cell.className = 'next-simon-cell'; cell.dataset.pos = position;
+        if (position === item.position) cell.innerHTML = '<span class="next-simon-arrow" style="color:' + color + '">' + arrows[item.direction] + '</span>';
+        grid.appendChild(cell);
+      }
+    }
+    function directionDial(available, action) {
+      choices(directions.map(direction => [arrows[direction], direction]), value => { if (available.includes(value)) action(value); });
+      const dial = el.controls.firstChild; dial.classList.add('flanker-dial'); dial.setAttribute('aria-label', '圆形方向控制');
+      dial.querySelectorAll('button').forEach(node => {
+        node.classList.add('flanker-sector-' + node.dataset.choice);
+        node.innerHTML = '<span>' + arrows[node.dataset.choice] + '</span>';
+        node.setAttribute('aria-label', { left: '左', right: '右', up: '上', down: '下' }[node.dataset.choice]);
+        node.disabled = !available.includes(node.dataset.choice);
       });
+      dial.insertAdjacentHTML('beforeend', '<svg class="flanker-dial-lines" viewBox="0 0 180 180" aria-hidden="true"><path d="M0 0L180 180M180 0L0 180" fill="none" stroke="#0284c7" stroke-width="2"/></svg>');
     }
     function simon(trial) {
-      sequence(trial, (item, done) => {
-        card.innerHTML = '<div class="next-rule">' + (item.reverse ? '红色：选箭头反方向' : '蓝色：选箭头同方向') + '</div><div class="next-simon-field"><span class="next-simon-arrow at-' + item.position + '" style="color:' + (item.reverse ? '#dc2626' : '#2563eb') + '">' + arrows[item.direction] + '</span></div>';
-        answer(); choices(cfg.directions.map(direction => [arrows[direction], direction]), value => { if (sub.phase !== 'answer') return; reaction(); value === item.answer ? done() : fail('方向判断错误，请忽略箭头出现的位置'); });
-        later(() => fail('方向判断超时'), cfg.limit);
-      });
+      const item = trial.items[0];
+      directionGrid(item, item.reverse ? '红色：选箭头反方向' : '蓝色：选箭头同方向', item.reverse ? '#dc2626' : '#2563eb');
+      answer();
+      sub.handleDirection = value => {
+        if (sub.phase !== 'answer' || !cfg.directions.includes(value)) return;
+        reaction(); value === item.answer ? pass() : fail('方向判断错误，请忽略箭头出现的位置');
+      };
+      directionDial(cfg.directions, sub.handleDirection);
+      el.controls.insertAdjacentHTML('beforeend', '<p class="batch-keyboard-help">W 上、A 左、S 下、D 右，也可使用方向键</p>');
+      status.textContent = '忽略格子位置，按颜色规则选择方向';
+      later(() => fail('方向判断超时'), cfg.limit);
     }
     function inhibition(trial, stopSignal) {
       sequence(trial, (item, done) => {
-        card.innerHTML = '<div class="next-rule">' + (stopSignal ? '箭头按方向，STOP 时收手' : '7的倍数或含7：不要点击') + '</div><div class="next-inhibit-stimulus">' + (stopSignal ? arrows[item.direction] : item.number) + '</div><div class="next-stop-cue"></div>';
+        if (stopSignal) {
+          directionGrid(item, '箭头按方向，STOP 时收手', '#0c4a6e');
+          card.insertAdjacentHTML('beforeend', '<div class="next-stop-cue"></div>');
+        } else card.innerHTML = '<div class="next-rule">7的倍数或含7：不要点击</div><div class="next-inhibit-stimulus">' + item.number + '</div><div class="next-stop-cue"></div>';
         let pressed = null; answer();
-        choices(stopSignal ? [['←', 'left'], ['→', 'right']] : [['通过', 'go']], value => {
+        const select = value => {
           if (sub.phase !== 'answer' || pressed !== null) return;
           reaction(); pressed = value; el.controls.querySelectorAll('button').forEach(node => { node.disabled = true; }); status.textContent = '已记录点击，等待本题结束';
-        });
+        };
+        if (stopSignal) {
+          choices([['← 左', 'left'], ['右 →', 'right']], select);
+          el.controls.querySelectorAll('button').forEach(node => { node.innerHTML = '<span>' + node.textContent + '</span>'; });
+        }
+        else choices([['通过', 'go']], select);
         if (stopSignal && item.stop) later(() => { card.querySelector('.next-stop-cue').textContent = 'STOP · 收手'; card.classList.add('next-stop-active'); playTone(240, 'square', .12, .06); }, cfg.stopDelay);
         later(() => { card.classList.remove('next-stop-active'); const correct = item.stop ? pressed === null : pressed === (stopSignal ? item.direction : 'go'); correct ? done() : fail(item.stop ? '该题需要收手，不应点击' : '该题需要点击正确方向或通过'); }, cfg.limit);
       });
@@ -179,7 +234,7 @@
           balls.forEach(ball => { ball.x = Math.max(11, Math.min(289, ball.x)); ball.y = Math.max(11, Math.min(269, ball.y)); });
           position();
         }, 20);
-        later(() => { clearInterval(sub.motionTimer); sub.motionTimer = null; answer(); nodes.forEach((node, i) => { node.disabled = false; node.setAttribute('aria-label', '小球 ' + (i + 1)); }); status.textContent = '找回全部 ' + cfg.targets + ' 颗目标球'; }, cfg.motion);
+        later(() => { clearInterval(sub.motionTimer); sub.motionTimer = null; clearInterval(sub.levelTicker); sub.levelTicker = null; answer(); nodes.forEach((node, i) => { node.disabled = false; node.setAttribute('aria-label', '小球 ' + (i + 1)); }); status.textContent = '找回全部 ' + cfg.targets + ' 颗目标球'; }, cfg.motion);
       }, cfg.preview);
     }
     function odd(trial) {
@@ -219,7 +274,7 @@
           const x = p < .3 ? 150 : p < .65 ? 150 + (branchX - 150) * (p - .3) / .35 : branchX + (exitX - branchX) * (p - .65) / .35;
           item.node.style.left = x / 300 * 100 + '%'; item.node.style.top = (p * 250) / 280 * 100 + '%';
           item.node.dataset.progress = p; item.node.dataset.nextSwitch = p < .3 ? '0' : cfg.stations === 4 && p < .65 ? String(1 + item.main) : '';
-          if (p >= 1) { const route = cfg.stations === 2 ? item.main : item.main * 2 + item.child; item.node.remove(); active.splice(active.indexOf(item), 1); if (route !== item.destination) { fail('火车进入了不同颜色的车站'); return; } delivered++; soundSuccess(); status.textContent = '送达 ' + delivered + '/' + cfg.count; if (delivered === cfg.count) { pass(); return; } }
+          if (p >= 1) { const route = cfg.stations === 2 ? item.main : item.main * 2 + item.child; item.node.remove(); active.splice(active.indexOf(item), 1); if (route !== item.destination) { fail('火车进入了不同颜色的车站'); return; } delivered++; credit(); status.textContent = '火车已正确送达'; if (sub.completed === cfg.required || delivered === cfg.count) { clear(); lock(); sub.phase = 'pause'; later(sub.completed === cfg.required ? nextLevel : beginRound, 600); return; } }
         }
       }, 25);
     }
@@ -246,8 +301,10 @@
       else if (id === 'train_switch_dispatch') train(trial);
       else laser(trial);
     }
-    const detail = id === 'stroop_dimension' || id === 'simon_reverse' ? '本题限时 ' + cfg.limit / 1000 + ' 秒。' : id === 'sst_stop_signal' || id === 'rhythm_seven' ? '每题节奏 ' + cfg.limit / 1000 + ' 秒；该收手时不要点击。' : '';
-    card.innerHTML = '<div class="batch-intro"><h3>' + registry[id].title.split(' · ')[1] + '</h3><p>' + registry[id].prompt + '</p><p>' + detail + '连续正确 3 组升级。失误重开本关，第三次失败结束，升级补满三颗心。</p></div>';
+    const detail = id === 'simon_reverse' ? '本题限时 ' + cfg.limit / 1000 + ' 秒。' : id === 'sst_stop_signal' || id === 'rhythm_seven' ? '每题节奏 ' + cfg.limit / 1000 + ' 秒；该收手时不要点击。' : '';
+    card.innerHTML = '<div class="batch-intro"><h3>' + registry[id].title.split(' · ')[1] + '</h3><p>' + registry[id].prompt + '</p><p>' + (id === 'stroop_dimension' ? '整关 ' + cfg.limit / 1000 + ' 秒内答对 10 题即可升级，不分组。' : detail + '连续正确 ' + cfg.required + ' 次升级。') + '失误重开本关，第三次失败结束，升级补满三颗心。</p></div>';
+    if (id === 'stroop_dimension') { state.timer = cfg.limit / 1000; updateTimerDisplay(); }
+    sub.start = beginRound;
     status.textContent = '准备好后点击开始'; progress(); el.controls.innerHTML = ''; button('开始第 ' + level + ' 关', 'start', beginRound);
   }
   const api = { registry, definitions, getConfig, generateTrial, traceLaser, clockLabel, colors, directions, opposite, render };

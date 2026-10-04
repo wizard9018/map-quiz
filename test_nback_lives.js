@@ -9,9 +9,9 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
       await page.clock.install();
       await page.clock.pauseAt(new Date());
       await page.addInitScript(value => { Math.random = () => value; }, random);
-      await page.goto(process.env.FOCUS_TEST_URL || 'http://127.0.0.1:8080/focus.html?game=nback_flow');
-      await page.locator('#level-select').selectOption('4');
-      await page.getByRole('button', { name: '开始 2-Back' }).click();
+      await page.goto(process.env.FOCUS_TEST_URL || 'http://127.0.0.1:8080/focus.html?game=nback_flow&miniprogram=1');
+      await page.locator('#level-select').selectOption('4', { force: true });
+      await page.getByRole('button', { name: '继续', exact: true }).click();
       assert.equal(await page.locator('#timer-badge').isVisible(), false, 'N-Back has no level countdown');
       let firstItem = await page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText }));
       const initialGrid = await page.locator('#nback-grid-matrix').boundingBox();
@@ -22,13 +22,14 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
           const items = [];
           for (let item = 0; item < 2; item++) {
             items.push(await page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText })));
-            await page.clock.runFor(1500 + (item === 0 ? 180 : group === 0 ? 2000 : 0));
+            await page.clock.runFor(375 + (item === 0 ? 180 : group === 0 ? 2000 : 0));
           }
           groups.push(items);
         }
         assert.equal(await page.locator('#btn-nback-match').isEnabled(), true);
-        if (mistake === 2) await page.clock.runFor(1500);
-        else await page.locator(JSON.stringify(groups[0]) === JSON.stringify(groups[1]) ? '#btn-nback-different' : '#btn-nback-match').click();
+        await page.clock.runFor(60000);
+        assert.equal(await page.locator('.heart.active').count(), 4 - mistake);
+        await page.locator(JSON.stringify(groups[0]) === JSON.stringify(groups[1]) ? '#btn-nback-different' : '#btn-nback-match').click();
         assert.equal(await page.locator('.heart.active').count(), 3 - mistake);
         assert.equal(await page.locator('#report-modal').isVisible(), mistake === 3);
         if (mistake < 3) {
@@ -63,33 +64,33 @@ const { chromium } = require('C:/Users/wizar/.cache/codex-runtimes/codex-primary
     await page.clock.install();
     await page.clock.pauseAt(new Date());
     await page.addInitScript(() => { Math.random = () => 0.9; });
-    await page.goto(process.env.FOCUS_TEST_URL || 'http://127.0.0.1:8080/focus.html?game=nback_flow');
-    await page.getByRole('button', { name: '开始 1-Back' }).click();
+    await page.goto(process.env.FOCUS_TEST_URL || 'http://127.0.0.1:8080/focus.html?game=nback_flow&miniprogram=1');
+    await page.getByRole('button', { name: '继续', exact: true }).click();
     const readItem = () => page.locator('.active-lit').evaluate(cell => ({ pos: cell.dataset.pos, icon: cell.innerText }));
     for (let mistake = 0; mistake < 2; mistake++) {
       if (mistake > 0) await page.clock.runFor(2000);
       const previous = await readItem();
-      await page.clock.runFor(3500);
+      await page.clock.runFor(2375);
       const current = await readItem();
-      await page.clock.runFor(1500);
+      await page.clock.runFor(375);
       await page.locator(JSON.stringify(previous) === JSON.stringify(current) ? '#btn-nback-different' : '#btn-nback-match').click();
     }
     assert.equal(await page.locator('.heart.active').count(), 1);
     await page.clock.runFor(2000);
     let previous = await readItem();
-    await page.clock.runFor(3500);
-    for (let judgment = 0; judgment < 10; judgment++) {
+    await page.clock.runFor(2375);
+    for (let judgment = 0; judgment < 8; judgment++) {
       const current = await readItem();
-      await page.clock.runFor(1500);
+      await page.clock.runFor(375);
       await page.locator(JSON.stringify(previous) === JSON.stringify(current) ? '#btn-nback-match' : '#btn-nback-different').click();
       previous = current;
-      await page.clock.runFor(3500);
+      await page.clock.runFor(2000);
     }
     await page.clock.runFor(1000);
     assert.equal(await page.locator('.heart.active').count(), 3);
     assert.match(await page.locator('#level-badge').innerText(), /L2/);
     assert.equal(await page.locator('#timer-badge').isVisible(), false);
-    await page.locator('#game-select').selectOption('schulte_ladder');
+    await page.locator('#game-select').selectOption('schulte_ladder', { force: true });
     assert.equal(await page.locator('#timer-badge').isVisible(), true, 'Other games retain their timers');
     console.log('No countdown, restart from first group, third-error failure and level-up heart refill passed.');
   } finally {

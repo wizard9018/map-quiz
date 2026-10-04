@@ -588,6 +588,7 @@
   }
 
   function playTone(freq, type = 'sine', duration = 0.15, gainVal = 0.12) {
+    window.FocusMusic?.tone(duration);
     try {
       const ctx = getAudioContext();
       if (!ctx) return;
@@ -773,6 +774,7 @@
     btnRetry: document.getElementById('btn-retry'),
     btnNextGame: document.getElementById('btn-next-game'),
     btnTestFail: document.getElementById('btn-test-fail'),
+    btnTestLevelUp: document.getElementById('btn-test-level-up'),
     // 伴学导师模块
     mentorBadgeBtn: document.getElementById('mentor-badge-btn'),
     mentorBadgeAvatar: document.getElementById('mentor-badge-avatar'),
@@ -976,6 +978,16 @@
     }
 
     // 测试专用：直接失败按钮
+    if (el.btnTestLevelUp) {
+      el.btnTestLevelUp.addEventListener('click', () => {
+        if (state.runFinished || document.body.classList.contains('focus-home-view')) return;
+        const maxLevel = Math.max(...Array.from(el.levelSelect.options, option => Number(option.value)));
+        if (state.level >= maxLevel) { showToast('已是最高关卡'); return; }
+        state.level++;
+        el.levelSelect.value = state.level;
+        startLevel(state.level);
+      });
+    }
     if (el.btnTestFail) {
       el.btnTestFail.addEventListener('click', () => {
         soundError();
@@ -998,7 +1010,7 @@
     document.getElementById('focus-home').hidden = true;
     state.runFinished = false;
     Array.from(el.levelSelect.options).filter(option => Number(option.value) > 10).forEach(option => option.remove());
-    const maxLevel = gid === 'nback_flow' ? 12 : gid === 'matrix_flash' ? 15 : gid === 'ufov_dual_field' ? 14 : 10;
+    const maxLevel = gid === 'nback_flow' || gid === 'sequence_order' ? 12 : gid === 'matrix_flash' ? 15 : ['ufov_dual_field', 'cambridge_decoder'].includes(gid) ? 14 : 10;
     for (let level = 11; level <= maxLevel; level++) {
       const option = document.createElement('option');
       option.value = level;
@@ -1006,11 +1018,15 @@
       el.levelSelect.appendChild(option);
     }
     state.gameId = gid;
+    window.FocusMusic?.setGame(gid);
     state.flankerPrevious = null;
     state.ufovPrevious = null;
     state.semanticPrevious = null;
-    document.body.classList.toggle('flanker-view', gid === 'flanker_birds');
-    el.timerBadge.hidden = gid === 'nback_flow' || gid === 'matrix_flash' || gid === 'sequence_order' || (REGISTRY[gid].engine === 'batch_master' && !['schulte_ladder', 'flanker_birds'].includes(gid));
+    document.body.classList.toggle('flanker-view', ['flanker_birds', 'simon_reverse'].includes(gid));
+    document.body.classList.toggle('next-single-row-view', REGISTRY[gid].modality === 'next_master' && REGISTRY[gid].masterId >= 13);
+    document.body.classList.toggle('direction-grid-view', ['simon_reverse', 'sst_stop_signal'].includes(gid));
+    document.body.classList.toggle('stroop-view', gid === 'stroop_dimension');
+    el.timerBadge.hidden = gid === 'nback_flow' || gid === 'matrix_flash' || gid === 'sequence_order' || (REGISTRY[gid].engine === 'batch_master' && !['schulte_ladder', 'flanker_birds', 'stroop_dimension'].includes(gid));
     el.controls.classList.toggle('batch-controls', REGISTRY[gid].engine === 'batch_master');
     state.level = lvl;
     state.lives = 3;
@@ -1103,7 +1119,7 @@
     state.stats.correct++;
     state.score += (state.level * 10) + Math.round(state.timer * 5);
 
-    if (state.level >= (state.gameId === 'nback_flow' ? 12 : state.gameId === 'matrix_flash' ? 15 : state.gameId === 'ufov_dual_field' ? 14 : 10)) {
+    if (state.level >= (state.gameId === 'nback_flow' || state.gameId === 'sequence_order' ? 12 : state.gameId === 'matrix_flash' ? 15 : ['ufov_dual_field', 'cambridge_decoder'].includes(state.gameId) ? 14 : 10)) {
       finishGame(false);
       return;
     }
@@ -1114,7 +1130,7 @@
     const promotionHandle = setTimeout(() => {
       startLevel(state.level);
     }, 600);
-    if (state.gameId === 'matrix_flash' || state.gameId === 'sequence_order' || REGISTRY[state.gameId].engine === 'batch_master') state.subState.timerHandle = promotionHandle;
+    state.subState.timerHandle = promotionHandle;
   }
 
   // 省份天梯战报动态评定计算
@@ -1139,6 +1155,7 @@
 
   function finishGame(isFail) {
     if (state.runFinished) return;
+    window.FocusMusic?.stop();
     state.runFinished = true;
     clearInterval(state.timerInterval);
     if (state.subState && state.subState.destroy) state.subState.destroy();
@@ -1147,7 +1164,7 @@
       clearTimeout(state.subState.isiTimerHandle);
       state.subState.awaitingAnswer = false;
     }
-    const achievedLevel = isFail ? Math.max(1, state.level - 1) : (state.gameId === 'nback_flow' ? 12 : state.gameId === 'matrix_flash' ? 15 : state.gameId === 'ufov_dual_field' ? 14 : 10);
+    const achievedLevel = isFail ? Math.max(1, state.level - 1) : (state.gameId === 'nback_flow' || state.gameId === 'sequence_order' ? 12 : state.gameId === 'matrix_flash' ? 15 : ['ufov_dual_field', 'cambridge_decoder'].includes(state.gameId) ? 14 : 10);
     const total = state.stats.correct + state.stats.mistakes;
     const acc = total > 0 ? Math.round((state.stats.correct / total) * 100) : 0;
     const avgRt = state.stats.reactionTimes.length > 0 
@@ -1169,6 +1186,10 @@
     state.score = calcScore;
     state.lastAchievedLevel = achievedLevel;
     const recordSaved = window.FocusHistory.save({ gameId: state.gameId, level: isFail ? state.level : achievedLevel, score: state.score, timestamp: Date.now() });
+    if (document.body.classList.contains('website-view')) {
+      document.getElementById('focus-home-btn').click();
+      return;
+    }
     window.FocusHistory.render(document.getElementById('report-history'), GAME_IDS.map(id => ({ id, title: REGISTRY[id].title })), state.gameId);
     if (!recordSaved) document.querySelector('#report-history .history-storage-note').textContent = '浏览器无法保存本次记录，请检查网站存储设置。';
 
@@ -1251,6 +1272,7 @@
 
   // 7. 各游戏模态动态关卡生成器
   function startLevel(lvl, isRestart = false) {
+    window.FocusMusic?.training(false);
     if (state.subState && state.subState.destroy) state.subState.destroy();
     if (!isRestart) {
       state.lives = 3;
@@ -1295,6 +1317,75 @@
     } else {
       renderStageForModality(g.modality, g.layout, lvl);
     }
+    if (lvl > 1 && !isRestart && state.gameId !== 'nback_flow' && GAME_IDS.includes(state.gameId)) showLevelChanges(lvl);
+  }
+
+  function getLevelChanges(id, level) {
+    const config = lvl => id === 'nback_flow' ? getNBackConfig(lvl)
+      : id === 'matrix_flash' ? getMatrixFlashConfig(lvl)
+      : id === 'sequence_order' ? getSequenceOrderConfig(lvl)
+      : (window.FocusNextGames.registry[id] ? window.FocusNextGames : window.FocusBatchGames).getConfig(id, lvl);
+    const previous = config(level - 1), current = config(level);
+    const changes = [];
+    const names = { left: '左', right: '右', up: '上', down: '下', color: '颜色', shape: '形状', quantity: '数量', blue: '蓝色', orange: '橙色', green: '绿色', clear: '清亮音', soft: '柔和音' };
+    const countLabels = { matrix_flash: '记忆格数', sequence_order: '记忆格数', tidal_treasures: '物体数量', semantic_synthesis: '词语数量', cambridge_decoder: '图标数量', flanker_birds: '图标数量', bimodal_divert: '播放次数', mot_trajectory: '小球数量', odd_one_out: '图形数量', train_switch_dispatch: '火车数量' };
+    const fields = { size: '网格', count: countLabels[id] || '每组题数', categoryCount: '类别数量', colors: '颜色数量', options: '选项数量', targets: '目标数量', mirrors: '镜面数量', stations: '车站数量', distractors: '干扰图形数量', required: '正确次数要求', limit: '时间', exposure: '图形显示时间', preview: '观察时间', motion: '运动时间', travel: '火车行驶时间', interval: '发车间隔', stopDelay: '停止信号延迟', speed: '运动速度', range: '起始数字范围', switchEvery: '规则切换间隔', minuteStep: '时间精度', directions: '判断方向', rules: '判断规则', angles: '旋转角度', targetColor: '要数的颜色', targetSound: '要数的声音', reverse: '复现顺序', mixed: '判断规则', numbered: '表盘数字', triple: '记忆目标' };
+    const timeFields = ['limit', 'exposure', 'preview', 'motion', 'travel', 'interval', 'stopDelay'];
+    function format(key, value) {
+      if (key === 'size') return `${value}×${value}`;
+      if (timeFields.includes(key)) return `${Number((value / 1000).toFixed(3))} 秒`;
+      if (key === 'reverse') return value ? '倒序' : '正序';
+      if (key === 'mixed') return value ? (id === 'stroop_dimension' ? '墨色/字义随机切换' : '同向/反向随机切换') : (id === 'stroop_dimension' ? '只判断墨色' : '只判断反向');
+      if (key === 'numbered') return value ? '显示数字' : '隐藏数字';
+      if (key === 'triple') return value ? '图形、星星、心形' : '图形、星星';
+      if (key === 'angles') return value.map(angle => angle + '°').join(' / ');
+      if (key === 'minuteStep') return value + ' 分钟';
+      if (key === 'switchEvery') return '每 ' + value + ' 题';
+      if (key === 'speed') return value + ' 像素/秒';
+      if (key === 'range') return '1～' + value;
+      return Array.isArray(value) ? value.map(item => names[item] || item).join(' / ') : names[value] || String(value);
+    }
+    Object.entries(fields).forEach(([key, label]) => {
+      if (key === 'colors' && id === 'bimodal_divert') {
+        if (previous.colors.length !== current.colors.length) changes.push(`${label}：${previous.colors.length} → ${current.colors.length}`);
+      } else if (JSON.stringify(previous[key]) !== JSON.stringify(current[key])) changes.push(`${label}：${format(key, previous[key])} → ${format(key, current[key])}`);
+    });
+    if (id === 'flanker_birds' && (previous.rows !== current.rows || previous.cols !== current.cols)) changes.unshift(`网格：${previous.rows}×${previous.cols} → ${current.rows}×${current.cols}`);
+    if (id === 'matrix_flash' && (level === 9 || current.blueCount < current.count)) changes.push(`蓝色/黄色格数：${previous.blueCount}/${previous.count - previous.blueCount} → ${current.blueCount}/${current.count - current.blueCount}`);
+    if (id === 'matrix_flash' && level === 9) changes.push('还原规则：单色、顺序不限 → 蓝黄双色、先蓝后黄');
+    if (id === 'semantic_synthesis') changes.push(`词语播放速率：${Number(previous.rate.toFixed(2))} 倍 → ${Number(current.rate.toFixed(2))} 倍`);
+    if (id === 'flanker_birds') changes.push(`干扰方向比例：${Math.round(previous.conflict * 100)}% → ${Math.round(current.conflict * 100)}%`);
+    if (id === 'stroop_dimension' && previous.conflict !== current.conflict) changes.push(`色词冲突比例：${Math.round(previous.conflict * 100)}% → ${Math.round(current.conflict * 100)}%`);
+    return changes.length ? changes : ['本关参数与上一关相同，继续巩固练习。'];
+  }
+
+  function showLevelChanges(level) {
+    const sub = state.subState;
+    clearTimeout(sub.timerHandle);
+    const panel = document.createElement('section');
+    panel.className = 'level-change-panel';
+    panel.innerHTML = `<div class="level-change-card"><h3>第 ${level} 关 · 本关变化</h3>${getLevelChanges(state.gameId, level).map(change => `<p>${change}</p>`).join('')}</div>`;
+    // Keep game 10's required color previews and sound samples available before playback.
+    if (state.gameId === 'bimodal_divert') {
+      el.stage.querySelectorAll('.bimodal-color-guide, .batch-audio-tools').forEach(node => panel.firstChild.appendChild(node));
+    }
+    const content = Array.from(el.stage.children);
+    content.forEach(node => { node.hidden = true; });
+    el.stage.appendChild(panel);
+    el.gamePrompt.innerText = '本关变化，准备好后点击继续';
+    el.controls.innerHTML = '';
+    const proceed = document.createElement('button'); proceed.className = 'duo-btn'; proceed.innerText = '继续';
+    const exit = document.createElement('button'); exit.className = 'duo-btn duo-btn-ghost'; exit.innerText = '退出';
+    proceed.onclick = () => {
+      if (state.subState !== sub || document.body.classList.contains('focus-home-view')) return;
+      panel.remove();
+      content.forEach(node => { node.hidden = false; });
+      el.gamePrompt.innerText = REGISTRY[state.gameId].prompt;
+      el.controls.innerText = state.gameId === 'matrix_flash' ? '直接点击方格还原' : '';
+      sub.start();
+    };
+    exit.onclick = () => document.getElementById('focus-home-btn').click();
+    el.controls.append(proceed, exit);
   }
 
   // 渲染操作按键
@@ -1468,7 +1559,7 @@
 
   // ==================== 母版 01: N-Back 工作记忆刷新流 引擎 ====================
   function getSequenceOrderConfig(lvl) {
-    return { size: 3, count: 4 + (lvl - 1) % 5, reverse: lvl >= 6, exposure: 400, gap: 180, required: 5 };
+    return { size: 3, count: 4 + (lvl - 1) % 6, reverse: lvl >= 7, exposure: 400, gap: 180, required: 5 };
   }
 
   function generateSequenceOrder(lvl) {
@@ -1583,6 +1674,7 @@
       card.appendChild(notice);
       sub.timerHandle = setTimeout(() => { notice.remove(); beginRound(); }, 2000);
     };
+    sub.start = beginRound;
     sub.destroy = () => {
       clearTimeout(sub.timerHandle);
       sub.phase = 'finished';
@@ -1601,7 +1693,7 @@
 
   function getMatrixFlashConfig(lvl) {
     const count = lvl + 2;
-    const exposures = [1200, 1100, 1100, 1000, 950, 900, 850, 800, 850, 800];
+    const exposures = [600, 550, 550, 1000, 950, 900, 850, 800, 850, 800];
     return {
       size: lvl <= 5 ? 4 : 5,
       count,
@@ -1630,7 +1722,6 @@
       <p id="matrix-phase-label" role="status" aria-live="polite"></p>`;
     el.stage.appendChild(wrap);
     const grid = wrap.querySelector('#matrix-flash-grid');
-    const card = wrap.querySelector('.matrix-flash-card');
     const status = wrap.querySelector('#matrix-phase-label');
     grid.style.gridTemplateColumns = `repeat(${cfg.size}, minmax(0, 1fr))`;
     grid.style.gridTemplateRows = `repeat(${cfg.size}, minmax(0, 1fr))`;
@@ -1684,10 +1775,31 @@
       const target = sub.targets.find(item => item.pos === pos);
       const blueRemaining = sub.targets.some(item => item.color === 'blue' && !sub.selected.has(item.pos));
       if (!target || (target.color === 'yellow' && blueRemaining)) {
-        sub.phase = 'error';
-        cells.forEach(cell => { cell.disabled = true; });
+        sub.phase = 'review';
+        const reason = target ? '顺序错误：请先找齐蓝色方格' : '位置错误：这格刚才没有亮起';
+        cells.forEach(cell => { cell.className = 'matrix-flash-cell'; cell.innerText = ''; cell.disabled = true; });
+        sub.targets.forEach(item => {
+          cells[item.pos].classList.add(`matrix-lit-${item.color}`);
+          cells[item.pos].innerText = item.color === 'blue' ? '●' : '◆';
+        });
+        sub.selected.forEach(selectedPos => {
+          cells[selectedPos].classList.add('matrix-selected');
+          cells[selectedPos].innerText += ' ✓';
+        });
         cells[pos].classList.add('matrix-wrong');
-        deductLife(target ? '顺序错误：请先找齐蓝色方格' : '位置错误：这格刚才没有亮起');
+        cells[pos].innerText += ' ×';
+        status.innerText = reason + '。蓝色/黄色显示正确答案；✓ 是已选格，× 是本次错选。';
+        el.controls.innerHTML = '';
+        const confirm = document.createElement('button');
+        confirm.className = 'duo-btn';
+        confirm.innerText = '确认';
+        confirm.onclick = () => {
+          if (sub.phase !== 'review') return;
+          sub.phase = 'error';
+          confirm.disabled = true;
+          deductLife(reason);
+        };
+        el.controls.appendChild(confirm);
         return;
       }
       sub.selected.add(pos);
@@ -1713,13 +1825,8 @@
       clearTimeout(sub.timerHandle);
       sub.completed = 0;
       updateProgress();
-      const notice = document.createElement('div');
-      notice.className = 'nback-transition-notice matrix-error-notice';
-      notice.setAttribute('role', 'alert');
-      notice.innerHTML = '<h3>判断错误</h3><p>连续进度已重置，认真记住下一组哦！</p><p>即将重新开始…</p>';
-      card.appendChild(notice);
-      status.innerText = '休息一下，重新观察';
-      sub.timerHandle = setTimeout(() => { notice.remove(); beginRound(); }, 2000);
+      el.controls.innerText = '直接点击方格还原';
+      beginRound();
     };
     sub.destroy = () => {
       clearTimeout(sub.timerHandle);
@@ -1754,7 +1861,7 @@
     return {
       n,
       size: 3 + (lvl - 1) % 3,
-      stepDuration: 1.5,
+      stepDuration: lvl >= 7 ? 0.75 : 0.375,
       totalSteps: n * 11
     };
   }
@@ -1879,7 +1986,7 @@
     wrap.innerHTML = `
       <div class="nback-meta-bar">
         <span class="nback-mode-pill" id="nback-mode-pill">🌟 ${n}-Back 刷新流</span>
-        <span class="nback-step-counter" id="nback-step-counter">0 / ${totalSteps}</span>
+        <span class="nback-step-counter" id="nback-step-counter">连续正确 0/8 组</span>
       </div>
       <div class="nback-progress-track">
         <div class="nback-progress-fill" id="nback-progress-fill" style="width: 0%;"></div>
@@ -1932,7 +2039,9 @@
       stepStartStamp: 0,
       correctHits: 0,
       correctRejections: 0,
+      correctStreak: 0,
       falseAlarms: 0,
+      distractionCount: 0,
       misses: 0,
       gridCells: gridCells,
       warmupNotice: warmupNotice
@@ -1945,7 +2054,7 @@
         ? `第 ${Math.floor(curStep / n) + 1} 组 · ${curStep % n + 1}/${n} 项`
         : `${curStep + 1} / ${totalSteps}`;
       if (fillEl) {
-        const pct = Math.round((curStep / totalSteps) * 100);
+        const pct = Math.round((state.subState.correctStreak / 8) * 100);
         fillEl.style.width = `${pct}%`;
       }
     }
@@ -1958,7 +2067,7 @@
       const sub = state.subState;
       if (sub.stepIdx >= sub.totalSteps) {
         showToast(`🏆 第 ${lvl} 关通关！背外侧前额叶高频刷新达标`, 800);
-        setTimeout(nextLevel, 400);
+        sub.stepTimerHandle = setTimeout(nextLevel, 400);
         return;
       }
 
@@ -2010,24 +2119,23 @@
       btnMatch.disabled = false;
       btnMatch.innerText = '一致';
       document.getElementById('btn-nback-different').disabled = false;
-      document.getElementById('nback-step-counter').innerText = `判断 ${Math.floor(sub.stepIdx / sub.n)} / 10 组`;
-      el.gamePrompt.innerText = '位置、图标和顺序都相同点【一致】，否则点【不一致】；本关共 10 组判断';
-      sub.stepTimerHandle = setTimeout(() => {
-        if (!sub.userResponded) {
-          sub.awaitingAnswer = false;
-          sub.misses++;
-          deductLife('未作答：每组都需要选择一致或不一致');
-          return;
-        }
-        doISITransition();
-      }, 1500);
+      document.getElementById('nback-step-counter').innerText = `连续正确 ${sub.correctStreak}/8 组`;
+      el.gamePrompt.innerText = '位置、图标和顺序都相同点【一致】，否则点【不一致】；不限作答时间，连续答对 8 组升级';
     }
 
     function clearDistraction() {
       card.querySelectorAll('.nback-distraction').forEach(node => node.remove());
+      gridCells.forEach(cell => cell.classList.remove('nback-empty-flip'));
     }
 
     function showDistraction(gap) {
+      const sub = state.subState;
+      if (sub.distractionCount++ % 2 === 1) {
+        const cell = gridCells[Math.floor(Math.random() * gridCells.length)];
+        cell.textContent = '';
+        cell.classList.add('nback-empty-flip');
+        return;
+      }
       const flight = generateNBackDistraction(card.clientWidth, card.clientHeight);
       const distraction = document.createElement('div');
       distraction.className = 'nback-distraction';
@@ -2037,7 +2145,7 @@
       ['startX', 'startY', 'endX', 'endY'].forEach(key => {
         distraction.style.setProperty('--' + key, `${flight[key]}px`);
       });
-      distraction.style.setProperty('--distraction-duration', `${gap - 100}ms`);
+      distraction.style.setProperty('--distraction-duration', `${(gap - 100) / 2}ms`);
       const picture = document.createElement('img');
       picture.className = 'nback-flying-picture';
       picture.src = `assets/distractions/${flight.object}.svg`;
@@ -2084,6 +2192,7 @@
       clearDistraction();
       sub.sequence = generateNBackSequence(sub.lvl, sub.sequence[0].item).sequence;
       sub.stepIdx = 0;
+      sub.correctStreak = 0;
       sub.awaitingAnswer = false;
       sub.userResponded = false;
       clearStimulus();
@@ -2111,18 +2220,32 @@
       notice.className = 'nback-transition-notice';
       notice.innerHTML = `<h3>第 ${lvl} 关 · ${n}-Back</h3>
         <p>${n === 1 ? '先记住第一项，再将每一项与上一项比较。' : `每 ${n} 项为一组，等整组显示完再与上一组比较。`}</p>
-        <p>每关判断 10 组：位置、图标和顺序都相同选“一致”，否则选“不一致”。</p>
-        <p>组间从不同方向飞过的物体只是干扰，不需要判断。</p>`;
+        <p>不限作答时间，连续答对 8 组升级：位置、图标和顺序都相同选“一致”，否则选“不一致”。</p>
+        <p>组间的图片飞过与空白格翻转交替出现，只是干扰，不需要判断。</p>`;
+      if (lvl > 1) {
+        const previous = getNBackConfig(lvl - 1);
+        notice.innerHTML = `<h3>第 ${lvl} 关 · ${n}-Back</h3>
+          <p>网格：${previous.size}×${previous.size} → ${size}×${size}</p>
+          ${previous.stepDuration !== stepDuration ? `<p>图形显示时间：${previous.stepDuration * 1000}ms → ${stepDuration * 1000}ms</p>` : ''}
+          ${previous.n !== n ? `<p>每组图形：${previous.n} 项 → ${n} 项。整组显示完后，与上一整组比较。</p>` : ''}`;
+      }
       card.appendChild(notice);
-      el.gamePrompt.innerText = `第 ${lvl} 关 · ${n}-Back，准备好后点击开始`;
-      const btnMatch = document.getElementById('btn-nback-match');
-      btnMatch.innerText = `开始 ${n}-Back`;
+      el.gamePrompt.innerText = lvl > 1 ? '本关变化，准备好后点击继续' : `第 ${lvl} 关 · ${n}-Back，准备好后点击开始`;
+      el.controls.innerHTML = '';
+      const continueButton = document.createElement('button');
+      continueButton.className = 'duo-btn';
+      continueButton.innerText = '继续';
+      const exitButton = document.createElement('button');
+      exitButton.className = 'duo-btn duo-btn-ghost';
+      exitButton.innerText = '退出';
+      exitButton.onclick = () => document.getElementById('focus-home-btn').click();
+      el.controls.append(continueButton, exitButton);
       card.onclick = null;
-      btnMatch.onclick = () => {
+      continueButton.onclick = () => {
         notice.remove();
-        btnMatch.onclick = () => handleNBackMatchTap();
+        el.controls.innerHTML = '';
+        renderControlsForGesture('single_match_tap');
         card.onclick = null;
-        btnMatch.disabled = true;
         advanceToNext();
       };
     } else {
@@ -2159,6 +2282,9 @@
       state.stats.correct++;
       soundSuccess();
       showToast(chosenSame ? '判断正确：整组一致' : '判断正确：整组不一致', 400);
+      sub.correctStreak++;
+      document.getElementById('nback-step-counter').innerText = `连续正确 ${sub.correctStreak}/8 组`;
+      document.getElementById('nback-progress-fill').style.width = `${sub.correctStreak / 8 * 100}%`;
 
       if (card) {
         card.classList.add('hit-pulse');
@@ -2171,13 +2297,13 @@
       return;
     }
 
-    // 短暂留存后熄灭方块并推进下一步
+    // 作答后进入组间停顿，连续答对八组直接升级。
     if (state.lives <= 0) return;
-    sub.stepTimerHandle = setTimeout(() => {
-      if (typeof sub.doISITransition === 'function') {
-        sub.doISITransition();
-      }
-    }, Math.max(0, sub.stepDuration * 1000 - rt));
+    if (sub.correctStreak === 8) {
+      sub.stepTimerHandle = setTimeout(nextLevel, 400);
+    } else if (typeof sub.doISITransition === 'function') {
+      sub.doISITransition();
+    }
   }
 
   // 0. 空间 2-Back 九宫格位置记忆挑战 (第 2 款游戏)
@@ -2931,6 +3057,8 @@
       const sdk = document.createElement('script');
       sdk.src = 'https://res.wx.qq.com/open/js/jweixin-1.6.0.js';
       document.head.appendChild(sdk);
+    } else {
+      document.body.classList.add('website-view');
     }
     initMentorCompanion();
     initToolbar();
@@ -2952,6 +3080,7 @@
       link.append(image, title, description, action); link.onclick = event => { event.preventDefault(); switchGame(game.id, 1); }; catalog.appendChild(link);
     });
     function showHome() {
+      window.FocusMusic?.stop();
       clearInterval(state.timerInterval);
       if (state.subState && state.subState.destroy) state.subState.destroy();
       if (state.subState) { clearTimeout(state.subState.stepTimerHandle); clearTimeout(state.subState.isiTimerHandle); clearTimeout(state.subState.timerHandle); state.subState.awaitingAnswer = false; }
@@ -2963,6 +3092,12 @@
     }
     document.getElementById('focus-home-btn').onclick = showHome;
     document.getElementById('report-home-btn').onclick = showHome;
+    if (['127.0.0.1', 'localhost', '[::1]'].includes(window.location.hostname) && document.body.classList.contains('miniprogram-view')) {
+      document.body.classList.add('local-test-view');
+      document.getElementById('local-test-nav').hidden = false;
+      document.getElementById('local-home-btn').onclick = showHome;
+      document.getElementById('local-next-btn').onclick = () => el.nextBtn.click();
+    }
     if (hash === 'home' || (!hash && !urlParams.get('game'))) showHome();
     else switchGame(initialGame, 1);
   });
@@ -2972,7 +3107,7 @@
     if (document.body.classList.contains('focus-home-view')) return;
     if (el.reportModal && !el.reportModal.classList.contains('hidden')) return;
 
-    if (state.gameId === 'flanker_birds') {
+    if (['flanker_birds', 'simon_reverse'].includes(state.gameId)) {
       if (e.altKey || e.ctrlKey || e.metaKey || (e.target instanceof Element && e.target.closest('input, select, textarea, [contenteditable="true"]'))) return;
       const direction = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down', a: 'left', d: 'right', w: 'up', s: 'down' }[e.key.length === 1 ? e.key.toLowerCase() : e.key]
         || { Numpad4: 'left', Numpad6: 'right', Numpad8: 'up', Numpad2: 'down' }[e.code];

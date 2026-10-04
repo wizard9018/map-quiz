@@ -5,8 +5,8 @@
     ['tidal_treasures', 4, '排他性情景记忆提取', 'memory', '每次选一个本组从未选过的物体，潮水会打乱位置'],
     ['semantic_synthesis', 5, '听觉语义概念综摄', 'memory', '听完整组词语，选择出现次数最多的类别'],
     ['schulte_ladder', 6, '舒尔特注意力阶梯', 'focus', '在限时内从 1 开始，按数字顺序找齐方格'],
-    ['cambridge_decoder', 7, '图标顺序复原', 'memory', '记住图标出现的顺序，再按原顺序依次点击'],
-    ['flanker_birds', 8, '迷途鸟群侧抑制', 'focus', '找到带下划线的小鸟，限时内完成规定次数的方向判断'],
+    ['cambridge_decoder', 7, '图标顺序复原', 'memory', '记住九宫格图标的出现顺序，按本关要求正序或倒序点击'],
+    ['flanker_birds', 8, '迷途鸟群侧抑制', 'focus', '找到带下划线的图标，判断动物头部或文具尖端的方向'],
     ['ufov_dual_field', 9, '双重视野捕获', 'focus', '同时记住中心图形和周边金色星星的位置'],
     ['bimodal_divert', 10, '视听双通道分流', 'focus', '分别统计本关指定颜色与目标音色的次数']
   ];
@@ -14,6 +14,7 @@
     [id, { masterId, title: `母版 ${String(masterId).padStart(2, '0')} · ${title}`, academy, prompt,
       modality: 'batch_master', gesture: 'task_specific', engine: 'batch_master' }]));
   const objects = ['bird', 'football', 'balloon', 'plane', 'kite', 'butterfly', 'fish', 'rocket', 'star', 'apple', 'umbrella', 'leaf', 'clock'];
+  const flankerObjects = ['fish', 'rabbit', 'turtle', 'pencil', 'pen', 'paintbrush'];
   const objectNames = { bird: '小鸟', football: '足球', balloon: '气球', plane: '飞机', kite: '风筝', butterfly: '蝴蝶', fish: '小鱼', rocket: '火箭', star: '星星', apple: '苹果', umbrella: '雨伞', leaf: '树叶', clock: '时钟' };
   const vocabulary = {
     水果: ['苹果', '香蕉', '葡萄', '西瓜', '桃子', '橙子'],
@@ -49,15 +50,18 @@
   function getConfig(id, level) {
     const base = { required: 5 };
     if (id === 'tidal_treasures') return { required: 1, count: level + 3, size: level < 6 ? 4 : 5 };
-    if (id === 'semantic_synthesis') return { required: 3, count: 5 + 2 * Math.floor(level / 2), categoryCount: 2 + Math.floor((level - 1) / 2), rate: 0.8 + level * 0.03 };
-    if (id === 'schulte_ladder') return { required: 1, size: 3 + Math.floor((level - 1) / 3), limit: 20000 + 10000 * Math.floor((level - 1) / 3) - 5000 * ((level - 1) % 3) };
-    if (id === 'cambridge_decoder') return { required: 3, count: level + 2, exposure: 800 - (level - 1) * 50 };
+    if (id === 'semantic_synthesis') return { required: 3, count: [5, 7, 9, 7, 9, 11, 9, 11, 13, 15][level - 1], categoryCount: level <= 3 ? 2 : level <= 6 ? 3 : 4, rate: 0.8 + level * 0.03 };
+    if (id === 'schulte_ladder') return { required: 1, size: 3 + Math.floor((level - 1) / 3), limit: 20000 + 10000 * Math.floor((level - 1) / 3) - 5000 * ((level - 1) % 3) - (level <= 3 ? 5000 : 10000) };
+    if (id === 'cambridge_decoder') return { required: 3, count: 3 + Math.floor((level - 1) / 2), reverse: level % 2 === 0, exposure: Math.max(350, 800 - (level - 1) * 50) };
     if (id === 'flanker_birds') {
       const rows = 2 + Math.floor((level - 1) / 2), cols = Math.min(6, 2 + Math.floor(level / 2));
-      return { required: 8 + (level - 1) * 2, rows, cols, count: rows * cols, directions: level < 6 ? ['left', 'right'] : ['left', 'right', 'up', 'down'], conflict: 0.2 + level * 0.06, limit: level <= 5 ? 20000 : 25000 };
+      return { required: 8 + (level - 1) * 2, rows, cols, count: rows * cols, distractors: Math.max(1, Math.floor(rows * cols * 0.35)), directions: level < 6 ? ['left', 'right'] : ['left', 'right', 'up', 'down'], conflict: 0.2 + level * 0.06, limit: level <= 5 ? 20000 : 25000 };
     }
-    if (id === 'ufov_dual_field') return { ...base, size: level < 6 ? 3 : 5, options: Math.min(6, 2 + Math.floor((level - 1) / 2)), triple: level >= 11, exposure: Math.max(280, 1000 - (level - 1) * 80), distractors: Math.floor((Math.min(level, 10) - 1) / 3) };
-    return { ...base, count: level + 1, exposure: 750, colors: level < 6 ? ['blue', 'orange'] : ['blue', 'orange', 'green'], targetColor: level < 6 ? (level % 2 ? 'blue' : 'orange') : ['green', 'blue', 'orange'][(level - 6) % 3], targetSound: level % 2 ? 'clear' : 'soft' };
+    if (id === 'ufov_dual_field') return { ...base, size: level < 6 ? 3 : 5, options: Math.min(6, 2 + Math.floor((level - 1) / 2)), triple: level >= 11, exposure: level === 1 ? 500 : level === 2 ? 300 : 250, distractors: Math.floor((Math.min(level, 10) - 1) / 3) };
+    const targetColor = level < 6 ? (level % 2 ? 'blue' : 'orange') : ['green', 'blue', 'orange'][(level - 6) % 3];
+    const distractorPool = ['blue', 'orange', 'green', 'purple', 'pink', 'red'].filter(color => color !== targetColor);
+    const colors = [targetColor, ...Array.from({ length: level < 6 ? 1 : 2 }, (_, index) => distractorPool[(level - 1 + index) % distractorPool.length])];
+    return { ...base, count: level + 1, exposure: 750, colors, targetColor, targetSound: level % 2 ? 'clear' : 'soft' };
   }
   function generateTrial(id, level, previous) {
     const cfg = getConfig(id, level);
@@ -94,18 +98,17 @@
         const changed = shuffle(Array.from({ length: overlap }, (_, i) => i)).slice(0, minimumChanges + Math.floor(Math.random() * (overlap - minimumChanges + 1)));
         changed.forEach(i => { birds[i] = pick(cfg.directions.filter(value => value !== previous.birds[i])); });
       }
-      return { direction: birds[target], target, birds };
+      const icons = Array(cfg.count).fill('bird');
+      shuffle(Array.from({ length: cfg.count }, (_, i) => i)).slice(0, cfg.distractors).forEach(i => { icons[i] = pick(flankerObjects); });
+      return { direction: birds[target], target, birds, objects: icons };
     }
     if (id === 'ufov_dual_field') {
       const positions = shuffle(outerPositions(cfg.size));
       const pool = objects.filter(object => object !== 'star');
       const object = pick(pool.filter(value => !previous || value !== previous.object));
-      return { object, choices: shuffle([object, ...shuffle(pool.filter(value => value !== object)).slice(0, cfg.options - 1)]), position: positions[0], heart: cfg.triple ? positions[1] : null, distractors: positions.slice(cfg.triple ? 2 : 1, (cfg.triple ? 2 : 1) + cfg.distractors) };
+      return { object, choices: shuffle([object, ...shuffle(pool.filter(value => value !== object)).slice(0, cfg.options - 1)]), position: positions[0], heart: cfg.triple ? positions[1] : null, distractors: positions.slice(cfg.triple ? 2 : 1, (cfg.triple ? 2 : 1) + cfg.distractors), distractorObjects: shuffle(['star-blue', 'star-green', 'star-red', 'triangle-yellow', 'diamond-yellow']).slice(0, cfg.distractors) };
     }
-    const distractorPool = ['blue', 'orange', 'green', 'purple', 'pink', 'yellow', 'red'].filter(color => color !== cfg.targetColor);
-    const distractors = shuffle(distractorPool).slice(0, cfg.colors.length - 1);
-    if (previous && distractors.every(color => previous.colors.includes(color)) && previous.colors.includes(cfg.targetColor)) distractors[0] = pick(distractorPool.filter(color => !previous.colors.includes(color)));
-    const colors = [cfg.targetColor, ...distractors];
+    const colors = cfg.colors.slice();
     const sequence = Array.from({ length: cfg.count }, () => pick(colors));
     const steps = sequence.map(color => ({ color, sound: pick(['clear', 'soft']) }));
     return { colors, steps, colorCount: steps.filter(step => step.color === cfg.targetColor).length, soundCount: steps.filter(step => step.sound === cfg.targetSound).length };
@@ -117,7 +120,7 @@
     const cfg = getConfig(id, level);
     if (id === 'bimodal_divert') el.gamePrompt.textContent = '分别统计' + { blue: '蓝色', orange: '橙色', green: '绿色' }[cfg.targetColor] + '和' + (cfg.targetSound === 'clear' ? '清亮音' : '柔和音') + '，每组 ' + cfg.count + ' 次';
     if (id === 'ufov_dual_field') el.gamePrompt.textContent = cfg.triple ? '依次记住并选择中心图形、星星位置、心形位置' : registry[id].prompt;
-    const sub = state.subState = { phase: 'ready', completed: 0, timers: new Set(), ticker: null, token: 0, textMode: false, timerHandle: null };
+    const sub = state.subState = { phase: 'ready', completed: 0, timers: new Set(), ticker: null, token: 0, timerHandle: null };
     const wrap = document.createElement('div');
     wrap.className = 'batch-master-stage';
     wrap.innerHTML = '<div class="nback-meta-bar"><span class="nback-mode-pill" id="batch-difficulty"></span><span id="batch-progress"></span></div><div class="batch-task-card" id="batch-card"></div><p class="batch-status" role="status" aria-live="polite" id="batch-status"></p>';
@@ -126,8 +129,8 @@
     const status = wrap.querySelector('#batch-status');
     const difficulty = wrap.querySelector('#batch-difficulty');
     difficulty.textContent = id === 'tidal_treasures' ? `${cfg.count} 件物体` : id === 'schulte_ladder' ? `${cfg.size}×${cfg.size} · ${cfg.limit / 1000} 秒` :
-      id === 'semantic_synthesis' ? `${cfg.count} 个词 · ${cfg.categoryCount} 类` : id === 'cambridge_decoder' ? `${cfg.count} 个图标 · 顺序复原` :
-      id === 'flanker_birds' ? `${cfg.rows}×${cfg.cols} · ${cfg.count} 只小鸟` : id === 'ufov_dual_field' ? `${cfg.size}×${cfg.size} · ${cfg.triple ? '三重' : '双重'}视野` : `${cfg.count} 次视听呈现`;
+      id === 'semantic_synthesis' ? `${cfg.count} 个词 · ${cfg.categoryCount} 类` : id === 'cambridge_decoder' ? `${cfg.count} 个图标 · ${cfg.reverse ? '倒序' : '正序'}复原` :
+      id === 'flanker_birds' ? `${cfg.rows}×${cfg.cols} · ${cfg.count} 个图标` : id === 'ufov_dual_field' ? `${cfg.size}×${cfg.size} · ${cfg.triple ? '三重' : '双重'}视野` : `${cfg.count} 次视听呈现`;
     function progress() { wrap.querySelector('#batch-progress').textContent = id === 'tidal_treasures' ? `已选 ${sub.picked ? sub.picked.size : 0}/${cfg.count} 件` : id === 'schulte_ladder' ? `完成 ${sub.completed}/1 张` : id === 'flanker_birds' ? `答对 ${sub.completed}/${cfg.required} 次` : `连续正确 ${sub.completed}/${cfg.required} 组`; }
     function later(fn, delay) {
       const timer = setTimeout(() => { sub.timers.delete(timer); if (state.subState === sub && sub.phase !== 'finished') fn(); }, delay);
@@ -145,7 +148,7 @@
       clearInterval(sub.levelTicker); clearTimeout(sub.levelTimeout); sub.levelTimeout = null;
     }
     function lock() { wrap.querySelectorAll('button, select').forEach(node => { node.disabled = true; }); el.controls.querySelectorAll('button, select').forEach(node => { node.disabled = true; }); }
-    function answerPhase(phase = 'answer') { sub.phase = phase; sub.answerStart = Date.now(); }
+    function answerPhase(phase = 'answer') { sub.phase = phase; sub.answerStart = Date.now(); if (root.FocusMusic) root.FocusMusic.training(false); }
     function button(label, value, action, container = el.controls) {
       const node = document.createElement('button');
       node.className = 'batch-choice'; node.type = 'button'; node.textContent = label; node.dataset.choice = value;
@@ -170,6 +173,13 @@
       return grid;
     }
     function image(object) { return `<img class="batch-object" src="assets/distractions/${object}.svg" alt="">`; }
+    function wash(onCovered, onDone) {
+      const tide = document.createElement('div'); tide.className = 'tidal-wave'; tide.setAttribute('aria-hidden', 'true');
+      tide.innerHTML = '<svg viewBox="0 0 600 600" preserveAspectRatio="none"><defs><linearGradient id="tidal-water" x2="0" y2="1"><stop stop-color="#7dd3fc"/><stop offset="1" stop-color="#0284c7"/></linearGradient></defs><path d="M0 40Q75 10 150 40T300 40T450 40T600 40V600H0Z" fill="url(#tidal-water)"/><path d="M0 40Q75 10 150 40T300 40T450 40T600 40" fill="none" stroke="#e0f2fe" stroke-width="10"/><g fill="#e0f2fe" opacity=".7"><circle cx="95" cy="100" r="7"/><circle cx="250" cy="180" r="11"/><circle cx="420" cy="115" r="6"/><circle cx="515" cy="220" r="10"/></g></svg>';
+      card.appendChild(tide);
+      later(onCovered, 450);
+      later(() => { tide.remove(); onDone(); }, 900);
+    }
     function fail(reason) {
       if (sub.phase === 'error' || sub.phase === 'finished' || (sub.phase === 'pause' && (id !== 'flanker_birds' || sub.completed === cfg.required))) return;
       sub.phase = 'error'; clearTimers(); clearLevelTimer(); lock(); deductLife(reason);
@@ -200,66 +210,79 @@
 
     function treasures(trial) {
       sub.picked = new Set();
-      function wave() {
-        answerPhase();
-        const grid = makeGrid(cfg.size, (pos, cell) => {
+      answerPhase();
+      const grid = makeGrid(cfg.size, (pos, cell) => {
           if (sub.phase !== 'answer' || !cell.dataset.object) return;
           state.stats.clicks++;
           const object = cell.dataset.object;
           if (sub.picked.has(object)) { fail('重复选择了本组已经选过的物体'); return; }
           sub.picked.add(object); progress(); cell.classList.add('matrix-correct');
           if (sub.picked.size === cfg.count) pass();
-          else { sub.phase = 'wave'; lock(); status.textContent = `已选 ${sub.picked.size}/${cfg.count} 件，潮水正在打乱位置`; later(wave, 350); }
+          else {
+            sub.phase = 'wave'; lock(); status.textContent = `已选 ${sub.picked.size}/${cfg.count} 件，潮水正在打乱位置`;
+            wash(placeObjects, () => {
+              answerPhase();
+              Array.from(grid.children).forEach(cell => { cell.disabled = !cell.dataset.object; });
+              status.textContent = `选一个本组没选过的物体，已选 ${sub.picked.size}/${cfg.count} 件`;
+            });
+          }
         });
+      function placeObjects() {
         const positions = shuffle(Array.from({ length: cfg.size * cfg.size }, (_, i) => i));
-        Array.from(grid.children).forEach(cell => { cell.disabled = true; });
-        shuffle(trial.objects).forEach((object, i) => { const cell = grid.children[positions[i]]; cell.disabled = false; cell.dataset.object = object; cell.innerHTML = image(object); });
-        status.textContent = `选一个本组没选过的物体，已选 ${sub.picked.size}/${cfg.count} 件`;
-        el.controls.textContent = '只记物体是否选过，不要只记位置';
+        Array.from(grid.children).forEach(cell => { cell.disabled = true; cell.textContent = ''; delete cell.dataset.object; cell.classList.remove('matrix-correct'); });
+        shuffle(trial.objects).forEach((object, i) => { const cell = grid.children[positions[i]]; cell.disabled = sub.phase !== 'answer'; cell.dataset.object = object; cell.innerHTML = image(object); });
       }
-      wave();
+      placeObjects();
+      status.textContent = `选一个本组没选过的物体，已选 ${sub.picked.size}/${cfg.count} 件`;
+      el.controls.textContent = '只记物体是否选过，不要只记位置';
     }
     function semantics(trial) {
-      card.innerHTML = '<div class="batch-stream-display" id="batch-word">听一听词语</div><div class="batch-audio-tools"></div>';
+      card.innerHTML = '<div class="semantic-voice-animation" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div><div class="batch-stream-display" id="batch-word">听一听词语</div>';
       const word = card.querySelector('#batch-word');
-      const tools = card.querySelector('.batch-audio-tools');
+      const voice = card.querySelector('.semantic-voice-animation');
       const row = choiceRow(trial.categories.map(category => [category, category]), value => decide(value, trial.category));
+      const categoryIcons = { 水果: '🍎', 动物: '🐻', 交通工具: '🚗', 蔬菜: '🥕', 学习用品: '📚', 家具: '🪑', 昆虫: '🐞' };
+      row.classList.add('semantic-category-row');
+      row.style.setProperty('--category-count', trial.categories.length);
+      row.querySelectorAll('button').forEach(node => {
+        const icon = document.createElement('span'); icon.className = 'semantic-category-icon'; icon.setAttribute('aria-hidden', 'true'); icon.textContent = categoryIcons[node.dataset.choice];
+        const label = document.createElement('span'); label.setAttribute('translate', 'no'); label.textContent = node.dataset.choice;
+        node.replaceChildren(icon, label);
+      });
       function unavailable() {
         if (sub.phase !== 'listening') return;
-        sub.phase = 'audio-unavailable'; status.textContent = '声音暂不可用，请点击“再听一次”重试，或选择“文字练习”';
+        sub.phase = 'audio-unavailable'; clearTimers(); voice.classList.remove('is-playing');
+        status.textContent = '声音暂不可用，请返回训练首页后重新开始';
       }
-      function present(textMode) {
+      function present() {
+        if (root.FocusMusic) root.FocusMusic.training(true);
         sub.token++; clearTimers(); const token = sub.token;
-        sub.textMode = textMode;
         sub.phase = 'listening'; row.querySelectorAll('button').forEach(node => { node.disabled = true; });
         function show(index) {
-          word.setAttribute('translate', textMode ? 'no' : 'yes');
-          word.textContent = textMode ? trial.words[index].word : '正在读词语…';
-          status.textContent = `${textMode ? '文字练习（不是纯听觉任务）' : '听词语'} ${index + 1}/${cfg.count}，记住各类别的次数`;
+          word.textContent = '正在读词语…';
+          status.textContent = `听词语 ${index + 1}/${cfg.count}，记住各类别的次数`;
           function done() {
             if (state.subState !== sub || sub.token !== token || sub.phase !== 'listening') return;
-            clearTimers();
+            clearTimers(); voice.classList.remove('is-playing');
             if (index + 1 < trial.words.length) later(() => show(index + 1), 300);
             else {
-              answerPhase(); word.setAttribute('translate', 'yes'); word.textContent = '哪个类别出现最多？';
-              status.textContent = `${textMode ? '文字练习：' : ''}请选择出现次数最多的类别，可以点击“再听一次”重播整组`;
+              answerPhase(); voice.hidden = true; word.textContent = '哪个类别出现最多？';
+              status.textContent = '请选择出现次数最多的类别';
               row.querySelectorAll('button').forEach(node => { node.disabled = false; });
             }
           }
-          if (textMode) { later(done, 1500); return; }
           const wordIndex = audioWords.indexOf(trial.words[index].word) + 1;
-          const audio = sub.audio = new root.Audio(`assets/semantic-audio/word-${String(wordIndex).padStart(2, '0')}.wav`);
+          const audio = sub.audio = new root.Audio(`assets/semantic-audio-easyvoice/word-${String(wordIndex).padStart(2, '0')}.wav`);
           audio.playbackRate = cfg.rate; audio.volume = 1; audio.onended = done;
+          audio.onplaying = () => { if (state.subState === sub && sub.token === token && sub.phase === 'listening') voice.classList.add('is-playing'); };
+          audio.onpause = audio.onwaiting = () => voice.classList.remove('is-playing');
           audio.onerror = () => { if (sub.token === token) unavailable(); };
           later(unavailable, 8000);
           audio.play().catch(() => { if (state.subState === sub && sub.token === token) unavailable(); });
         }
         show(0);
       }
-      function listen() { present(false); }
-      function textPractice() { present(true); }
-      button('再听一次', 'replay', listen, tools); button('文字练习', 'text', textPractice, tools);
-      if (sub.textMode) textPractice(); else listen();
+      present();
     }
     function schulte(trial) {
       sub.nextNumber = 1;
@@ -292,29 +315,59 @@
     function decoder(trial) {
       card.innerHTML = '<div class="batch-stream-display batch-icon-display"></div>';
       const display = card.querySelector('.batch-stream-display');
-      el.controls.textContent = '先观察全部图标，随后按原顺序依次点击';
-      stream(trial.sequence, cfg.exposure, display, (object, target) => {
-        target.innerHTML = image(object); playTone(440, 'triangle', 0.12, 0.12);
-      }, () => {
-        display.remove(); answerPhase(); let next = 0;
-        const choices = document.createElement('div'); choices.className = 'batch-icon-choices';
-        choices.style.gridTemplateColumns = `repeat(${Math.min(6, cfg.count)}, minmax(0, 1fr))`;
+      const slots = document.createElement('div'); slots.className = 'batch-icon-choices decoder-grid decoder-observation-grid';
+      for (let index = 0; index < 9; index++) {
+        const slot = document.createElement('div'); slot.className = 'batch-icon-slot'; slot.dataset.order = index;
+        slots.appendChild(slot);
+      }
+      display.appendChild(slots); sub.phase = 'display';
+      status.textContent = '准备观察：图标将从左到右依次出现';
+      el.controls.textContent = cfg.reverse ? '先观察全部图标，随后按倒序依次点击' : '先观察全部图标，随后按原顺序依次点击';
+      function show(index) {
+        slots.children[index].innerHTML = image(trial.sequence[index]);
+        status.textContent = `观察 ${index + 1}/${cfg.count}`;
+        playTone(440, 'triangle', 0.12, 0.12);
+        later(() => {
+          slots.children[index].textContent = '';
+          if (index + 1 < cfg.count) later(() => show(index + 1), 180);
+          else {
+            sub.phase = 'wave'; lock(); status.textContent = '潮水正在打乱图标位置';
+            wash(showChoices, () => {
+              answerPhase();
+              card.querySelectorAll('.batch-icon-choice').forEach(choice => { choice.disabled = false; });
+              status.textContent = cfg.reverse ? '请从最后出现的图标开始，按倒序点击' : '请选择第 1 个出现的图标';
+            });
+          }
+        }, cfg.exposure);
+      }
+      function showChoices() {
+        display.remove(); let next = 0;
+        const choices = document.createElement('div'); choices.className = 'batch-icon-choices decoder-grid';
+        const expected = cfg.reverse ? trial.sequence.slice().reverse() : trial.sequence;
         card.appendChild(choices);
-        trial.choices.forEach((object, index) => {
+        const positions = shuffle(Array.from({ length: 9 }, (_, index) => index)).slice(0, cfg.count).sort((a, b) => a - b);
+        const layout = Array(9).fill(null);
+        positions.forEach((position, index) => { layout[position] = trial.choices[index]; });
+        layout.forEach((object, index) => {
+          if (!object) {
+            const blank = document.createElement('div'); blank.className = 'batch-icon-slot'; blank.setAttribute('aria-hidden', 'true'); choices.appendChild(blank);
+            return;
+          }
           const choice = document.createElement('button'); choice.type = 'button'; choice.className = 'batch-choice batch-icon-choice';
-          choice.dataset.object = object; choice.innerHTML = image(object); choice.setAttribute('aria-label', `选择图标 ${index + 1}`);
+          choice.disabled = true; choice.dataset.object = object; choice.innerHTML = image(object); choice.setAttribute('aria-label', `选择图标 ${index + 1}`);
           choice.onclick = () => {
             if (sub.phase !== 'answer' || choice.disabled) return;
             state.stats.clicks++;
-            if (object !== trial.sequence[next]) { fail('图标顺序记错了，请重新观察'); return; }
-            choice.disabled = true; choice.setAttribute('aria-label', `图标 ${index + 1} 已选对`); next++;
+            if (object !== expected[next]) { fail('图标顺序记错了，请重新观察'); return; }
+            choice.disabled = true; choice.classList.add('decoder-selected'); choice.setAttribute('aria-label', `图标 ${index + 1} 已选对`); next++;
             if (next === cfg.count) pass();
             else status.textContent = `已点对 ${next}/${cfg.count} 个，请选择第 ${next + 1} 个图标`;
           };
           choices.appendChild(choice);
         });
-        status.textContent = '请选择第 1 个出现的图标'; el.controls.textContent = '按出现顺序依次点击图标；每个图标只点一次';
-      });
+        el.controls.textContent = cfg.reverse ? '按出现顺序倒着点击图标；每个图标只点一次' : '按出现顺序依次点击图标；每个图标只点一次';
+      }
+      later(() => show(0), 400);
     }
     function flanker(trial) {
       state.flankerPrevious = trial;
@@ -324,7 +377,7 @@
       birds.style.aspectRatio = `${cfg.cols}/${cfg.rows}`;
       trial.birds.forEach((direction, i) => {
         const bird = document.createElement('span'); bird.className = 'batch-flanker-bird' + (i === trial.target ? ' batch-flanker-target' : '');
-        bird.dataset.direction = direction; bird.innerHTML = image('bird'); bird.classList.add(`batch-bird-${direction}`); birds.appendChild(bird);
+        bird.dataset.direction = direction; bird.dataset.object = trial.objects[i]; bird.innerHTML = image(trial.objects[i]); bird.classList.add(`batch-bird-${direction}`); birds.appendChild(bird);
       });
       sub.handleDirection = value => { if (cfg.directions.includes(value)) decide(value, trial.direction); };
       const labels = { left: '← 左', right: '右 →', up: '↑ 上', down: '下 ↓' };
@@ -336,7 +389,7 @@
         node.disabled = !cfg.directions.includes(node.dataset.choice);
       });
       dial.insertAdjacentHTML('beforeend', '<svg class="flanker-dial-lines" viewBox="0 0 180 180" aria-hidden="true"><path d="M0 0L180 180M180 0L0 180" fill="none" stroke="#0284c7" stroke-width="2"/></svg>');
-      answerPhase(); status.textContent = '找到带下划线的小鸟，判断它的方向';
+      answerPhase(); status.textContent = '找到带下划线的图标，判断头部或尖端的方向';
       el.controls.insertAdjacentHTML('beforeend', `<p class="batch-keyboard-help">${level < 6 ? '← / → 或 A / D' : '方向键或 W / A / S / D'}，也可点击按钮</p>`);
       if (!sub.levelTimeout) {
         sub.levelDeadline = Date.now() + cfg.limit;
@@ -362,7 +415,7 @@
       grid.children[center].innerHTML = image(trial.object);
       grid.children[trial.position].innerHTML = image('star');
       if (cfg.triple) grid.children[trial.heart].innerHTML = image('heart');
-      trial.distractors.forEach(pos => { grid.children[pos].innerHTML = '<span class="batch-gray-dot"></span>'; });
+      trial.distractors.forEach((pos, index) => { grid.children[pos].innerHTML = image(trial.distractorObjects[index]); });
       function showChoices() {
         answerPhase('object');
         const row = choiceRow(trial.choices.map(object => [objectNames[object], object]), value => {
@@ -374,6 +427,7 @@
           sub.phase = 'location'; row.querySelectorAll('button').forEach(node => { node.disabled = true; });
           peripheral.forEach(pos => { grid.children[pos].disabled = false; }); status.textContent = '中心图形正确！再点击金色星星刚才所在的位置';
         });
+        row.classList.add('ufov-choice-row'); row.style.setProperty('--ufov-options', cfg.options);
         row.querySelectorAll('button').forEach(node => { node.innerHTML = image(node.dataset.choice) + `<span>${objectNames[node.dataset.choice]}</span>`; node.classList.add('ufov-object-choice'); });
         status.textContent = cfg.triple ? '依次选择中心图形、星星位置、心形位置' : '先选择中心图形，再点周边星星的位置';
       }
@@ -384,11 +438,12 @@
         later(showChoices, 200);
       }, cfg.exposure);
     }
-    const colorNames = { blue: '蓝色', orange: '橙色', green: '绿色', purple: '紫色', pink: '粉色', yellow: '黄色', red: '红色' };
-    const colorValues = { blue: '#0284c7', orange: '#f97316', green: '#16a34a', purple: '#9333ea', pink: '#ec4899', yellow: '#eab308', red: '#dc2626' };
+    const colorNames = { blue: '蓝色', orange: '橙色', green: '绿色', purple: '紫色', pink: '粉色', red: '红色' };
+    const colorValues = { blue: '#0284c7', orange: '#f97316', green: '#16a34a', purple: '#9333ea', pink: '#ec4899', red: '#dc2626' };
     const soundNames = { clear: '清亮音', soft: '柔和音' };
     function playBimodalSound(sound) { playTone(sound === 'clear' ? 880 : 220, sound === 'clear' ? 'sine' : 'triangle', 0.2, 0.12); }
     function bimodal(trial) {
+      if (root.FocusMusic) root.FocusMusic.training(true);
       card.innerHTML = '<div class="batch-targets">视觉：只数' + colorNames[cfg.targetColor] + '　声音：只数' + soundNames[cfg.targetSound] + '</div><div class="batch-stream-display"></div>';
       const selected = { color: null, sound: null };
       el.controls.innerHTML = '<div class="bimodal-count-form"></div>';
@@ -428,8 +483,7 @@
     }
     function beginRound() {
       clearTimers(); sub.token++; card.innerHTML = ''; el.controls.innerHTML = ''; progress();
-      const trial = generateTrial(id, level, id === 'flanker_birds' ? state.flankerPrevious : id === 'ufov_dual_field' ? state.ufovPrevious : id === 'bimodal_divert' ? sub.previousBimodal : id === 'semantic_synthesis' ? state.semanticPrevious : undefined);
-      if (id === 'bimodal_divert') sub.previousBimodal = trial;
+      const trial = generateTrial(id, level, id === 'flanker_birds' ? state.flankerPrevious : id === 'ufov_dual_field' ? state.ufovPrevious : id === 'semantic_synthesis' ? state.semanticPrevious : undefined);
       if (id === 'semantic_synthesis') state.semanticPrevious = trial;
       if (id === 'tidal_treasures') treasures(trial);
       else if (id === 'semantic_synthesis') semantics(trial);
@@ -439,13 +493,14 @@
       else if (id === 'ufov_dual_field') ufov(trial);
       else bimodal(trial);
     }
+    sub.start = beginRound;
     card.innerHTML = `<div class="batch-intro"><h3>${registry[id].title.split(' · ')[1]}</h3><p>${id === 'ufov_dual_field' && cfg.triple ? '记住中心图形、星星和心形；观察结束后依次选择图形、星星位置、心形位置' : el.gamePrompt.textContent}</p><p>${id === 'schulte_ladder' ? '限时内完成一张数字表即可升级；点错只提示，不重置、不扣心。超时扣心并重开，第三次超时结束。' : `${id === 'tidal_treasures' ? `在 ${cfg.size}×${cfg.size} 棋盘中，将 ${cfg.count} 件物体各选一次即可升级` : id === 'flanker_birds' ? `${cfg.limit / 1000} 秒内答对 ${cfg.required} 次升级，换题时倒计时继续` : `连续正确 ${cfg.required} 组升级`}；失误重置进度，第三次失误结束。`}</p></div>`;
     progress(); status.textContent = '准备好后点击开始'; el.controls.innerHTML = '';
     const start = document.createElement('button'); start.className = 'duo-btn'; start.textContent = `开始第 ${level} 关`; start.onclick = beginRound; el.controls.appendChild(start);
     if (id === 'schulte_ladder' || id === 'flanker_birds') { state.timer = cfg.limit / 1000; updateTimerDisplay(); }
     if (id === 'bimodal_divert') {
       const guide = document.createElement('div'); guide.className = 'bimodal-color-guide';
-      guide.innerHTML = `<p><strong>本关只统计${colorNames[cfg.targetColor]}圆点的次数</strong>，其他颜色不计数。以下颜色均可能出现，干扰色每组随机更换。</p><div class="bimodal-color-previews">${Object.entries(colorValues).map(([color, value]) => `<div class="bimodal-color-preview${color === cfg.targetColor ? ' is-target' : ''}" data-color="${color}"><span role="img" aria-label="${colorNames[color]}圆点" class="bimodal-color-dot" style="background:${value}"></span><span>${colorNames[color]}${color === cfg.targetColor ? ' · 要数' : ''}</span></div>`).join('')}</div>`;
+      guide.innerHTML = `<p><strong>本关只统计${colorNames[cfg.targetColor]}圆点的次数</strong>，其他颜色不计数。本关只会出现以下颜色，配色在本关内保持不变。</p><div class="bimodal-color-previews">${cfg.colors.map(color => `<div class="bimodal-color-preview${color === cfg.targetColor ? ' is-target' : ''}" data-color="${color}"><span role="img" aria-label="${colorNames[color]}圆点" class="bimodal-color-dot" style="background:${colorValues[color]}"></span><span>${colorNames[color]}${color === cfg.targetColor ? ' · 要数' : ''}</span></div>`).join('')}</div>`;
       card.firstChild.insertBefore(guide, card.firstChild.children[2]);
       const samples = document.createElement('div'); samples.className = 'batch-audio-tools'; card.firstChild.appendChild(samples);
       button('试听清亮音' + (cfg.targetSound === 'clear' ? '（本关目标）' : ''), 'clear', () => playBimodalSound('clear'), samples);

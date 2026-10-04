@@ -7,7 +7,7 @@ const context = { module: { exports: {} } };
 vm.runInNewContext(source.slice(source.indexOf('  function getMatrixFlashConfig('), source.indexOf('  function renderMatrixFlash(')) +
   '\nmodule.exports = {getMatrixFlashConfig, generateMatrixFlashTargets};', context);
 const { getMatrixFlashConfig, generateMatrixFlashTargets } = context.module.exports;
-const expected = [[4,3,1200,5],[4,4,1100,5],[4,5,1100,5],[4,6,1000,5],[4,7,950,5],
+const expected = [[4,3,600,5],[4,4,550,5],[4,5,550,5],[4,6,1000,5],[4,7,950,5],
   [5,8,900,5],[5,9,850,5],[5,10,800,5],[5,11,850,5],[5,12,800,5],
   [5,13,800,5],[5,14,800,5],[5,15,800,5],[5,16,800,5],[5,17,800,5]];
 for (let level = 1; level <= 15; level++) {
@@ -40,11 +40,9 @@ for (let level = 1; level <= 15; level++) {
     return page;
   }
   async function startLevel(page, level) {
-    if (level === 1 || level === 9) {
-      await page.clock.runFor(60000);
-      assert.equal(await page.locator('.matrix-flash-cell:enabled').count(), 0);
-      await page.getByRole('button', { name: level === 1 ? '开始记忆' : '开始双色挑战' }).click();
-    } else await page.clock.runFor(300);
+    await page.clock.runFor(60000);
+    assert.equal(await page.locator('.matrix-flash-cell:enabled').count(), 0);
+    await page.getByRole('button', {name: level > 1 ? '继续' : '开始记忆', exact: true}).click();
   }
   async function observe(page, cfg) {
     const cells = page.locator('.matrix-flash-cell');
@@ -104,16 +102,18 @@ for (let level = 1; level <= 15; level++) {
       }
       const yellow = target.find(item => !item.blue);
       await failure.locator(`.matrix-flash-cell[data-pos="${yellow.pos}"]`).click();
+      assert.equal(await failure.locator('.heart.active').count(), 4 - attempt, 'Review does not deduct a heart');
+      assert.equal(await failure.locator('.matrix-lit-blue, .matrix-lit-yellow').count(), 11, 'Review shows the entire correct pattern');
+      assert.equal(await failure.locator('.matrix-selected').count(), attempt === 1 ? 1 : 0);
+      assert.equal(await failure.locator('.matrix-wrong').getAttribute('data-pos'), yellow.pos);
+      await failure.clock.runFor(60000);
+      assert.equal(await failure.locator('.heart.active').count(), 4 - attempt);
+      assert.equal(await failure.locator('.matrix-flash-cell:enabled').count(), 0);
+      assert.equal(await failure.locator('#report-modal').isVisible(), false);
+      await failure.getByRole('button', { name: '确认', exact: true }).click();
       assert.equal(await failure.locator('.heart.active').count(), 3 - attempt);
       assert.equal(await failure.locator('#report-modal').isVisible(), attempt === 3);
-      if (attempt < 3) {
-        assert.match(await failure.locator('#matrix-round-counter').innerText(), /0\/5/);
-        assert.equal(await failure.locator('.matrix-error-notice').isVisible(), true);
-        await failure.clock.runFor(1999);
-        assert.equal(await failure.locator('.matrix-flash-cell:enabled').count(), 0);
-        await failure.clock.runFor(1);
-        assert.equal(await failure.locator('.matrix-error-notice').count(), 0);
-      }
+      if (attempt < 3) assert.match(await failure.locator('#matrix-round-counter').innerText(), /0\/5/);
     }
     await failure.clock.runFor(10000);
     assert.equal(await failure.locator('#report-modal').isVisible(), true);
@@ -129,9 +129,12 @@ for (let level = 1; level <= 15; level++) {
       target = await observe(layout, getMatrixFlashConfig(1));
       const wrong = Array.from({ length: 16 }, (_, pos) => String(pos)).find(pos => !target.some(item => item.pos === pos));
       await layout.locator(`.matrix-flash-cell[data-pos="${wrong}"]`).click();
+      assert.equal(await layout.locator('.heart.active').count(), 3);
+      assert.equal(await layout.locator('.matrix-lit-blue').count(), 3);
+      assert.equal(await layout.locator('.matrix-wrong').getAttribute('data-pos'), wrong);
+      await layout.getByRole('button', { name: '确认', exact: true }).click();
       assert.match(await layout.locator('#matrix-round-counter').innerText(), /0\/5/);
       assert.equal(await layout.locator('.heart.active').count(), 2);
-      await layout.clock.runFor(2000);
       for (let round = 0; round < 5; round++) {
         target = await observe(layout, getMatrixFlashConfig(1));
         for (const item of target) await layout.locator(`.matrix-flash-cell[data-pos="${item.pos}"]`).click();
