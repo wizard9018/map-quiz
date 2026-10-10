@@ -430,7 +430,79 @@ function continentCountries(continent) {
   return countries.filter(c => continentOf(c.region) === continent);
 }
 
+// Ebbinghaus-style spaced repetition for the geo/bio/chem tabs: each unit
+// (region card) shows up one at a time. A perfect first-try quiz moves it to
+// the next interval; any miss sends it back to tomorrow.
+const SRS_KEY = "map-quiz-srs"; // { [region]: { step, due: "YYYY-MM-DD" } }
+const SRS_DAYS = [1, 2, 4, 7, 15, 30, 60];
+const SRS_TABS = ["geo", "bio", "chem"];
+let srs = {};
+try { srs = JSON.parse(localStorage.getItem(SRS_KEY)) || {}; } catch (e) { srs = {}; }
+
+function dateStrPlus(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function srsRecord(region, perfect) {
+  if (srs[region]?.due > todayDateStr()) return; // already scheduled today (e.g. Try Again), don't double-count
+  const step = perfect ? Math.min((srs[region]?.step ?? -1) + 1, SRS_DAYS.length - 1) : 0;
+  srs[region] = { step, due: dateStrPlus(SRS_DAYS[step]) };
+  try { localStorage.setItem(SRS_KEY, JSON.stringify(srs)); } catch (e) { /* storage unavailable */ }
+}
+
+let homeTab = "geo";
+const srsPanelEl = document.createElement("div");
+srsPanelEl.id = "srs-panel";
+document.querySelector(".home-main .tabs").after(srsPanelEl);
+
+function renderSrs() {
+  srsPanelEl.style.display = SRS_TABS.includes(homeTab) ? "" : "none";
+  if (!SRS_TABS.includes(homeTab)) return;
+  const today = todayDateStr();
+  const units = [...document.querySelectorAll(".region-card[data-region]")]
+    .filter(card => (card.closest(".continent-group").dataset.tab || "geo") === homeTab && card.dataset.region !== "world");
+  const due = units.filter(c => srs[c.dataset.region] && srs[c.dataset.region].due <= today)
+    .sort((a, b) => srs[a.dataset.region].due.localeCompare(srs[b.dataset.region].due));
+  const fresh = units.filter(c => !srs[c.dataset.region]);
+  const next = due[0] || fresh[0];
+  srsPanelEl.innerHTML = "";
+  const info = document.createElement("p");
+  info.className = "srs-info";
+  info.textContent = `待复习 ${due.length} · 未学 ${fresh.length} · 已安排 ${units.length - due.length - fresh.length}`;
+  if (!next) {
+    srsPanelEl.append(Object.assign(document.createElement("h3"), { textContent: "今天的任务都完成了 🎉" }), info);
+    return;
+  }
+  const region = next.dataset.region;
+  const card = document.createElement("div");
+  card.className = "srs-card";
+  card.innerHTML = `<p class="srs-kind">${due[0] ? "复习" : "新单元"} · ${next.closest(".continent-group").querySelector(".continent-title").textContent}</p>` +
+    `<h3>${next.querySelector("h3").textContent}</h3><p class="region-meta">${next.querySelector(".region-meta").textContent}</p>`;
+  const actions = document.createElement("div");
+  actions.className = "card-actions";
+  [["learn-action", startLearn], ["quiz-action", startRound]].forEach(([cls, fn]) => {
+    const orig = next.querySelector("." + cls);
+    if (!orig) return;
+    const b = document.createElement("button");
+    b.className = cls;
+    b.textContent = orig.textContent;
+    b.addEventListener("click", () => fn(region));
+    actions.appendChild(b);
+  });
+  card.appendChild(actions);
+  srsPanelEl.append(card, info);
+  if (due.length > 1) {
+    const rest = document.createElement("p");
+    rest.className = "srs-info";
+    rest.textContent = "之后复习：" + due.slice(1).map(c => c.querySelector("h3").textContent).join("、");
+    srsPanelEl.appendChild(rest);
+  }
+}
+
 function refreshHomeProgress() {
+  renderSrs();
   homeScreenEl.querySelectorAll(".region-card").forEach(card => {
     const region = card.dataset.region;
     const list = regionCountries(region);
@@ -457,8 +529,13 @@ function showTab(tab) {
   document.body.classList.toggle('focus-tab-view', tab === 'focus');
   document.querySelector('.focus-frame')?.contentWindow?.postMessage({ type: 'focus-host-visible', visible: tab === 'focus' }, location.origin);
   document.querySelectorAll(".home-main .continent-group").forEach(section => {
-    section.style.display = (section.dataset.tab || "geo") === tab ? "" : "none";
+    const sectionTab = section.dataset.tab || "geo";
+    // SRS tabs show one unit at a time (renderSrs); only the World quiz grid stays.
+    const show = sectionTab === tab && (!SRS_TABS.includes(tab) || section.querySelector('[data-region="world"]'));
+    section.style.display = show ? "" : "none";
   });
+  homeTab = tab;
+  renderSrs();
   document.querySelectorAll(".tabs .tab").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tab));
   try { localStorage.setItem(TAB_KEY, tab); } catch (e) { /* storage unavailable */ }
 }
@@ -1546,6 +1623,7 @@ function finishRound() {
   const accuracy = Math.round((correctCount / active.length) * 100);
   resultScoreEl.textContent = `Correct on first try: ${correctCount} / ${active.length} (${accuracy}%)`;
   addTodayResult(currentRegion, correctCount, active.length);
+  if (currentRegion !== "world") srsRecord(currentRegion, missed.size === 0);
   rosterListEl.innerHTML = "";
   active.forEach(c => {
     const li = document.createElement("li");

@@ -377,3 +377,9 @@ body.focus-tab-view .tabs .tab { flex-shrink: 0; }
 body.focus-tab-view #today-results { display: none; }
 body.focus-tab-view .continent-group[data-tab="focus"] { flex: 1; min-height: 0; margin: 0; }
 body.focus-tab-view .focus-frame { height: 100%; border-radius: 0; }
+
+#srs-panel { margin: 0 0 16px; }
+.srs-card { background: #1e293b; border-radius: 12px; padding: 20px; max-width: 420px; }
+.srs-card h3 { margin: 4px 0; font-size: 1.3rem; }
+.srs-kind { margin: 0; font-size: 0.8rem; color: #eab308; }
+.srs-info { margin: 8px 0 0; font-size: 0.8rem; color: #afafaf; }
