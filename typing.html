@@ -98,7 +98,7 @@
       <div id="target" class="target"></div>
       <div id="blanks" class="blanks" style="display:none"></div>
       <input type="text" id="typingInput" placeholder="Click here and type…" autocomplete="off" spellcheck="false" />
-      <div class="hint" style="color:var(--muted);margin-top:8px">Letters are case‑insensitive. Punctuation is ignored by design on these levels.</div>
+      <div class="hint" id="hintEl" style="color:var(--muted);margin-top:8px">Letters are case‑insensitive. Punctuation is ignored by design on these levels.</div>
     </section>
 
     <!-- Hands & keyboard -->
@@ -255,8 +255,14 @@
 
     // --- Level 4: jokes. Sentence on top, underlined blanks below; only letters and spaces are typed.
     let jokeBank=[], jokeSet=[];
-    fetch('data/jokes.json').then(r=>r.json()).then(j=>{ jokeBank=j; if(level===4) setLevel(4); }).catch(()=>{});
-    function pickJokes(){ const pool=jokeBank.slice(); jokeSet=[]; while(jokeSet.length<5 && pool.length) jokeSet.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]); }
+    // Jokes are fixed groups of 5, shortest first; one group per day. A new day moves on to the next group only if the last one was finished.
+    const JOKE_KEY='map-quiz-typing-jokes';
+    const todayStr=(()=>{ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); })();
+    let jokeState={date:todayStr,from:0,done:false};
+    try{ const s=JSON.parse(localStorage.getItem(JOKE_KEY)); if(s){ jokeState = s.date===todayStr ? s : {date:todayStr,from:s.done?s.from+5:s.from,done:false}; } }catch(e){}
+    function saveJokeState(){ try{ localStorage.setItem(JOKE_KEY,JSON.stringify(jokeState)); }catch(e){} }
+    fetch('data/jokes.json').then(r=>r.json()).then(j=>{ jokeBank=j.slice().sort((a,b)=>a.length-b.length); if(jokeState.from>=jokeBank.length) jokeState.from=0; saveJokeState(); if(level===4) setLevel(4); }).catch(()=>{});
+    function pickJokes(){ jokeSet=jokeBank.slice(jokeState.from,jokeState.from+5); const n=jokeState.from/5+1; document.getElementById('hintEl').textContent = jokeState.done ? 'Group '+n+' is done for today. Come back tomorrow for the next 5 jokes (you can still practice this group).' : 'Group '+n+': type 5 jokes today. Punctuation is filled in for you.'; }
     const isTyped=ch=>/[a-z]/i.test(ch)||ch===' ';
     function skipAuto(){ while(index<targetText.length && !isTyped(targetText[index])) index++; }
     function renderBlanks(wrongAt){
@@ -319,6 +325,7 @@
       const msg=document.getElementById('congratsMsg');
       msg.innerHTML = `${level===4?"Joke time":"Level "+level} complete!<br>Time: <b>${secs.toFixed(1)}s</b> · Accuracy: <b>${acc.toFixed(1)}%</b><br>Score: ${score}/${goal}`;
       // Tell the map-quiz home page (when embedded there) so it can list this result.
+      if(level===4){ if(jokeState.done) return; jokeState.done=true; saveJokeState(); }
       try{ parent.postMessage({type:'typing-result', level, correct:correctKeys, total:totalKeys}, location.origin); }catch(e){}
     }
 
