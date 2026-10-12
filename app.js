@@ -292,7 +292,7 @@ let homeTab = "geo";
 let srsShowAll = false; // true: list every unit card instead of the one-at-a-time view
 const srsPanelEl = document.createElement("div");
 srsPanelEl.id = "srs-panel";
-document.querySelector(".home-main .tabs").after(srsPanelEl);
+document.querySelector(".home-main").prepend(srsPanelEl);
 
 // Geography is paced by the calendar: from the day it was first opened, each
 // day unlocks the next unit of the continent lane (Africa first) and of the

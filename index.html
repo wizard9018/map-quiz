@@ -3,12 +3,20 @@
 <head>
 <meta charset="utf-8">
 <title>World Countries Map Quiz</title>
-<link rel="stylesheet" href="style.css?v=18">
+<link rel="stylesheet" href="style.css?v=21">
 </head>
 <body>
   <div id="app">
     <header>
       <h1>Study Quiz</h1>
+      <div class="tabs">
+        <button class="tab active" data-tab="geo">Geography</button>
+        <button class="tab" data-tab="chem">Chemistry</button>
+        <button class="tab" data-tab="typing">Typing</button>
+        <button class="tab" data-tab="life">Life Science</button>
+        <button class="tab" data-tab="phys">Physics &amp; Space</button>
+        <button class="tab" data-tab="hist">History &amp; Society</button>
+      </div>
       <div id="prompt" style="display:none"></div>
       <div class="header-actions">
         <div id="progress" style="display:none"></div>
@@ -20,14 +28,6 @@
 
     <div id="home-screen">
       <div class="home-main">
-      <div class="tabs">
-        <button class="tab active" data-tab="geo">Geography</button>
-        <button class="tab" data-tab="chem">Chemistry</button>
-        <button class="tab" data-tab="typing">Typing</button>
-        <button class="tab" data-tab="life">Life Science</button>
-        <button class="tab" data-tab="phys">Physics &amp; Space</button>
-        <button class="tab" data-tab="hist">History &amp; Society</button>
-      </div>
       <section class="continent-group">
         <h2 class="continent-title">Europe</h2>
         <div class="region-grid">
@@ -650,6 +650,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=101"></script>
+  <script src="app.js?v=102"></script>
 </body>
 </html>
