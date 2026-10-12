@@ -379,7 +379,8 @@ body.focus-tab-view .continent-group[data-tab="focus"] { flex: 1; min-height: 0;
 body.focus-tab-view .focus-frame { height: 100%; border-radius: 0; }
 
 #srs-panel { margin: 0 0 16px; }
-.srs-card { background: #1e293b; border-radius: 12px; padding: 20px; max-width: 420px; }
+.srs-cards { display: flex; flex-wrap: wrap; gap: 12px; }
+.srs-card { background: #1e293b; border-radius: 12px; padding: 20px; flex: 1 1 220px; max-width: 420px; }
 .srs-card h3 { margin: 4px 0; font-size: 1.3rem; }
 .srs-kind { margin: 0; font-size: 0.8rem; color: #eab308; }
 .srs-info { margin: 8px 0 0; font-size: 0.8rem; color: #afafaf; }
