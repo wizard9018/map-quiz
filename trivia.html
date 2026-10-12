@@ -21,6 +21,21 @@
     .btn{appearance:none;background:var(--green);color:#fff;border:0;padding:8px 18px;border-radius:14px;font:inherit;font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;cursor:pointer;box-shadow:0 4px 0 var(--green-d)}
     .why{margin:12px 0 4px;padding:10px 14px;background:#fff7d6;border:2px solid #ffc800;border-radius:14px;font-size:.95rem;line-height:1.4}
     .why b{display:block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#b58900;margin-bottom:2px}
+    @keyframes in{from{opacity:0;transform:translateY(6px)}}
+    @keyframes popIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.6) rotate(-6deg)}35%{opacity:1;transform:translate(-50%,-52%) scale(1.08)}100%{opacity:0;transform:translate(-50%,-64%) scale(1)}}
+    @keyframes fly{to{transform:translate(var(--dx),var(--dy));opacity:0}}
+    .card>*{animation:in .15s ease-out}
+    .opt{transition:transform .08s,box-shadow .08s}
+    .opt:not(:disabled):hover{transform:translateY(-1px);border-color:var(--blue)}
+    .opt:not(:disabled):active{transform:translateY(3px);box-shadow:0 0 0 var(--line)}
+    .opt .mk{float:right;font-weight:800}
+    .face{font-size:1.4rem;margin-right:8px;vertical-align:middle}
+    .fb{margin:10px 0 6px;font-weight:800;color:#58a700}
+    .why b{display:flex;align-items:center;text-transform:none;letter-spacing:0;font-size:.85rem;color:#8a6a00}
+    .why{animation:in .2s ease-out}
+    .big-gg{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%) scale(.6);font-size:clamp(40px,9vw,90px);font-weight:900;color:var(--green);text-shadow:0 4px 0 var(--green-d);opacity:0;pointer-events:none;z-index:80;animation:popIn .85s cubic-bezier(.22,.9,.18,1) forwards}
+    .particle{position:fixed;left:50%;top:42%;width:10px;height:10px;border-radius:2px;pointer-events:none;z-index:79;animation:fly .9s ease-out forwards}
+    @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
     .progress{height:10px;background:var(--line);border-radius:999px;overflow:hidden;margin:0 0 10px}
     .progress>span{display:block;height:100%;width:0;background:var(--green)}
     .credit{font-size:.65rem;color:var(--muted);margin:12px 2px 0;line-height:1.4}
@@ -30,6 +45,7 @@
 <body>
 <div class="wrap">
   <div class="card" id="card"></div>
+  <div id="status" role="status" aria-live="polite" style="position:absolute;left:-9999px"></div>
   <p class="credit">Questions: <a href="https://opentdb.com" target="_blank" rel="noopener">Open Trivia DB</a> (CC BY-SA 4.0) and the U.S. Department of Energy National Science Bowl practice rounds, plus beginner questions written with Gemini and fact-checked. Each day is the next 10 questions, easiest first.</p>
 </div>
 <script>
@@ -53,6 +69,24 @@ function saveState(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } ca
 
 let state, set, i, correct, missed, practiceRun = false;
 const esc = t => String(t).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+
+const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const CORRECT_WORDS = ["Yes! Got it.", "Right!", "Nice one.", "You know it.", "Correct!", "Exactly."];
+const say = t => { document.getElementById("status").textContent = t; };
+// One big celebration, only for a perfect round; fly/fade (no strobing), skipped for reduced motion.
+function celebrate(text) {
+  if (calm) return;
+  const fx = document.createElement("div"); fx.className = "big-gg"; fx.textContent = text;
+  document.body.appendChild(fx); fx.addEventListener("animationend", () => fx.remove());
+  const colors = ["#60a5fa", "#34d399", "#fbbf24", "#f472b6", "#a78bfa"];
+  for (let n = 0; n < 22; n++) {
+    const p = document.createElement("i"); p.className = "particle";
+    p.style.setProperty("--dx", (Math.random() * 2 - 1) * 240 + "px");
+    p.style.setProperty("--dy", (-Math.random() * 200 - 100) + "px");
+    p.style.background = colors[n % colors.length];
+    document.body.appendChild(p); p.addEventListener("animationend", () => p.remove());
+  }
+}
 
 fetch(`data/trivia/${cat}.json`).then(r => r.json()).then(bank => {
   state = loadState();
@@ -87,14 +121,22 @@ function show() {
 }
 function answer(k) {
   const q = set[i];
+  const isRight = k === q.c;
   card.querySelectorAll(".opt").forEach(b => {
     b.disabled = true;
-    if (+b.dataset.k === q.c) b.classList.add("ok");
-    else if (+b.dataset.k === k) b.classList.add("bad");
+    const bk = +b.dataset.k;
+    if (bk === q.c) { b.classList.add("ok"); b.insertAdjacentHTML("beforeend", '<span class="mk" aria-hidden="true">✓</span>'); }
+    else if (bk === k) { b.classList.add("bad"); b.insertAdjacentHTML("beforeend", '<span class="mk" aria-hidden="true">✗</span>'); }
   });
-  if (k === q.c) correct++; else missed.push(q);
+  if (isRight) {
+    correct++;
+    if (!calm) card.querySelector(".opt.ok").animate([{ transform: "scale(1)" }, { transform: "scale(1.04)" }, { transform: "scale(1)" }], { duration: 300 });
+  } else missed.push(q);
   const last = i === set.length - 1;
-  const why = k !== q.c && q.e ? `<div class="why"><b>Why</b>${esc(q.e)}</div>` : "";
+  const word = CORRECT_WORDS[Math.floor(Math.random() * CORRECT_WORDS.length)];
+  say(isRight ? "Correct" : "Not this time. The answer is " + q.a[q.c]);
+  const why = isRight ? `<div class="fb"><span class="face" aria-hidden="true">😄</span>${word}</div>`
+    : `<div class="why"><b><span class="face" aria-hidden="true">🤔</span>Not this time, here's the cool part</b>${q.e ? esc(q.e) : "The answer is " + esc(q.a[q.c]) + "."}</div>`;
   document.getElementById("after").innerHTML = why + `<button class="btn" id="next">${last ? "Finish" : "Next"}</button>`;
   document.getElementById("next").onclick = () => { i++; last ? finish() : show(); };
 }
@@ -104,8 +146,14 @@ function finish() {
     saveState(state);
     try { parent.postMessage({ type: "trivia-result", cat, name: NAMES[cat], correct, total: set.length }, location.origin); } catch (e) { /* standalone */ }
   }
-  card.innerHTML = `<h1>${correct} / ${set.length}</h1>` +
-    (missed.length ? `<p class="meta">Review these:</p><ul>${missed.map(q => `<li>${esc(q.q)} <b>${esc(q.a[q.c])}</b>${q.e ? `<br><small>${esc(q.e)}</small>` : ""}</li>`).join("")}</ul>` : `<p class="meta">Perfect! 🎉</p>`) +
+  const n = set.length, perfect = missed.length === 0;
+  const [face, headline] = perfect ? ["🤩", "Perfect!"]
+    : correct * 2 >= n ? ["😊", `${correct} / ${n}, nice work!`]
+    : ["💪", `You learned ${missed.length} new thing${missed.length === 1 ? "" : "s"} today!`];
+  if (perfect) celebrate("Perfect!");
+  say(perfect ? "Perfect score" : headline);
+  card.innerHTML = `<h1><span class="face" aria-hidden="true">${face}</span>${headline}</h1><p class="meta">${correct} / ${n} correct</p>` +
+    (missed.length ? `<p class="meta">Review these:</p><ul>${missed.map(q => `<li>${esc(q.q)} <b>${esc(q.a[q.c])}</b>${q.e ? `<br><small>${esc(q.e)}</small>` : ""}</li>`).join("")}</ul>` : "") +
     `<button class="btn" id="done">OK</button>`;
   document.getElementById("done").onclick = () => { state.done ? showDone() : showIntro(0); };
 }
