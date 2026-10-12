@@ -85,10 +85,9 @@
 
     <section class="card">
       <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center">
-        <button class="btn level active" id="lv1Btn">Level 1 — Random Letters</button>
+        <button class="btn level active" id="lv3Btn">Level 1 — A→Z Order</button>
         <button class="btn level" id="lv2Btn">Level 2 — Common Words</button>
-        <button class="btn level" id="lv3Btn">Level 3 — A→Z Order</button>
-        <button class="btn level" id="lv4Btn">Level 4 — Jokes</button>
+        <button class="btn level" id="lv4Btn">Level 3 — Riddles</button>
         <button class="btn ghost" id="restartBtn" style="margin-left:auto">Restart Level</button>
         <label class="pill" style="display:flex; align-items:center; gap:6px; margin-left:8px">
           <input type="checkbox" id="soundToggle" checked /> Sound
@@ -96,6 +95,7 @@
       </div>
       <div class="progress"><span id="progBar"></span></div>
       <div id="target" class="target"></div>
+      <div id="stageLabel" style="display:none;text-align:center;font-size:.75rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--blue-d);margin:0 0 6px"></div>
       <div id="blanks" class="blanks" style="display:none"></div>
       <input type="text" id="typingInput" placeholder="Click here and type…" autocomplete="off" spellcheck="false" />
       <div class="hint" id="hintEl" style="color:var(--muted);margin-top:8px">Letters are case‑insensitive. Punctuation is ignored by design on these levels.</div>
@@ -182,7 +182,6 @@
     const targetEl=document.getElementById('target');
     const inputEl=document.getElementById('typingInput');
 
-    const lv1Btn=document.getElementById('lv1Btn');
     const lv2Btn=document.getElementById('lv2Btn');
     const lv3Btn=document.getElementById('lv3Btn');
     const lv4Btn=document.getElementById('lv4Btn');
@@ -253,16 +252,17 @@
 
     let level=1; let goal=30; let score=0; let index=0; let targetText=''; let started=false; let alphabetIndex=0; let levelStartTime=0; let correctKeys=0; let totalKeys=0;
 
-    // --- Level 4: jokes. Sentence on top, underlined blanks below; only letters and spaces are typed.
-    let jokeBank=[], jokeSet=[];
-    // Jokes are fixed groups of 5, shortest first; one group per day. A new day moves on to the next group only if the last one was finished.
-    const JOKE_KEY='map-quiz-typing-jokes';
+    // --- Level 4: riddles. Type the riddle first, then the answer. Sentence on top, underlined blanks below; only letters and spaces are typed.
+    let riddleBank=[], riddleSet=[], riddleStage=0;
+    // Riddles are fixed groups of 5, shortest first; one group per day. A new day moves on to the next group only if the last one was finished.
+    const RIDDLE_KEY='map-quiz-typing-riddles';
     const todayStr=(()=>{ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); })();
-    let jokeState={date:todayStr,from:0,done:false};
-    try{ const s=JSON.parse(localStorage.getItem(JOKE_KEY)); if(s){ jokeState = s.date===todayStr ? s : {date:todayStr,from:s.done?s.from+5:s.from,done:false}; } }catch(e){}
-    function saveJokeState(){ try{ localStorage.setItem(JOKE_KEY,JSON.stringify(jokeState)); }catch(e){} }
-    fetch('data/jokes.json').then(r=>r.json()).then(j=>{ jokeBank=j.slice().sort((a,b)=>a.length-b.length); if(jokeState.from>=jokeBank.length) jokeState.from=0; saveJokeState(); if(level===4) setLevel(4); }).catch(()=>{});
-    function pickJokes(){ jokeSet=jokeBank.slice(jokeState.from,jokeState.from+5); const n=jokeState.from/5+1; document.getElementById('hintEl').textContent = jokeState.done ? 'Group '+n+' is done for today. Come back tomorrow for the next 5 jokes (you can still practice this group).' : 'Group '+n+': type 5 jokes today. Punctuation is filled in for you.'; }
+    let riddleState={date:todayStr,from:0,done:false};
+    try{ const s=JSON.parse(localStorage.getItem(RIDDLE_KEY)); if(s){ riddleState = s.date===todayStr ? s : {date:todayStr,from:s.done?s.from+5:s.from,done:false}; } }catch(e){}
+    function saveRiddleState(){ try{ localStorage.setItem(RIDDLE_KEY,JSON.stringify(riddleState)); }catch(e){} }
+    fetch('data/riddles.json').then(r=>r.json()).then(j=>{ riddleBank=j.slice().sort((x,y)=>(x.q.length+x.a.length)-(y.q.length+y.a.length)); if(riddleState.from>=riddleBank.length) riddleState.from=0; saveRiddleState(); if(level===4) setLevel(4); }).catch(()=>{});
+    function pickRiddles(){ riddleSet=riddleBank.slice(riddleState.from,riddleState.from+5); const n=riddleState.from/5+1; document.getElementById('hintEl').textContent = riddleState.done ? 'Group '+n+' is done for today. Come back tomorrow for the next 5 riddles (you can still practice this group).' : 'Group '+n+': type 5 riddles today. First the riddle, then the answer. Punctuation is filled in for you.'; }
+    function setStage(s){ riddleStage=s; const r=riddleSet[score]; targetText = r ? (s===0 ? r.q : r.a) : ''; index=0; document.getElementById('stageLabel').textContent = s===0 ? 'Step 1 of 2 · type the riddle' : 'Step 2 of 2 · now type the answer'; }
     const isTyped=ch=>/[a-z]/i.test(ch)||ch===' ';
     function skipAuto(){ while(index<targetText.length && !isTyped(targetText[index])) index++; }
     function renderBlanks(wrongAt){
@@ -276,11 +276,13 @@
         word.appendChild(s);
       });
     }
+    // Internal level ids stay 2 (words), 3 (A→Z), 4 (riddles); the player sees them as Level 2, 1, 3 and plays them in that order.
+    const LEVEL_NO={3:1,2:2,4:3}, LEVEL_ORDER=[3,2,4];
     function setLevel(lv){
       level = lv;
       document.querySelectorAll('.btn.level').forEach(b=>b.classList.remove('active'));
-      (lv===1?lv1Btn:lv===2?lv2Btn:lv===3?lv3Btn:lv4Btn).classList.add('active');
-      targetEl.classList.toggle('joke', lv===4); blanksEl.style.display = lv===4 ? '' : 'none';
+      (lv===2?lv2Btn:lv===3?lv3Btn:lv4Btn).classList.add('active');
+      targetEl.classList.toggle('joke', lv===4); blanksEl.style.display = lv===4 ? '' : 'none'; document.getElementById('stageLabel').style.display = lv===4 ? '' : 'none';
       if(lv===1){
         goal = 30;
       } else if(lv===2){
@@ -290,12 +292,12 @@
         alphabetIndex = 0;
       } else {
         goal = 5;
-        pickJokes();
+        pickRiddles();
       }
       // reset session counters
       score = 0; index = 0; correctKeys = 0; totalKeys = 0; levelStartTime = Date.now();
       scoreMeta.textContent = score+"/"+goal;
-      levelMeta.textContent = lv;
+      levelMeta.textContent = LEVEL_NO[lv];
       newTarget();
       updateProgress();
       inputEl.focus();
@@ -308,7 +310,7 @@
       } else if(level===2){ // random common word
         targetText = commonWords[Math.floor(Math.random()*commonWords.length)];
       } else if(level===4){ // joke: type the letters, punctuation is filled in
-        targetText = jokeSet[score] || '';
+        setStage(0);
       } else { // level 3 A->Z
         const letters="abcdefghijklmnopqrstuvwxyz"; targetText = letters[alphabetIndex%26];
       }
@@ -323,20 +325,19 @@
       const secs=Math.max(0,((Date.now()-levelStartTime)/1000));
       const acc = totalKeys>0 ? (correctKeys/totalKeys*100) : 100;
       const msg=document.getElementById('congratsMsg');
-      msg.innerHTML = `${level===4?"Joke time":"Level "+level} complete!<br>Time: <b>${secs.toFixed(1)}s</b> · Accuracy: <b>${acc.toFixed(1)}%</b><br>Score: ${score}/${goal}`;
+      msg.innerHTML = `${level===4?"Riddle time":"Level "+LEVEL_NO[level]} complete!<br>Time: <b>${secs.toFixed(1)}s</b> · Accuracy: <b>${acc.toFixed(1)}%</b><br>Score: ${score}/${goal}`;
       // Tell the map-quiz home page (when embedded there) so it can list this result.
-      if(level===4){ if(jokeState.done) return; jokeState.done=true; saveJokeState(); }
-      try{ parent.postMessage({type:'typing-result', level, correct:correctKeys, total:totalKeys}, location.origin); }catch(e){}
+      if(level===4){ if(riddleState.done) return; riddleState.done=true; saveRiddleState(); }
+      try{ parent.postMessage({type:'typing-result', level:LEVEL_NO[level], correct:correctKeys, total:totalKeys}, location.origin); }catch(e){}
     }
 
     // --- Events
-    lv1Btn.addEventListener('click',()=>setLevel(1));
     lv2Btn.addEventListener('click',()=>setLevel(2));
     lv3Btn.addEventListener('click',()=>setLevel(3));
     lv4Btn.addEventListener('click',()=>setLevel(4));
     restartBtn.addEventListener('click',()=>setLevel(level));
     document.getElementById('closeCongrats').addEventListener('click',()=>document.getElementById('congrats').classList.remove('show'));
-    document.getElementById('nextLevel').addEventListener('click',()=>{ document.getElementById('congrats').classList.remove('show'); setLevel(level===4?1:level+1); });
+    document.getElementById('nextLevel').addEventListener('click',()=>{ document.getElementById('congrats').classList.remove('show'); setLevel(LEVEL_ORDER[(LEVEL_ORDER.indexOf(level)+1)%LEVEL_ORDER.length]); });
 
     inputEl.addEventListener('keydown',(e)=>{
       if(e.key==='Backspace'){
@@ -350,7 +351,10 @@
         totalKeys++;
         if(targetText[index].toLowerCase()===e.key.toLowerCase()){
           correctKeys++; index++; skipAuto();
-          if(index>=targetText.length){ renderBlanks(); celebrateBig(pickPraise()); finishItem(); return; }
+          if(index>=targetText.length){
+            if(riddleStage===0){ flash('Now the answer!'); setStage(1); renderTarget(); skipAuto(); renderBlanks(); highlightNext(); if(index<targetText.length) return; }
+            renderBlanks(); celebrateBig(pickPraise()); finishItem(); return;
+          }
           renderBlanks(); renderTarget(); highlightNext();
         } else { renderBlanks(index); setTimeout(()=>renderBlanks(),250); }
         return;
@@ -378,7 +382,7 @@
 
     // Init
     buildKeyboard();
-    setLevel(1);
+    setLevel(3);
     // expose for re-inits on duplicate mounts
     window.buildKeyboard = buildKeyboard;
     window.setLevel = setLevel;
@@ -389,7 +393,7 @@
         const r1=document.getElementById('row1');
         if(r1 && r1.children.length===0) buildKeyboard();
         const t=document.getElementById('target');
-        if(t && t.textContent.trim().length===0) setLevel(1);
+        if(t && t.textContent.trim().length===0) setLevel(3);
       }catch(e){}
     });
   </script>
