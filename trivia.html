@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Daily 10 Questions</title>
+  <style>
+    :root{--muted:#afafaf;--text:#3c3c3c;--green:#58cc02;--green-d:#46a302;--blue:#1cb0f6;--red:#ea2b2b;--line:#e5e5e5}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Segoe UI","Nunito",system-ui,sans-serif;font-weight:600;background:#fff;color:var(--text)}
+    .wrap{max-width:720px;margin:0 auto;padding:4px 2px 16px}
+    .card{background:#fff;border:2px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 3px 0 var(--line)}
+    h1{margin:0 0 6px;font-size:1.2rem;font-weight:800;color:var(--green)}
+    .meta{font-size:.8rem;color:var(--muted);margin:0 0 12px}
+    .q{font-size:1.1rem;line-height:1.4;margin:10px 0 14px}
+    .tag{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--blue);margin-right:8px}
+    .opt{display:block;width:100%;text-align:left;margin:0 0 8px;padding:10px 14px;background:#fff;color:var(--text);border:2px solid var(--line);border-radius:14px;box-shadow:0 3px 0 var(--line);font:inherit;cursor:pointer}
+    .opt:disabled{cursor:default}
+    .opt.ok{background:#d7ffb8;border-color:var(--green)}
+    .opt.bad{background:#ffdfe0;border-color:var(--red)}
+    .btn{appearance:none;background:var(--green);color:#fff;border:0;padding:8px 18px;border-radius:14px;font:inherit;font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;cursor:pointer;box-shadow:0 4px 0 var(--green-d)}
+    .progress{height:10px;background:var(--line);border-radius:999px;overflow:hidden;margin:0 0 10px}
+    .progress>span{display:block;height:100%;width:0;background:var(--green)}
+    .credit{font-size:.65rem;color:var(--muted);margin:12px 2px 0;line-height:1.4}
+    ul{padding-left:18px;margin:8px 0}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card" id="card"></div>
+  <p class="credit">Questions: <a href="https://opentdb.com" target="_blank" rel="noopener">Open Trivia DB</a> (CC BY-SA 4.0) and the U.S. Department of Energy National Science Bowl practice rounds. Each day is the next 10 questions, easiest first.</p>
+</div>
+<script>
+const PER_DAY = 10;
+const NAMES = { geo: "Geography", chem: "Chemistry", life: "Life Science", phys: "Physics & Space", hist: "History & Society" };
+const cat = new URLSearchParams(location.search).get("cat");
+const KEY = "map-quiz-trivia-" + cat;
+const card = document.getElementById("card");
+const today = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })();
+
+// state: { date, from, done } - done = score of today's set once finished.
+// A new day moves on to the next 10 only if yesterday's set was finished.
+function loadState() {
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) { /* storage unavailable */ }
+  if (!s) s = { date: today, from: 0, done: null };
+  else if (s.date !== today) s = { date: today, from: s.done ? s.from + PER_DAY : s.from, done: null };
+  return s;
+}
+function saveState(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { /* storage unavailable */ } }
+
+let state, set, i, correct, missed, practiceRun = false;
+const esc = t => String(t).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+
+fetch(`data/trivia/${cat}.json`).then(r => r.json()).then(bank => {
+  state = loadState();
+  saveState(state);
+  set = bank.slice(state.from, state.from + PER_DAY);
+  if (!set.length) { card.innerHTML = `<h1>${NAMES[cat]}</h1><p>You have finished the whole question bank (${bank.length} questions). 🎉</p>`; return; }
+  state.done ? showDone() : showIntro(bank.length);
+}).catch(() => { card.textContent = "Could not load questions."; });
+
+function showIntro(total) {
+  const levels = [...new Set(set.map(q => q.d))].join(" / ");
+  card.innerHTML = `<h1>${NAMES[cat]} · Daily ${set.length}</h1>` +
+    `<p class="meta">Questions ${state.from + 1}–${state.from + set.length} of ${total} · ${levels}</p>` +
+    `<button class="btn" id="start">Start</button>`;
+  document.getElementById("start").onclick = () => start(false);
+}
+function showDone() {
+  card.innerHTML = `<h1>${NAMES[cat]} · Done for today ✓</h1><p class="meta">Score ${state.done.correct} / ${state.done.total}. Come back tomorrow for the next ${PER_DAY}.</p>` +
+    `<button class="btn" id="again">Practice again</button>`;
+  document.getElementById("again").onclick = () => start(true);
+}
+function start(practice) {
+  i = 0; correct = 0; missed = []; practiceRun = practice;
+  show();
+}
+function show() {
+  const q = set[i];
+  card.innerHTML = `<div class="progress"><span style="width:${100 * i / set.length}%"></span></div>` +
+    `<p class="meta"><span class="tag">${q.d}</span>${i + 1} / ${set.length}</p><p class="q">${esc(q.q)}</p>` +
+    q.a.map((t, k) => `<button class="opt" data-k="${k}">${esc(t)}</button>`).join("") + `<div id="after"></div>`;
+  card.querySelectorAll(".opt").forEach(b => b.onclick = () => answer(+b.dataset.k));
+}
+function answer(k) {
+  const q = set[i];
+  card.querySelectorAll(".opt").forEach(b => {
+    b.disabled = true;
+    if (+b.dataset.k === q.c) b.classList.add("ok");
+    else if (+b.dataset.k === k) b.classList.add("bad");
+  });
+  if (k === q.c) correct++; else missed.push(q);
+  const last = i === set.length - 1;
+  document.getElementById("after").innerHTML = `<button class="btn" id="next">${last ? "Finish" : "Next"}</button>`;
+  document.getElementById("next").onclick = () => { i++; last ? finish() : show(); };
+}
+function finish() {
+  if (!practiceRun) {
+    state.done = { correct, total: set.length };
+    saveState(state);
+    try { parent.postMessage({ type: "trivia-result", cat, name: NAMES[cat], correct, total: set.length }, location.origin); } catch (e) { /* standalone */ }
+  }
+  card.innerHTML = `<h1>${correct} / ${set.length}</h1>` +
+    (missed.length ? `<p class="meta">Review these:</p><ul>${missed.map(q => `<li>${esc(q.q)} <b>${esc(q.a[q.c])}</b></li>`).join("")}</ul>` : `<p class="meta">Perfect! 🎉</p>`) +
+    `<button class="btn" id="done">OK</button>`;
+  document.getElementById("done").onclick = () => { state.done ? showDone() : showIntro(0); };
+}
+</script>
+</body>
+</html>

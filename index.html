@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>World Countries Map Quiz</title>
-<link rel="stylesheet" href="style.css?v=16">
+<link rel="stylesheet" href="style.css?v=18">
 </head>
 <body>
   <div id="app">
     <header>
-      <h1>Geography &amp; Biology Quiz</h1>
+      <h1>Study Quiz</h1>
       <div id="prompt" style="display:none"></div>
       <div class="header-actions">
         <div id="progress" style="display:none"></div>
@@ -22,10 +22,11 @@
       <div class="home-main">
       <div class="tabs">
         <button class="tab active" data-tab="geo">Geography</button>
-        <button class="tab" data-tab="bio">Biology</button>
         <button class="tab" data-tab="chem">Chemistry</button>
         <button class="tab" data-tab="typing">Typing</button>
-        <button class="tab" data-tab="focus">Focus 专注力</button>
+        <button class="tab" data-tab="life">Life Science</button>
+        <button class="tab" data-tab="phys">Physics &amp; Space</button>
+        <button class="tab" data-tab="hist">History &amp; Society</button>
       </div>
       <section class="continent-group">
         <h2 class="continent-title">Europe</h2>
@@ -378,138 +379,6 @@
         </div>
       </section>
 
-      <section class="continent-group" data-tab="bio">
-        <h2 class="continent-title">Human Body</h2>
-        <div class="region-grid">
-          <div class="region-card" data-region="body-organs">
-            <h3>Major Organs</h3>
-            <p class="region-meta">10 parts</p>
-            <p class="region-progress"></p>
-            <div class="card-actions">
-              <button class="learn-action" data-region="body-organs">Learn</button>
-              <button class="quiz-action" data-region="body-organs">Quiz</button>
-            </div>
-          </div>
-          <div class="region-card" data-region="body-more">
-            <h3>More Organs</h3>
-            <p class="region-meta">10 parts</p>
-            <p class="region-progress"></p>
-            <div class="card-actions">
-              <button class="learn-action" data-region="body-more">Learn</button>
-              <button class="quiz-action" data-region="body-more">Quiz</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="continent-group" data-tab="bio">
-        <h2 class="continent-title">Brain</h2>
-        <div class="region-grid">
-          <div class="region-card" data-region="brain-lobes">
-            <h3>Lobes</h3>
-            <p class="region-meta">7 parts</p>
-            <p class="region-progress"></p>
-            <div class="card-actions">
-              <button class="learn-action" data-region="brain-lobes">Learn</button>
-              <button class="quiz-action" data-region="brain-lobes">Quiz</button>
-            </div>
-          </div>
-          <div class="region-card" data-region="brain-inner">
-            <h3>Inner Brain</h3>
-            <p class="region-meta">7 parts</p>
-            <p class="region-progress"></p>
-            <div class="card-actions">
-              <button class="learn-action" data-region="brain-inner">Learn</button>
-              <button class="quiz-action" data-region="brain-inner">Quiz</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="continent-group" data-tab="bio">
-        <h2 class="continent-title">Cells</h2>
-        <div class="region-grid">
-          <div class="region-card" data-region="acell-organelles">
-            <h3>Animal Cell</h3>
-            <p class="region-meta">10 parts</p>
-            <p class="region-progress"></p>
-            <div class="card-actions">
-              <button class="learn-action" data-region="acell-organelles">Learn</button>
-              <button class="quiz-action" data-region="acell-organelles">Quiz</button>
-            </div>
-          </div>
-          <div class="region-card" data-region="pcell-organelles">
-            <h3>Plant Cell</h3>
-            <p class="region-meta">10 parts</p>
-            <p class="region-progress"></p>
-            <div class="card-actions">
-              <button class="learn-action" data-region="pcell-organelles">Learn</button>
-              <button class="quiz-action" data-region="pcell-organelles">Quiz</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="continent-group" data-tab="bio">
-        <h2 class="continent-title">Matching</h2>
-        <div class="region-grid">
-          <div class="region-card" data-region="match-aa1">
-            <h3>Amino Acids 1</h3>
-            <p class="region-meta">10 pairs</p>
-            <p class="region-progress"></p>
-            <div class="card-actions">
-              <button class="learn-action" data-region="match-aa1">Learn</button>
-              <button class="quiz-action" data-region="match-aa1">Match</button>
-            </div>
-          </div>
-          <div class="region-card" data-region="match-aa2">
-            <h3>Amino Acids 2</h3>
-            <p class="region-meta">10 pairs</p>
-            <p class="region-progress"></p>
-            <div class="card-actions">
-              <button class="learn-action" data-region="match-aa2">Learn</button>
-              <button class="quiz-action" data-region="match-aa2">Match</button>
-            </div>
-          </div>
-          <div class="region-card" data-region="match-organelle">
-            <h3>Organelle Functions</h3>
-            <p class="region-meta">10 pairs</p>
-            <p class="region-progress"></p>
-            <div class="card-actions">
-              <button class="learn-action" data-region="match-organelle">Learn</button>
-              <button class="quiz-action" data-region="match-organelle">Match</button>
-            </div>
-          </div>
-          <div class="region-card" data-region="match-macro">
-            <h3>Macromolecules</h3>
-            <p class="region-meta">6 pairs</p>
-            <p class="region-progress"></p>
-            <div class="card-actions">
-              <button class="learn-action" data-region="match-macro">Learn</button>
-              <button class="quiz-action" data-region="match-macro">Match</button>
-            </div>
-          </div>
-          <div class="region-card" data-region="match-vitamin">
-            <h3>Vitamins</h3>
-            <p class="region-meta">10 pairs</p>
-            <p class="region-progress"></p>
-            <div class="card-actions">
-              <button class="learn-action" data-region="match-vitamin">Learn</button>
-              <button class="quiz-action" data-region="match-vitamin">Match</button>
-            </div>
-          </div>
-          <div class="region-card" data-region="match-roots">
-            <h3>Word Roots</h3>
-            <p class="region-meta">10 pairs</p>
-            <p class="region-progress"></p>
-            <div class="card-actions">
-              <button class="learn-action" data-region="match-roots">Learn</button>
-              <button class="quiz-action" data-region="match-roots">Match</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section class="continent-group" data-tab="chem">
         <h2 class="continent-title">Periodic Table</h2>
         <div class="region-grid">
@@ -702,12 +571,33 @@
         </div>
       </section>
 
-      <section class="continent-group" data-tab="typing">
-        <iframe class="typing-frame" src="typing.html" title="Typing trainer" loading="lazy"></iframe>
+      <section class="continent-group" data-tab="geo">
+        <h2 class="continent-title">Daily 10 Questions</h2>
+        <iframe class="trivia-frame" src="trivia.html?cat=geo" title="Geography daily questions" loading="lazy"></iframe>
       </section>
 
-      <section class="continent-group" data-tab="focus">
-        <iframe class="focus-frame" src="focus.html?v=local61" title="20款专注力认知训练与记录" loading="lazy"></iframe>
+      <section class="continent-group" data-tab="chem">
+        <h2 class="continent-title">Daily 10 Questions</h2>
+        <iframe class="trivia-frame" src="trivia.html?cat=chem" title="Chemistry daily questions" loading="lazy"></iframe>
+      </section>
+
+      <section class="continent-group" data-tab="life">
+        <h2 class="continent-title">Daily 10 Questions</h2>
+        <iframe class="trivia-frame" src="trivia.html?cat=life" title="Life Science daily questions" loading="lazy"></iframe>
+      </section>
+
+      <section class="continent-group" data-tab="phys">
+        <h2 class="continent-title">Daily 10 Questions</h2>
+        <iframe class="trivia-frame" src="trivia.html?cat=phys" title="Physics & Space daily questions" loading="lazy"></iframe>
+      </section>
+
+      <section class="continent-group" data-tab="hist">
+        <h2 class="continent-title">Daily 10 Questions</h2>
+        <iframe class="trivia-frame" src="trivia.html?cat=hist" title="History & Society daily questions" loading="lazy"></iframe>
+      </section>
+
+      <section class="continent-group" data-tab="typing">
+        <iframe class="typing-frame" src="typing.html" title="Typing trainer" loading="lazy"></iframe>
       </section>
 
       <section class="continent-group">
@@ -729,7 +619,6 @@
         <h2>Today's Results</h2>
         <p id="today-results-empty">No quizzes completed yet today.</p>
         <ul id="today-results-list"></ul>
-        <p class="credit">Body and brain diagrams: <a href="https://github.com/ebi-gene-expression-group/anatomogram" target="_blank" rel="noopener">Expression Atlas Anatomogram</a> (EMBL-EBI). Cell diagrams: <a href="https://www.swissbiopics.org/" target="_blank" rel="noopener">SwissBioPics</a> (SIB Swiss Institute of Bioinformatics) via <a href="https://github.com/duerrsimon/bioicons" target="_blank" rel="noopener">bioicons</a>. All <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>, trimmed and recolored.</p>
       </aside>
     </div>
 
@@ -761,6 +650,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=99"></script>
+  <script src="app.js?v=101"></script>
 </body>
 </html>

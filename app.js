@@ -34,12 +34,6 @@ const CONTINENT_SVG = {
   // reused as-is for the world quiz, just shown at its full extent instead
   // of cropped to Asia's bounding box.
   world: "maps/asia.svg",
-  body: "maps/body.svg",
-  // Biology diagrams (CC BY 4.0, see credits in index.html). Each region key's
-  // prefix picks its SVG: brain-*, acell-*, pcell-*.
-  brain: "maps/brain.svg",
-  acell: "maps/acell.svg",
-  pcell: "maps/pcell.svg",
   // Chemistry: a generated periodic-table grid, elem-N regions = 10 elements each.
   elem: "maps/elements.svg",
   // Subdivision maps (US states, Chinese provinces, Canadian provinces/territories).
@@ -50,7 +44,7 @@ const CONTINENT_SVG = {
   jp: "maps/jp.svg",
   de: "maps/de.svg"
 };
-const DATA_FILES = ["data/europe.json", "data/africa.json", "data/americas.json", "data/asia.json", "data/body.json", "data/biology.json", "data/elements.json", "data/match.json",
+const DATA_FILES = ["data/europe.json", "data/africa.json", "data/americas.json", "data/asia.json", "data/elements.json", "data/match.json",
   "data/us.json", "data/cn.json", "data/ca.json", "data/jp.json", "data/de.json"];
 // Geography units are two-letter country codes; biology units are
 // "<letter>-<part>" (b-heart, n-thalamus, c-vacuole...) with one letter per
@@ -75,10 +69,7 @@ const REGION_VIEWBOX = {
   "jp-2": "546 350 255 257",
   "jp-3": "502 458 232 178",
   "jp-4": "371 458 190 212",
-  "jp-5": "163 500 303 493",
-  // brain.svg packs four views into one file; each round shows one of them.
-  "brain-lobes": "76 68 70 54",
-  "brain-inner": "-2 68 64 55"
+  "jp-5": "163 500 303 493"
 };
 
 function applyRegionViewBox(region) {
@@ -99,7 +90,7 @@ const titleEl = document.querySelector("header h1");
 const DEFAULT_TITLE = titleEl.textContent;
 
 // Which home-page tab a region's card sits under (sections without data-tab are geography).
-const SUBJECTS = { bio: "Biology", chem: "Chemistry", typing: "Typing", focus: "Focus 专注力" };
+const SUBJECTS = { chem: "Chemistry", typing: "Typing", life: "Life Science", phys: "Physics & Space", hist: "History & Society" };
 function subjectOf(region) {
   const section = document.querySelector(`.region-card[data-region="${region}"]`)?.closest(".continent-group");
   return SUBJECTS[section?.dataset.tab] || "Geography";
@@ -275,12 +266,12 @@ function continentCountries(continent) {
   return countries.filter(c => continentOf(c.region) === continent);
 }
 
-// Ebbinghaus-style spaced repetition for the geo/bio/chem tabs: each unit
+// Ebbinghaus-style spaced repetition for the geo/chem tabs: each unit
 // (region card) shows up one at a time. A perfect first-try quiz moves it to
 // the next interval; any miss sends it back to tomorrow.
 const SRS_KEY = "map-quiz-srs"; // { [region]: { step, due: "YYYY-MM-DD" } }
 const SRS_DAYS = [1, 2, 4, 7, 15, 30, 60];
-const SRS_TABS = ["geo", "bio", "chem"];
+const SRS_TABS = ["geo", "chem"];
 let srs = {};
 try { srs = JSON.parse(localStorage.getItem(SRS_KEY)) || {}; } catch (e) { srs = {}; }
 
@@ -309,8 +300,8 @@ document.querySelector(".home-main .tabs").after(srsPanelEl);
 // through the review schedule.
 const DAILY_START_KEY = "map-quiz-daily-start";
 const GEO_LANES = [
-  { name: "洲", prefixes: ["africa", "europe", "asia", "americas"] },
-  { name: "国家", prefixes: ["cn", "us", "ca", "jp", "de"] }
+  { name: "Continent", prefixes: ["africa", "europe", "asia", "americas"] },
+  { name: "Country", prefixes: ["cn", "us", "ca", "jp", "de"] }
 ];
 
 function daysSinceDailyStart() {
@@ -352,7 +343,7 @@ function renderSrs() {
     .filter(card => (card.closest(".continent-group").dataset.tab || "geo") === homeTab && card.dataset.region !== "world");
   const toggle = document.createElement("button");
   toggle.className = "srs-toggle";
-  toggle.textContent = srsShowAll ? "返回复习" : "显示全部";
+  toggle.textContent = srsShowAll ? "Back to review" : "Show all";
   toggle.addEventListener("click", () => { srsShowAll = !srsShowAll; showTab(homeTab); });
   srsPanelEl.innerHTML = "";
   if (srsShowAll) { srsPanelEl.appendChild(toggle); return; }
@@ -368,19 +359,19 @@ function renderSrs() {
       return { lane, unit: list[day], total: list.length };
     });
     const todays = daily.map(d => d.unit).filter(Boolean);
-    cards = [...todays.map((u, i) => unitCard(u, `今日${daily.find(d => d.unit === u).lane.name}`)),
-      ...due.filter(u => !todays.includes(u)).map(u => unitCard(u, "复习"))];
-    info.textContent = daily.map(d => `${d.lane.name} ${Math.min(day + 1, d.total)}/${d.total}`).join(" · ") + ` · 待复习 ${due.length}`;
+    cards = [...todays.map((u, i) => unitCard(u, `Today · ${daily.find(d => d.unit === u).lane.name}`)),
+      ...due.filter(u => !todays.includes(u)).map(u => unitCard(u, "Review"))];
+    info.textContent = daily.map(d => `${d.lane.name} ${Math.min(day + 1, d.total)}/${d.total}`).join(" · ") + ` · Due ${due.length}`;
   } else {
     const fresh = units.filter(c => !srs[c.dataset.region]);
     const next = due[0] || fresh[0];
-    cards = next ? [unitCard(next, due[0] ? "复习" : "新单元")] : [];
-    info.textContent = `待复习 ${due.length} · 未学 ${fresh.length} · 已安排 ${units.length - due.length - fresh.length}`;
+    cards = next ? [unitCard(next, due[0] ? "Review" : "New unit")] : [];
+    info.textContent = `Due ${due.length} · New ${fresh.length} · Scheduled ${units.length - due.length - fresh.length}`;
   }
   const row = document.createElement("div");
   row.className = "srs-cards";
   if (cards.length) row.append(...cards);
-  else row.append(Object.assign(document.createElement("h3"), { textContent: "今天的任务都完成了 🎉" }));
+  else row.append(Object.assign(document.createElement("h3"), { textContent: "All done for today 🎉" }));
   srsPanelEl.append(row, info, toggle);
 }
 
@@ -406,15 +397,14 @@ Promise.all(DATA_FILES.map(f => fetch(f, { cache: "no-store" }).then(r => r.json
 renderTodayResults();
 
 // Home-screen tabs: every section is geography unless it carries
-// data-tab="bio", so a new biology topic is just another tagged section.
+// a data-tab attribute, so a new topic is just another tagged section.
 const TAB_KEY = "map-quiz-tab";
+const TABS = ["geo", "chem", "typing", "life", "phys", "hist"];
 function showTab(tab) {
-  document.body.classList.toggle('focus-tab-view', tab === 'focus');
-  document.querySelector('.focus-frame')?.contentWindow?.postMessage({ type: 'focus-host-visible', visible: tab === 'focus' }, location.origin);
   document.querySelectorAll(".home-main .continent-group").forEach(section => {
     const sectionTab = section.dataset.tab || "geo";
     // SRS tabs show one unit at a time (renderSrs); only the World quiz grid stays.
-    const show = sectionTab === tab && (!SRS_TABS.includes(tab) || srsShowAll || section.querySelector('[data-region="world"]'));
+    const show = sectionTab === tab && (!SRS_TABS.includes(tab) || srsShowAll || section.querySelector('[data-region="world"], .trivia-frame'));
     section.style.display = show ? "" : "none";
   });
   homeTab = tab;
@@ -425,8 +415,8 @@ function showTab(tab) {
 document.querySelectorAll(".tabs .tab").forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
 showTab((() => {
   const urlTab = new URLSearchParams(location.search).get("tab");
-  if (["bio", "chem", "typing", "focus", "geo"].includes(urlTab)) return urlTab;
-  try { const t = localStorage.getItem(TAB_KEY); return ["bio", "chem", "typing", "focus"].includes(t) ? t : "geo"; } catch (e) { return "geo"; }
+  if (TABS.includes(urlTab)) return urlTab;
+  try { const t = localStorage.getItem(TAB_KEY); return TABS.includes(t) ? t : "geo"; } catch (e) { return "geo"; }
 })());
 
 // The Typing tab embeds typing.html, which posts a result when a level ends.
@@ -434,6 +424,11 @@ window.addEventListener("message", e => {
   const d = e.data;
   if (e.origin !== location.origin || !d || d.type !== "typing-result") return;
   addTodayResult(null, d.correct, d.total, `Level ${d.level}`, "Typing");
+});
+window.addEventListener("message", e => {
+  const d = e.data;
+  if (e.origin !== location.origin || !d || d.type !== "trivia-result") return;
+  addTodayResult(null, d.correct, d.total, "Daily 10 Questions", d.name);
 });
 
 // Rebuilds click/hover/drag handling for whichever SVG is currently loaded.
