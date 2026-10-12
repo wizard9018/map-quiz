@@ -19,6 +19,8 @@
     .opt.ok{background:#d7ffb8;border-color:var(--green)}
     .opt.bad{background:#ffdfe0;border-color:var(--red)}
     .btn{appearance:none;background:var(--green);color:#fff;border:0;padding:8px 18px;border-radius:14px;font:inherit;font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;cursor:pointer;box-shadow:0 4px 0 var(--green-d)}
+    .why{margin:12px 0 4px;padding:10px 14px;background:#fff7d6;border:2px solid #ffc800;border-radius:14px;font-size:.95rem;line-height:1.4}
+    .why b{display:block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#b58900;margin-bottom:2px}
     .progress{height:10px;background:var(--line);border-radius:999px;overflow:hidden;margin:0 0 10px}
     .progress>span{display:block;height:100%;width:0;background:var(--green)}
     .credit{font-size:.65rem;color:var(--muted);margin:12px 2px 0;line-height:1.4}
@@ -92,7 +94,8 @@ function answer(k) {
   });
   if (k === q.c) correct++; else missed.push(q);
   const last = i === set.length - 1;
-  document.getElementById("after").innerHTML = `<button class="btn" id="next">${last ? "Finish" : "Next"}</button>`;
+  const why = k !== q.c && q.e ? `<div class="why"><b>Why</b>${esc(q.e)}</div>` : "";
+  document.getElementById("after").innerHTML = why + `<button class="btn" id="next">${last ? "Finish" : "Next"}</button>`;
   document.getElementById("next").onclick = () => { i++; last ? finish() : show(); };
 }
 function finish() {
@@ -102,7 +105,7 @@ function finish() {
     try { parent.postMessage({ type: "trivia-result", cat, name: NAMES[cat], correct, total: set.length }, location.origin); } catch (e) { /* standalone */ }
   }
   card.innerHTML = `<h1>${correct} / ${set.length}</h1>` +
-    (missed.length ? `<p class="meta">Review these:</p><ul>${missed.map(q => `<li>${esc(q.q)} <b>${esc(q.a[q.c])}</b></li>`).join("")}</ul>` : `<p class="meta">Perfect! 🎉</p>`) +
+    (missed.length ? `<p class="meta">Review these:</p><ul>${missed.map(q => `<li>${esc(q.q)} <b>${esc(q.a[q.c])}</b>${q.e ? `<br><small>${esc(q.e)}</small>` : ""}</li>`).join("")}</ul>` : `<p class="meta">Perfect! 🎉</p>`) +
     `<button class="btn" id="done">OK</button>`;
   document.getElementById("done").onclick = () => { state.done ? showDone() : showIntro(0); };
 }
