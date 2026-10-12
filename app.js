@@ -298,37 +298,41 @@ function srsRecord(region, perfect) {
 }
 
 let homeTab = "geo";
+let srsShowAll = false; // true: list every unit card instead of the one-at-a-time view
 const srsPanelEl = document.createElement("div");
 srsPanelEl.id = "srs-panel";
 document.querySelector(".home-main .tabs").after(srsPanelEl);
 
-function renderSrs() {
-  srsPanelEl.style.display = SRS_TABS.includes(homeTab) ? "" : "none";
-  if (!SRS_TABS.includes(homeTab)) return;
-  const today = todayDateStr();
-  const units = [...document.querySelectorAll(".region-card[data-region]")]
-    .filter(card => (card.closest(".continent-group").dataset.tab || "geo") === homeTab && card.dataset.region !== "world");
-  const due = units.filter(c => srs[c.dataset.region] && srs[c.dataset.region].due <= today)
-    .sort((a, b) => srs[a.dataset.region].due.localeCompare(srs[b.dataset.region].due));
-  const fresh = units.filter(c => !srs[c.dataset.region]);
-  const next = due[0] || fresh[0];
-  srsPanelEl.innerHTML = "";
-  const info = document.createElement("p");
-  info.className = "srs-info";
-  info.textContent = `待复习 ${due.length} · 未学 ${fresh.length} · 已安排 ${units.length - due.length - fresh.length}`;
-  if (!next) {
-    srsPanelEl.append(Object.assign(document.createElement("h3"), { textContent: "今天的任务都完成了 🎉" }), info);
-    return;
+// Geography is paced by the calendar: from the day it was first opened, each
+// day unlocks the next unit of the continent lane (Africa first) and of the
+// country lane (China, US, Canada, Japan, Germany); earlier units come back
+// through the review schedule.
+const DAILY_START_KEY = "map-quiz-daily-start";
+const GEO_LANES = [
+  { name: "洲", prefixes: ["africa", "europe", "asia", "americas"] },
+  { name: "国家", prefixes: ["cn", "us", "ca", "jp", "de"] }
+];
+
+function daysSinceDailyStart() {
+  let start;
+  try { start = localStorage.getItem(DAILY_START_KEY); } catch (e) { /* storage unavailable */ }
+  if (!start) {
+    start = todayDateStr();
+    try { localStorage.setItem(DAILY_START_KEY, start); } catch (e) { /* storage unavailable */ }
   }
-  const region = next.dataset.region;
+  return Math.max(0, Math.round((new Date(todayDateStr()) - new Date(start)) / 864e5));
+}
+
+function unitCard(el, kind) {
+  const region = el.dataset.region;
   const card = document.createElement("div");
   card.className = "srs-card";
-  card.innerHTML = `<p class="srs-kind">${due[0] ? "复习" : "新单元"} · ${next.closest(".continent-group").querySelector(".continent-title").textContent}</p>` +
-    `<h3>${next.querySelector("h3").textContent}</h3><p class="region-meta">${next.querySelector(".region-meta").textContent}</p>`;
+  card.innerHTML = `<p class="srs-kind">${kind} · ${el.closest(".continent-group").querySelector(".continent-title").textContent}</p>` +
+    `<h3>${el.querySelector("h3").textContent}</h3><p class="region-meta">${el.querySelector(".region-meta").textContent}</p>`;
   const actions = document.createElement("div");
   actions.className = "card-actions";
   [["learn-action", startLearn], ["quiz-action", startRound]].forEach(([cls, fn]) => {
-    const orig = next.querySelector("." + cls);
+    const orig = el.querySelector("." + cls);
     if (!orig) return;
     const b = document.createElement("button");
     b.className = cls;
@@ -337,13 +341,47 @@ function renderSrs() {
     actions.appendChild(b);
   });
   card.appendChild(actions);
-  srsPanelEl.append(card, info);
-  if (due.length > 1) {
-    const rest = document.createElement("p");
-    rest.className = "srs-info";
-    rest.textContent = "之后复习：" + due.slice(1).map(c => c.querySelector("h3").textContent).join("、");
-    srsPanelEl.appendChild(rest);
+  return card;
+}
+
+function renderSrs() {
+  srsPanelEl.style.display = SRS_TABS.includes(homeTab) ? "" : "none";
+  if (!SRS_TABS.includes(homeTab)) return;
+  const today = todayDateStr();
+  const units = [...document.querySelectorAll(".region-card[data-region]")]
+    .filter(card => (card.closest(".continent-group").dataset.tab || "geo") === homeTab && card.dataset.region !== "world");
+  const toggle = document.createElement("button");
+  toggle.className = "srs-toggle";
+  toggle.textContent = srsShowAll ? "返回复习" : "显示全部";
+  toggle.addEventListener("click", () => { srsShowAll = !srsShowAll; showTab(homeTab); });
+  srsPanelEl.innerHTML = "";
+  if (srsShowAll) { srsPanelEl.appendChild(toggle); return; }
+  const due = units.filter(c => srs[c.dataset.region] && srs[c.dataset.region].due <= today)
+    .sort((a, b) => srs[a.dataset.region].due.localeCompare(srs[b.dataset.region].due));
+  const info = document.createElement("p");
+  info.className = "srs-info";
+  let cards;
+  if (homeTab === "geo") {
+    const day = daysSinceDailyStart();
+    const daily = GEO_LANES.map(lane => {
+      const list = lane.prefixes.flatMap(pre => units.filter(u => u.dataset.region.split("-")[0] === pre));
+      return { lane, unit: list[day], total: list.length };
+    });
+    const todays = daily.map(d => d.unit).filter(Boolean);
+    cards = [...todays.map((u, i) => unitCard(u, `今日${daily.find(d => d.unit === u).lane.name}`)),
+      ...due.filter(u => !todays.includes(u)).map(u => unitCard(u, "复习"))];
+    info.textContent = daily.map(d => `${d.lane.name} ${Math.min(day + 1, d.total)}/${d.total}`).join(" · ") + ` · 待复习 ${due.length}`;
+  } else {
+    const fresh = units.filter(c => !srs[c.dataset.region]);
+    const next = due[0] || fresh[0];
+    cards = next ? [unitCard(next, due[0] ? "复习" : "新单元")] : [];
+    info.textContent = `待复习 ${due.length} · 未学 ${fresh.length} · 已安排 ${units.length - due.length - fresh.length}`;
   }
+  const row = document.createElement("div");
+  row.className = "srs-cards";
+  if (cards.length) row.append(...cards);
+  else row.append(Object.assign(document.createElement("h3"), { textContent: "今天的任务都完成了 🎉" }));
+  srsPanelEl.append(row, info, toggle);
 }
 
 function refreshHomeProgress() {
@@ -376,7 +414,7 @@ function showTab(tab) {
   document.querySelectorAll(".home-main .continent-group").forEach(section => {
     const sectionTab = section.dataset.tab || "geo";
     // SRS tabs show one unit at a time (renderSrs); only the World quiz grid stays.
-    const show = sectionTab === tab && (!SRS_TABS.includes(tab) || section.querySelector('[data-region="world"]'));
+    const show = sectionTab === tab && (!SRS_TABS.includes(tab) || srsShowAll || section.querySelector('[data-region="world"]'));
     section.style.display = show ? "" : "none";
   });
   homeTab = tab;

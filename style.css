@@ -383,3 +383,4 @@ body.focus-tab-view .focus-frame { height: 100%; border-radius: 0; }
 .srs-card h3 { margin: 4px 0; font-size: 1.3rem; }
 .srs-kind { margin: 0; font-size: 0.8rem; color: #eab308; }
 .srs-info { margin: 8px 0 0; font-size: 0.8rem; color: #afafaf; }
+.srs-toggle { margin-top: 10px; background: none; border: 1px solid #475569; color: #afafaf; border-radius: 8px; padding: 4px 12px; cursor: pointer; }
