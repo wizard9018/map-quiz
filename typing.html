@@ -32,6 +32,14 @@
     .typed-bad{background:#ffdfe0;color:#ea2b2b;text-decoration:line-through}
     #typingInput{width:100%;background:#fff;color:var(--text);border-radius:14px;border:2px solid var(--line);padding:10px 12px;font-family:inherit;font-size:1.1rem;font-weight:600;outline:none}
     #typingInput:focus{border-color:var(--blue)}
+    .joke{font-size:1.35rem;line-height:1.5;text-align:center;font-weight:700;margin:6px 0 14px}
+    .blanks{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;margin:0 0 12px;font-size:1.6rem;font-weight:800;letter-spacing:.04em}
+    .blanks .word{display:inline-flex}
+    .blanks .bl{min-width:.8em;text-align:center;border-bottom:3px solid var(--text);margin:0 2px;color:transparent}
+    .blanks .bl.done{color:#58a700;border-bottom-color:var(--green)}
+    .blanks .bl.cur{border-bottom-color:var(--blue)}
+    .blanks .bl.bad{border-bottom-color:#ea2b2b;background:#ffdfe0}
+    .blanks .au{margin:0 1px}
     .progress{height:10px;background:var(--line);border-radius:999px;overflow:hidden;margin:10px 0}
     .progress>span{display:block;height:100%;width:0;background:var(--green);transition:width .2s}
 
@@ -80,6 +88,7 @@
         <button class="btn level active" id="lv1Btn">Level 1 — Random Letters</button>
         <button class="btn level" id="lv2Btn">Level 2 — Common Words</button>
         <button class="btn level" id="lv3Btn">Level 3 — A→Z Order</button>
+        <button class="btn level" id="lv4Btn">Level 4 — Jokes</button>
         <button class="btn ghost" id="restartBtn" style="margin-left:auto">Restart Level</button>
         <label class="pill" style="display:flex; align-items:center; gap:6px; margin-left:8px">
           <input type="checkbox" id="soundToggle" checked /> Sound
@@ -87,6 +96,7 @@
       </div>
       <div class="progress"><span id="progBar"></span></div>
       <div id="target" class="target"></div>
+      <div id="blanks" class="blanks" style="display:none"></div>
       <input type="text" id="typingInput" placeholder="Click here and type…" autocomplete="off" spellcheck="false" />
       <div class="hint" style="color:var(--muted);margin-top:8px">Letters are case‑insensitive. Punctuation is ignored by design on these levels.</div>
     </section>
@@ -175,6 +185,8 @@
     const lv1Btn=document.getElementById('lv1Btn');
     const lv2Btn=document.getElementById('lv2Btn');
     const lv3Btn=document.getElementById('lv3Btn');
+    const lv4Btn=document.getElementById('lv4Btn');
+    const blanksEl=document.getElementById('blanks');
     const restartBtn=document.getElementById('restartBtn');
 
     const toast=document.getElementById('toast');
@@ -241,17 +253,38 @@
 
     let level=1; let goal=30; let score=0; let index=0; let targetText=''; let started=false; let alphabetIndex=0; let levelStartTime=0; let correctKeys=0; let totalKeys=0;
 
+    // --- Level 4: jokes. Sentence on top, underlined blanks below; only letters and spaces are typed.
+    let jokeBank=[], jokeSet=[];
+    fetch('data/jokes.json').then(r=>r.json()).then(j=>{ jokeBank=j; if(level===4) setLevel(4); }).catch(()=>{});
+    function pickJokes(){ const pool=jokeBank.slice(); jokeSet=[]; while(jokeSet.length<5 && pool.length) jokeSet.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]); }
+    const isTyped=ch=>/[a-z]/i.test(ch)||ch===' ';
+    function skipAuto(){ while(index<targetText.length && !isTyped(targetText[index])) index++; }
+    function renderBlanks(wrongAt){
+      blanksEl.innerHTML=''; let word=null;
+      [...targetText].forEach((ch,i)=>{
+        if(ch===' '){ word=null; return; }
+        if(!word){ word=document.createElement('span'); word.className='word'; blanksEl.appendChild(word); }
+        const s=document.createElement('span');
+        if(isTyped(ch)){ s.className='bl'+(i<index?' done':'')+(i===index?' cur':'')+(i===wrongAt?' bad':''); s.textContent=ch; }
+        else { s.className='au'; s.textContent=ch; }
+        word.appendChild(s);
+      });
+    }
     function setLevel(lv){
       level = lv;
       document.querySelectorAll('.btn.level').forEach(b=>b.classList.remove('active'));
-      (lv===1?lv1Btn:lv===2?lv2Btn:lv3Btn).classList.add('active');
+      (lv===1?lv1Btn:lv===2?lv2Btn:lv===3?lv3Btn:lv4Btn).classList.add('active');
+      targetEl.classList.toggle('joke', lv===4); blanksEl.style.display = lv===4 ? '' : 'none';
       if(lv===1){
         goal = 30;
       } else if(lv===2){
         goal = 20;
-      } else {
+      } else if(lv===3){
         goal = 26;
         alphabetIndex = 0;
+      } else {
+        goal = 5;
+        pickJokes();
       }
       // reset session counters
       score = 0; index = 0; correctKeys = 0; totalKeys = 0; levelStartTime = Date.now();
@@ -268,10 +301,12 @@
         const letters="abcdefghijklmnopqrstuvwxyz"; targetText=letters[Math.floor(Math.random()*letters.length)];
       } else if(level===2){ // random common word
         targetText = commonWords[Math.floor(Math.random()*commonWords.length)];
+      } else if(level===4){ // joke: type the letters, punctuation is filled in
+        targetText = jokeSet[score] || '';
       } else { // level 3 A->Z
         const letters="abcdefghijklmnopqrstuvwxyz"; targetText = letters[alphabetIndex%26];
       }
-      renderTarget(); highlightNext(); inputEl.value=''; started=false; }
+      renderTarget(); if(level===4){ skipAuto(); renderBlanks(); } highlightNext(); inputEl.value=''; started=false; }
 
     function finishItem(){ score++; flash('Nice!'); updateProgress(); if(level===3){ alphabetIndex++; }
       if(score>=goal){ showCongrats(); } else { newTarget(); } }
@@ -282,7 +317,7 @@
       const secs=Math.max(0,((Date.now()-levelStartTime)/1000));
       const acc = totalKeys>0 ? (correctKeys/totalKeys*100) : 100;
       const msg=document.getElementById('congratsMsg');
-      msg.innerHTML = `Level ${level} complete!<br>Time: <b>${secs.toFixed(1)}s</b> · Accuracy: <b>${acc.toFixed(1)}%</b><br>Score: ${score}/${goal}`;
+      msg.innerHTML = `${level===4?"Joke time":"Level "+level} complete!<br>Time: <b>${secs.toFixed(1)}s</b> · Accuracy: <b>${acc.toFixed(1)}%</b><br>Score: ${score}/${goal}`;
       // Tell the map-quiz home page (when embedded there) so it can list this result.
       try{ parent.postMessage({type:'typing-result', level, correct:correctKeys, total:totalKeys}, location.origin); }catch(e){}
     }
@@ -291,9 +326,10 @@
     lv1Btn.addEventListener('click',()=>setLevel(1));
     lv2Btn.addEventListener('click',()=>setLevel(2));
     lv3Btn.addEventListener('click',()=>setLevel(3));
+    lv4Btn.addEventListener('click',()=>setLevel(4));
     restartBtn.addEventListener('click',()=>setLevel(level));
     document.getElementById('closeCongrats').addEventListener('click',()=>document.getElementById('congrats').classList.remove('show'));
-    document.getElementById('nextLevel').addEventListener('click',()=>{ document.getElementById('congrats').classList.remove('show'); setLevel(level===3?1:level+1); });
+    document.getElementById('nextLevel').addEventListener('click',()=>{ document.getElementById('congrats').classList.remove('show'); setLevel(level===4?1:level+1); });
 
     inputEl.addEventListener('keydown',(e)=>{
       if(e.key==='Backspace'){
@@ -301,6 +337,17 @@
         return;
       }
       if(e.key.length!==1) return;
+      if(level===4){
+        e.preventDefault();
+        if(!targetText) return;
+        totalKeys++;
+        if(targetText[index].toLowerCase()===e.key.toLowerCase()){
+          correctKeys++; index++; skipAuto();
+          if(index>=targetText.length){ renderBlanks(); celebrateBig(pickPraise()); finishItem(); return; }
+          renderBlanks(); renderTarget(); highlightNext();
+        } else { renderBlanks(index); setTimeout(()=>renderBlanks(),250); }
+        return;
+      }
       totalKeys++;
       const expected=targetText[index] || targetText; // single-letter levels use [0]
       const ok = expected.toLowerCase() === e.key.toLowerCase();
