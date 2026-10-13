@@ -191,6 +191,8 @@ body:has(#home-screen[style*="none"]) header .tabs { display: none; }
   flex-shrink: 0;
 }
 .tabs .tab:hover { background: #f7f7f7; }
+.tabs .tab[data-done="1"]::after { content: " ✓"; color: #58cc02; font-weight: 900; }
+.tabs .tab.active[data-done="1"]::after { color: #ffffff; }
 .tabs .tab.active { background: #1cb0f6; color: #ffffff; border-color: #1899d6; box-shadow: 0 3px 0 #1899d6; }
 
 #today-results {

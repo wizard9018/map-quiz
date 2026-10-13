@@ -313,6 +313,24 @@ function daysSinceDailyStart() {
   return Math.max(0, Math.round((new Date(todayDateStr()) - new Date(start)) / 864e5));
 }
 
+// What a tab asks for today. Shared by the review panel and the tab checkmarks.
+function tabUnits(tab) {
+  return [...document.querySelectorAll(".region-card[data-region]")]
+    .filter(card => (card.closest(".continent-group").dataset.tab || "geo") === tab && card.dataset.region !== "world");
+}
+function dueUnits(units) {
+  const today = todayDateStr();
+  return units.filter(c => srs[c.dataset.region] && srs[c.dataset.region].due <= today)
+    .sort((a, b) => srs[a.dataset.region].due.localeCompare(srs[b.dataset.region].due));
+}
+function geoDaily(units) {
+  const day = daysSinceDailyStart();
+  return GEO_LANES.map(lane => {
+    const list = lane.prefixes.flatMap(pre => units.filter(u => u.dataset.region.split("-")[0] === pre));
+    return { lane, unit: list[day], total: list.length };
+  });
+}
+
 function unitCard(el, kind) {
   const region = el.dataset.region;
   const card = document.createElement("div");
@@ -337,26 +355,20 @@ function unitCard(el, kind) {
 function renderSrs() {
   srsPanelEl.style.display = SRS_TABS.includes(homeTab) ? "" : "none";
   if (!SRS_TABS.includes(homeTab)) return;
-  const today = todayDateStr();
-  const units = [...document.querySelectorAll(".region-card[data-region]")]
-    .filter(card => (card.closest(".continent-group").dataset.tab || "geo") === homeTab && card.dataset.region !== "world");
+  const units = tabUnits(homeTab);
   const toggle = document.createElement("button");
   toggle.className = "srs-toggle";
   toggle.textContent = srsShowAll ? "Back to review" : "Show all";
   toggle.addEventListener("click", () => { srsShowAll = !srsShowAll; showTab(homeTab); });
   srsPanelEl.innerHTML = "";
   if (srsShowAll) { srsPanelEl.appendChild(toggle); return; }
-  const due = units.filter(c => srs[c.dataset.region] && srs[c.dataset.region].due <= today)
-    .sort((a, b) => srs[a.dataset.region].due.localeCompare(srs[b.dataset.region].due));
+  const due = dueUnits(units);
   const info = document.createElement("p");
   info.className = "srs-info";
   let cards;
   if (homeTab === "geo") {
     const day = daysSinceDailyStart();
-    const daily = GEO_LANES.map(lane => {
-      const list = lane.prefixes.flatMap(pre => units.filter(u => u.dataset.region.split("-")[0] === pre));
-      return { lane, unit: list[day], total: list.length };
-    });
+    const daily = geoDaily(units);
     const todays = daily.map(d => d.unit).filter(Boolean);
     cards = [...todays.map(u => unitCard(u, `Today · ${daily.find(d => d.unit === u).lane.name}`)),
       ...due.filter(u => !todays.includes(u)).map(u => unitCard(u, "Review"))];
@@ -374,8 +386,27 @@ function renderSrs() {
   srsPanelEl.append(row, info, toggle);
 }
 
+// A tab gets a checkmark once everything it asks for today is done: the Daily 10 questions
+// (their state is kept by trivia.html), plus no reviews left and, for Geography, both of
+// today's new units quizzed; for Typing, all three levels (typing.html keeps that state).
+function storedToday(key) {
+  try { const s = JSON.parse(localStorage.getItem(key)); return s && s.date === todayDateStr() ? s : null; } catch (e) { return null; }
+}
+function tabDone(tab) {
+  if (tab === "typing") return !!storedToday("map-quiz-typing-day")?.posted;
+  if (!storedToday("map-quiz-trivia-" + tab)?.done) return false;
+  if (!SRS_TABS.includes(tab)) return true;
+  const units = tabUnits(tab);
+  if (dueUnits(units).length) return false;
+  return tab !== "geo" || geoDaily(units).every(d => !d.unit || srs[d.unit.dataset.region]);
+}
+function updateTabChecks() {
+  document.querySelectorAll(".tabs .tab").forEach(btn => { btn.dataset.done = tabDone(btn.dataset.tab) ? "1" : ""; });
+}
+
 function refreshHomeProgress() {
   renderSrs();
+  updateTabChecks();
   homeScreenEl.querySelectorAll(".region-card").forEach(card => {
     const region = card.dataset.region;
     const list = regionCountries(region);
@@ -422,12 +453,14 @@ showTab((() => {
 window.addEventListener("message", e => {
   const d = e.data;
   if (e.origin !== location.origin || !d || d.type !== "typing-result") return;
-  addTodayResult(null, d.correct, d.total, `Level ${d.level}`, "Typing");
+  addTodayResult(null, d.correct, d.total, d.level === "all" ? "Daily Typing" : `Level ${d.level}`, "Typing");
+  updateTabChecks();
 });
 window.addEventListener("message", e => {
   const d = e.data;
   if (e.origin !== location.origin || !d || d.type !== "trivia-result") return;
   addTodayResult(null, d.correct, d.total, "Daily 10 Questions", d.name);
+  updateTabChecks();
 });
 
 // Rebuilds click/hover/drag handling for whichever SVG is currently loaded.
