@@ -1,0 +1,23 @@
+[
+  {"title":"两只老虎","lines":[
+    {"zh":"两只老虎","py":"liǎng zhī lǎo hǔ"},
+    {"zh":"跑得快","py":"pǎo de kuài"},
+    {"zh":"一只没有耳朵","py":"yī zhī méi yǒu ěr duo"},
+    {"zh":"一只没有尾巴","py":"yī zhī méi yǒu wěi ba"},
+    {"zh":"真奇怪","py":"zhēn qí guài"}
+  ]},
+  {"title":"茉莉花","lines":[
+    {"zh":"好一朵美丽的茉莉花","py":"hǎo yī duǒ měi lì de mò lì huā"},
+    {"zh":"芬芳美丽满枝桠","py":"fēn fāng měi lì mǎn zhī yā"},
+    {"zh":"又香又白人人夸","py":"yòu xiāng yòu bái rén rén kuā"},
+    {"zh":"让我来将你摘下","py":"ràng wǒ lái jiāng nǐ zhāi xià"},
+    {"zh":"送给别人家","py":"sòng gěi bié rén jiā"},
+    {"zh":"茉莉花呀茉莉花","py":"mò lì huā ya mò lì huā"}
+  ]},
+  {"title":"送别","lines":[
+    {"zh":"长亭外，古道边，芳草碧连天。","py":"cháng tíng wài gǔ dào biān fāng cǎo bì lián tiān"},
+    {"zh":"晚风拂柳笛声残，夕阳山外山。","py":"wǎn fēng fú liǔ dí shēng cán xī yáng shān wài shān"},
+    {"zh":"天之涯，地之角，知交半零落。","py":"tiān zhī yá dì zhī jiǎo zhī jiāo bàn líng luò"},
+    {"zh":"一壶浊酒尽余欢，今宵别梦寒。","py":"yī hú zhuó jiǔ jìn yú huān jīn xiāo bié mèng hán"}
+  ]}
+]

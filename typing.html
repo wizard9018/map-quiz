@@ -32,6 +32,10 @@
     .typed-bad{background:#ffdfe0;color:#ea2b2b;text-decoration:line-through}
     #typingInput{width:100%;background:#fff;color:var(--text);border-radius:14px;border:2px solid var(--line);padding:10px 12px;font-family:inherit;font-size:1.1rem;font-weight:600;outline:none}
     #typingInput:focus{border-color:var(--blue)}
+    .song{font-size:1.7rem;line-height:2.6;text-align:center;font-weight:700;margin:6px 0 10px}
+    .song ruby{margin:0 2px;border-radius:8px;padding:0 2px}
+    .song rt{font-size:.5em;font-weight:600;color:var(--muted)}
+    .song .next{background:#ddf4ff;color:var(--blue-d)}
     .riddle{font-size:1.35rem;line-height:1.5;text-align:center;font-weight:700;margin:6px 0 14px}
     .blanks{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;margin:0 0 12px;font-size:1.6rem;font-weight:800;letter-spacing:.04em}
     .blanks .word{display:inline-flex}
@@ -88,6 +92,7 @@
         <button class="btn level active" id="lv3Btn">Level 1 — A→Z Order</button>
         <button class="btn level" id="lv2Btn">Level 2 — Common Words</button>
         <button class="btn level" id="lv4Btn">Level 3 — Riddles</button>
+        <button class="btn level" id="lv5Btn">Level 4 — Songs</button>
         <button class="btn ghost" id="restartBtn" style="margin-left:auto">Restart Level</button>
         <label class="pill" style="display:flex; align-items:center; gap:6px; margin-left:8px">
           <input type="checkbox" id="soundToggle" checked /> Sound
@@ -185,6 +190,7 @@
     const lv2Btn=document.getElementById('lv2Btn');
     const lv3Btn=document.getElementById('lv3Btn');
     const lv4Btn=document.getElementById('lv4Btn');
+    const lv5Btn=document.getElementById('lv5Btn');
     const blanksEl=document.getElementById('blanks');
     const restartBtn=document.getElementById('restartBtn');
 
@@ -220,9 +226,9 @@
     function clearKeys(){ document.querySelectorAll('.key.active').forEach(k=>k.classList.remove('active')); }
     function clearFingers(){ Object.values(fingerEls).forEach(el=>el.classList.remove('active')); }
 
-    function highlightNext(){ clearKeys(); clearFingers(); const next=targetText[index]; if(next==null) return; [...targetEl.children].forEach((el,i)=>el.classList.toggle('next',i===index)); const id=keyIdMap[next]||keyIdMap[next?.toLowerCase?.()]; if(id) document.getElementById(id)?.classList.add('active'); const low=next.toLowerCase?.(); const f=fingerMap[low]; if(f==='thumbs'){ fingerEls['l-thumb'].classList.add('active'); fingerEls['r-thumb'].classList.add('active'); } else if(f){ fingerEls[f].classList.add('active'); } }
+    function highlightNext(){ clearKeys(); clearFingers(); const next=targetText[index]; if(next==null) return; if(level===5){ const si=sylOf(index); targetEl.querySelectorAll('[data-s]').forEach(el=>el.classList.toggle('next',+el.dataset.s===si)); } else [...targetEl.children].forEach((el,i)=>el.classList.toggle('next',i===index)); const id=keyIdMap[next]||keyIdMap[next?.toLowerCase?.()]; if(id) document.getElementById(id)?.classList.add('active'); const low=next.toLowerCase?.(); const f=fingerMap[low]; if(f==='thumbs'){ fingerEls['l-thumb'].classList.add('active'); fingerEls['r-thumb'].classList.add('active'); } else if(f){ fingerEls[f].classList.add('active'); } }
 
-    function renderTarget(){ targetEl.innerHTML=''; [...targetText].forEach((ch,i)=>{ const span=document.createElement('span'); span.className='char'+(i===index?' next':''); span.textContent=ch; targetEl.appendChild(span); }); }
+    function renderTarget(){ if(level===5) return renderSong(); targetEl.innerHTML=''; [...targetText].forEach((ch,i)=>{ const span=document.createElement('span'); span.className='char'+(i===index?' next':''); span.textContent=ch; targetEl.appendChild(span); }); }
 
     function flash(msg){ toast.textContent=msg||'Great!'; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),700); }
 
@@ -266,6 +272,7 @@
     const isTyped=ch=>/[a-z]/i.test(ch)||ch===' ';
     function skipAuto(){ while(index<targetText.length && !isTyped(targetText[index])) index++; }
     function renderBlanks(wrongAt){
+      if(level===5) return renderSong(wrongAt);
       blanksEl.innerHTML=''; let word=null;
       [...targetText].forEach((ch,i)=>{
         if(ch===' '){ word=null; return; }
@@ -276,23 +283,51 @@
         word.appendChild(s);
       });
     }
-    // Internal level ids stay 2 (words), 3 (A→Z), 4 (riddles); the player sees them as Level 2, 1, 3 and plays them in that order.
+    // --- Level 4: songs. Chinese lyric line on top (tone-marked pinyin above each character); the child types the pinyin
+    // without tones (v for ü) into underlined blanks, one group per character. data/songs.json holds public-domain/folk songs;
+    // an optional data/songs-private.json (git-ignored, same format) is played first.
+    const SONG_KEY='map-quiz-typing-song';
+    let songs=[], song=null, songIdx=0, syl=[], umlaut=[], zhParts=[];
+    try{ songIdx=+JSON.parse(localStorage.getItem(SONG_KEY)).idx||0; }catch(e){}
+    function saveSongIdx(){ try{ localStorage.setItem(SONG_KEY,JSON.stringify({idx:songIdx})); }catch(e){} }
+    const getJson=u=>fetch(u).then(r=>r.ok?r.json():[]).catch(()=>[]);
+    Promise.all([getJson('data/songs-private.json'),getJson('data/songs.json')]).then(([priv,pub])=>{ songs=[...priv,...pub].filter(s=>s&&s.lines&&s.lines.length); if(level===5) setLevel(5); });
+    const toneless=p=>p.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    function sylOf(i){ let n=0,acc=0; for(const s of syl){ acc+=s.length; if(i<acc) return n; n++; } return syl.length; }
+    function pickSong(){ song=songs.length?songs[songIdx%songs.length]:null; document.getElementById('hintEl').textContent='Type the pinyin of each character, without tones (type v for ü). Song: '+(song?song.title:'—'); }
+    function setSongLine(){
+      zhParts=[]; syl=[]; umlaut=[]; const line=song&&song.lines[score]; if(!line){ targetText=''; return; }
+      const py=line.py.trim().split(/\s+/); let k=0;
+      for(const ch of line.zh){ if(/[\u4e00-\u9fff]/.test(ch)&&k<py.length){ const p=py[k]; zhParts.push({ch,py:p,s:k}); syl.push(toneless(p)); [...p].forEach(c=>umlaut.push(/[üǖǘǚǜ]/i.test(c))); k++; } else zhParts.push({ch}); }
+      targetText=syl.join(''); umlaut.length=targetText.length;
+      document.getElementById('stageLabel').textContent=song.title+' · line '+(score+1)+' of '+goal;
+    }
+    function renderSong(wrongAt){
+      targetEl.innerHTML=''; blanksEl.innerHTML='';
+      zhParts.forEach(z=>{ if(z.py===undefined){ const t=document.createElement('span'); t.textContent=z.ch; targetEl.appendChild(t); return; }
+        const r=document.createElement('ruby'); r.dataset.s=z.s; r.appendChild(document.createTextNode(z.ch)); const rt=document.createElement('rt'); rt.textContent=z.py; r.appendChild(rt); targetEl.appendChild(r); });
+      let pos=0; syl.forEach(s=>{ const w=document.createElement('span'); w.className='word'; [...s].forEach(ch=>{ const b=document.createElement('span'); b.className='bl'+(pos<index?' done':'')+(pos===index?' cur':'')+(pos===wrongAt?' bad':''); b.textContent=ch; w.appendChild(b); pos++; }); blanksEl.appendChild(w); });
+    }
+    // Internal level ids stay 2 (words), 3 (A→Z), 4 (riddles), 5 (songs); the player sees them as Level 2, 1, 3, 4 and plays them in that order.
     const DEFAULT_HINT='Letters are case‑insensitive. Punctuation is ignored by design on these levels.';
-    const LEVEL_NO={3:1,2:2,4:3}, LEVEL_ORDER=[3,2,4];
+    const LEVEL_NO={3:1,2:2,4:3,5:4}, LEVEL_ORDER=[3,2,4,5];
     function setLevel(lv){
       level = lv;
       document.querySelectorAll('.btn.level').forEach(b=>b.classList.remove('active'));
-      (lv===2?lv2Btn:lv===3?lv3Btn:lv4Btn).classList.add('active');
-      targetEl.classList.toggle('riddle', lv===4); blanksEl.style.display = lv===4 ? '' : 'none'; document.getElementById('stageLabel').style.display = lv===4 ? '' : 'none';
-      if(lv!==4) document.getElementById('hintEl').textContent = DEFAULT_HINT;
+      ({2:lv2Btn,3:lv3Btn,4:lv4Btn,5:lv5Btn})[lv].classList.add('active');
+      const typed = lv>=4; targetEl.classList.toggle('riddle', lv===4); targetEl.classList.toggle('song', lv===5); blanksEl.style.display = typed ? '' : 'none'; document.getElementById('stageLabel').style.display = typed ? '' : 'none';
+      if(!typed) document.getElementById('hintEl').textContent = DEFAULT_HINT;
       if(lv===2){
         goal = 20;
       } else if(lv===3){
         goal = 26;
         alphabetIndex = 0;
-      } else {
+      } else if(lv===4){
         goal = 5;
         pickRiddles();
+      } else {
+        pickSong();
+        goal = song ? song.lines.length : 0;
       }
       // reset session counters
       score = 0; index = 0; correctKeys = 0; totalKeys = 0; levelStartTime = Date.now();
@@ -309,6 +344,8 @@
         targetText = commonWords[Math.floor(Math.random()*commonWords.length)];
       } else if(level===4){ // riddle: type the letters, punctuation is filled in
         setStage(0);
+      } else if(level===5){
+        setSongLine();
       } else { // level 3 A->Z
         const letters="abcdefghijklmnopqrstuvwxyz"; targetText = letters[alphabetIndex%26];
       }
@@ -323,9 +360,10 @@
       const secs=Math.max(0,((Date.now()-levelStartTime)/1000));
       const acc = totalKeys>0 ? (correctKeys/totalKeys*100) : 100;
       const msg=document.getElementById('congratsMsg');
-      msg.innerHTML = `${level===4?"Riddle time":"Level "+LEVEL_NO[level]} complete!<br>Time: <b>${secs.toFixed(1)}s</b> · Accuracy: <b>${acc.toFixed(1)}%</b><br>Score: ${score}/${goal}`;
+      msg.innerHTML = `${level===4?"Riddle time":level===5?"Song":"Level "+LEVEL_NO[level]} complete!<br>Time: <b>${secs.toFixed(1)}s</b> · Accuracy: <b>${acc.toFixed(1)}%</b><br>Score: ${score}/${goal}`;
       // Tell the map-quiz home page (when embedded there) so it can list this result.
       if(level===4){ if(riddleState.done) return; riddleState.done=true; saveRiddleState(); }
+      if(level===5){ songIdx++; saveSongIdx(); }
       try{ parent.postMessage({type:'typing-result', level:LEVEL_NO[level], correct:correctKeys, total:totalKeys}, location.origin); }catch(e){}
     }
 
@@ -333,6 +371,7 @@
     lv2Btn.addEventListener('click',()=>setLevel(2));
     lv3Btn.addEventListener('click',()=>setLevel(3));
     lv4Btn.addEventListener('click',()=>setLevel(4));
+    lv5Btn.addEventListener('click',()=>setLevel(5));
     restartBtn.addEventListener('click',()=>setLevel(level));
     document.getElementById('closeCongrats').addEventListener('click',()=>document.getElementById('congrats').classList.remove('show'));
     document.getElementById('nextLevel').addEventListener('click',()=>{ document.getElementById('congrats').classList.remove('show'); setLevel(LEVEL_ORDER[(LEVEL_ORDER.indexOf(level)+1)%LEVEL_ORDER.length]); });
@@ -343,14 +382,14 @@
         return;
       }
       if(e.key.length!==1) return;
-      if(level===4){
+      if(level===4||level===5){
         e.preventDefault();
         if(!targetText) return;
         totalKeys++;
-        if(targetText[index].toLowerCase()===e.key.toLowerCase()){
+        if(targetText[index].toLowerCase()===e.key.toLowerCase() || (level===5 && umlaut[index] && e.key.toLowerCase()==='v')){
           correctKeys++; index++; skipAuto();
           if(index>=targetText.length){
-            if(riddleStage===0){ flash('Now the answer!'); setStage(1); renderTarget(); skipAuto(); renderBlanks(); highlightNext(); if(index<targetText.length) return; }
+            if(level===4 && riddleStage===0){ flash('Now the answer!'); setStage(1); renderTarget(); skipAuto(); renderBlanks(); highlightNext(); if(index<targetText.length) return; }
             renderBlanks(); celebrateBig(pickPraise()); finishItem(); return;
           }
           renderBlanks(); renderTarget(); highlightNext();
