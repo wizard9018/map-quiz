@@ -1,4 +1,4 @@
-const CACHE_NAME = "map-quiz-v11";
+const CACHE_NAME = "map-quiz-v12";
 const ASSETS = [
   "./",
   "index.html",
@@ -16,6 +16,7 @@ const ASSETS = [
   "data/jp.json",
   "data/de.json",
   "data/label-overrides.json",
+  "data/riddles.json",
   "data/trivia/geo.json",
   "data/trivia/chem.json",
   "data/trivia/life.json",

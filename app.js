@@ -46,9 +46,8 @@ const CONTINENT_SVG = {
 };
 const DATA_FILES = ["data/europe.json", "data/africa.json", "data/americas.json", "data/asia.json", "data/elements.json", "data/match.json",
   "data/us.json", "data/cn.json", "data/ca.json", "data/jp.json", "data/de.json"];
-// Geography units are two-letter country codes; biology units are
-// "<letter>-<part>" (b-heart, n-thalamus, c-vacuole...) with one letter per
-// diagram; subdivisions are "<country>-<code>" (us-ca, cn-gd, ca-on). The
+// Geography units are two-letter country codes; chemistry elements are
+// "e-<symbol>" (e-h, e-he...); subdivisions are "<country>-<code>" (us-ca, cn-gd, ca-on). The
 // distinct shapes keep ids from colliding in the shared review counts.
 const UNIT_ID_RE = /^(?:[a-z]{2}|[a-z]-[a-z]+|(?:us|cn|ca|jp|de)-[a-z0-9]{2})$/;
 
@@ -359,7 +358,7 @@ function renderSrs() {
       return { lane, unit: list[day], total: list.length };
     });
     const todays = daily.map(d => d.unit).filter(Boolean);
-    cards = [...todays.map((u, i) => unitCard(u, `Today · ${daily.find(d => d.unit === u).lane.name}`)),
+    cards = [...todays.map(u => unitCard(u, `Today · ${daily.find(d => d.unit === u).lane.name}`)),
       ...due.filter(u => !todays.includes(u)).map(u => unitCard(u, "Review"))];
     info.textContent = daily.map(d => `${d.lane.name} ${Math.min(day + 1, d.total)}/${d.total}`).join(" · ") + ` · Due ${due.length}`;
   } else {

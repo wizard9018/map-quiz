@@ -155,7 +155,7 @@ function finish() {
   card.innerHTML = `<h1><span class="face" aria-hidden="true">${face}</span>${headline}</h1><p class="meta">${correct} / ${n} correct</p>` +
     (missed.length ? `<p class="meta">Review these:</p><ul>${missed.map(q => `<li>${esc(q.q)} <b>${esc(q.a[q.c])}</b>${q.e ? `<br><small>${esc(q.e)}</small>` : ""}</li>`).join("")}</ul>` : "") +
     `<button class="btn" id="done">OK</button>`;
-  document.getElementById("done").onclick = () => { state.done ? showDone() : showIntro(0); };
+  document.getElementById("done").onclick = () => { showDone(); };
 }
 </script>
 </body>

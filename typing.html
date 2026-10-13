@@ -32,7 +32,7 @@
     .typed-bad{background:#ffdfe0;color:#ea2b2b;text-decoration:line-through}
     #typingInput{width:100%;background:#fff;color:var(--text);border-radius:14px;border:2px solid var(--line);padding:10px 12px;font-family:inherit;font-size:1.1rem;font-weight:600;outline:none}
     #typingInput:focus{border-color:var(--blue)}
-    .joke{font-size:1.35rem;line-height:1.5;text-align:center;font-weight:700;margin:6px 0 14px}
+    .riddle{font-size:1.35rem;line-height:1.5;text-align:center;font-weight:700;margin:6px 0 14px}
     .blanks{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;margin:0 0 12px;font-size:1.6rem;font-weight:800;letter-spacing:.04em}
     .blanks .word{display:inline-flex}
     .blanks .bl{min-width:.8em;text-align:center;border-bottom:3px solid var(--text);margin:0 2px;color:transparent}
@@ -277,15 +277,15 @@
       });
     }
     // Internal level ids stay 2 (words), 3 (A→Z), 4 (riddles); the player sees them as Level 2, 1, 3 and plays them in that order.
+    const DEFAULT_HINT='Letters are case‑insensitive. Punctuation is ignored by design on these levels.';
     const LEVEL_NO={3:1,2:2,4:3}, LEVEL_ORDER=[3,2,4];
     function setLevel(lv){
       level = lv;
       document.querySelectorAll('.btn.level').forEach(b=>b.classList.remove('active'));
       (lv===2?lv2Btn:lv===3?lv3Btn:lv4Btn).classList.add('active');
-      targetEl.classList.toggle('joke', lv===4); blanksEl.style.display = lv===4 ? '' : 'none'; document.getElementById('stageLabel').style.display = lv===4 ? '' : 'none';
-      if(lv===1){
-        goal = 30;
-      } else if(lv===2){
+      targetEl.classList.toggle('riddle', lv===4); blanksEl.style.display = lv===4 ? '' : 'none'; document.getElementById('stageLabel').style.display = lv===4 ? '' : 'none';
+      if(lv!==4) document.getElementById('hintEl').textContent = DEFAULT_HINT;
+      if(lv===2){
         goal = 20;
       } else if(lv===3){
         goal = 26;
@@ -305,11 +305,9 @@
 
     function updateProgress(){ const p = goal? Math.round((score/goal)*100):0; progBar.style.width=p+"%"; scoreMeta.textContent=score+"/"+goal; }
 
-    function newTarget(){ index=0; if(level===1){ // random letter
-        const letters="abcdefghijklmnopqrstuvwxyz"; targetText=letters[Math.floor(Math.random()*letters.length)];
-      } else if(level===2){ // random common word
+    function newTarget(){ index=0; if(level===2){ // random common word
         targetText = commonWords[Math.floor(Math.random()*commonWords.length)];
-      } else if(level===4){ // joke: type the letters, punctuation is filled in
+      } else if(level===4){ // riddle: type the letters, punctuation is filled in
         setStage(0);
       } else { // level 3 A->Z
         const letters="abcdefghijklmnopqrstuvwxyz"; targetText = letters[alphabetIndex%26];
