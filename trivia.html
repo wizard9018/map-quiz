@@ -36,6 +36,17 @@
     .big-gg{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%) scale(.6);font-size:clamp(40px,9vw,90px);font-weight:900;color:var(--green);text-shadow:0 4px 0 var(--green-d);opacity:0;pointer-events:none;z-index:80;animation:popIn .85s cubic-bezier(.22,.9,.18,1) forwards}
     .particle{position:fixed;left:50%;top:42%;width:10px;height:10px;border-radius:2px;pointer-events:none;z-index:79;animation:fly .9s ease-out forwards}
     @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+    .tgt{font-size:1.05rem;line-height:1.5;margin:6px 0 10px}
+    .tgt .c.done{color:#58a700}
+    .tgt .c.cur{background:#ddf4ff;color:#1899d6;border-radius:4px}
+    .blanks{display:flex;flex-wrap:wrap;gap:4px 12px;margin:0 0 8px;font-size:1.1rem;font-weight:800;letter-spacing:.03em}
+    .blanks .word{display:inline-flex}
+    .blanks .bl{min-width:.75em;text-align:center;border-bottom:3px solid var(--text);margin:0 1.5px;color:transparent}
+    .blanks .bl.done{color:#58a700;border-bottom-color:var(--green)}
+    .blanks .bl.cur{border-bottom-color:var(--blue)}
+    .blanks .bl.bad{border-bottom-color:var(--red);background:#ffdfe0}
+    #typer{width:100%;border:2px solid var(--line);border-radius:12px;padding:8px 12px;font:inherit;font-size:.9rem;margin:2px 0 6px}
+    #typer:focus{outline:none;border-color:var(--blue)}
     .progress{height:10px;background:var(--line);border-radius:999px;overflow:hidden;margin:0 0 10px}
     .progress>span{display:block;height:100%;width:0;background:var(--green)}
     .credit{font-size:.65rem;color:var(--muted);margin:12px 2px 0;line-height:1.4}
@@ -135,10 +146,61 @@ function answer(k) {
   const last = i === set.length - 1;
   const word = CORRECT_WORDS[Math.floor(Math.random() * CORRECT_WORDS.length)];
   say(isRight ? "Correct" : "Not this time. The answer is " + q.a[q.c]);
-  const why = isRight ? `<div class="fb"><span class="face" aria-hidden="true">😄</span>${word}</div>`
-    : `<div class="why"><b><span class="face" aria-hidden="true">🤔</span>Not this time, here's the cool part</b>${q.e ? esc(q.e) : "The answer is " + esc(q.a[q.c]) + "."}</div>`;
-  document.getElementById("after").innerHTML = why + `<button class="btn" id="next">${last ? "Finish" : "Next"}</button>`;
-  document.getElementById("next").onclick = () => { i++; last ? finish() : show(); };
+  const after = document.getElementById("after");
+  const goNext = () => { i++; last ? finish() : show(); };
+  const nextBtn = `<button class="btn" id="next">${last ? "Finish" : "Next"}</button>`;
+  if (isRight) {
+    after.innerHTML = `<div class="fb"><span class="face" aria-hidden="true">😄</span>${word}</div>` + nextBtn;
+    document.getElementById("next").onclick = goNext;
+    return;
+  }
+  // Wrong answer: read the explanation, then type it out (same way as the Typing riddles) before moving on.
+  const head = `<b><span class="face" aria-hidden="true">🤔</span>Not this time, here's the cool part</b>`;
+  if (!q.e) { after.innerHTML = `<div class="why">${head}The answer is ${esc(q.a[q.c])}.</div>` + nextBtn; document.getElementById("next").onclick = goNext; return; }
+  after.innerHTML = `<div class="why">${head}<div class="tgt" id="tgt"></div><div class="blanks" id="blanks"></div></div>` +
+    `<input id="typer" type="text" placeholder="Type the sentence above to continue…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Type the explanation">`;
+  typeOut(q.e, () => {
+    say("Well done. Press Next to continue.");
+    document.getElementById("typer").remove();
+    after.insertAdjacentHTML("beforeend", nextBtn);
+    document.getElementById("next").onclick = goNext;
+    document.getElementById("next").focus();
+  });
+}
+
+// Type-out step: letters and spaces are typed, punctuation and digits are filled in; a wrong key just flashes red.
+const isTyped = ch => /[a-z]/i.test(ch) || ch === " ";
+function typeOut(text, onDone) {
+  let idx = 0;
+  const tgt = document.getElementById("tgt"), blanks = document.getElementById("blanks"), typer = document.getElementById("typer");
+  const skip = () => { while (idx < text.length && !isTyped(text[idx])) idx++; };
+  function paint(wrongAt) {
+    tgt.innerHTML = ""; blanks.innerHTML = "";
+    let word = null;
+    [...text].forEach((ch, n) => {
+      const c = document.createElement("span"); c.className = "c" + (n < idx ? " done" : n === idx ? " cur" : ""); c.textContent = ch; tgt.appendChild(c);
+      if (ch === " ") { word = null; return; }
+      if (!word) { word = document.createElement("span"); word.className = "word"; blanks.appendChild(word); }
+      const s = document.createElement("span");
+      s.className = isTyped(ch) ? "bl" + (n < idx ? " done" : "") + (n === idx ? " cur" : "") + (n === wrongAt ? " bad" : "") : "au";
+      s.textContent = ch; word.appendChild(s);
+    });
+  }
+  skip(); paint(); typer.focus();
+  const press = ch => {
+    if (idx >= text.length) return;
+    if (text[idx].toLowerCase() === ch.toLowerCase()) {
+      idx++; skip(); paint();
+      if (idx >= text.length) onDone();
+    } else { paint(idx); setTimeout(() => paint(), 250); }
+  };
+  typer.addEventListener("keydown", e => {
+    if (e.key.length !== 1 || e.ctrlKey || e.metaKey) return;
+    e.preventDefault();
+    press(e.key);
+  });
+  // Phone keyboards often report key "Unidentified"; their letters arrive as input events instead.
+  typer.addEventListener("input", () => { const v = typer.value; typer.value = ""; for (const ch of v) press(ch); });
 }
 function finish() {
   if (!practiceRun) {
