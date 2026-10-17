@@ -18,5 +18,5 @@ Every question written for kids must pass all of these:
 - **Not obscure.** It must be something a child would find interesting and could tell a friend; skip niche trivia nobody would care about (for example the name of a 1915 cloth doll). Prefer well-known, surprising or fun facts.
 - **History asks what happened**: big events and famous people (who did what, where, when, what changed).
 - One clearly correct answer, factually accurate, child-safe, 4 distinct options, no trick wording, no "which of the following".
-- Explanation: 1-2 short sentences, at most about 28 words, warm and playful, 5th-grade vocabulary.
+- Explanation: one short sentence, at most 10 words, warm and playful, 5th-grade vocabulary.
 - Never repeat the same fact in two questions; a given answer should not appear more than about 4 times in a category.
