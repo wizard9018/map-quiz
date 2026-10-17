@@ -331,6 +331,11 @@ function geoDaily(units) {
   });
 }
 
+// Chemistry has no reviews: each day shows the next unit (the last one stays once reached).
+function chemDaily(units) {
+  return units[Math.min(daysSinceDailyStart(), units.length - 1)];
+}
+
 function unitCard(el, kind) {
   const region = el.dataset.region;
   const card = document.createElement("div");
@@ -374,10 +379,9 @@ function renderSrs() {
       ...due.filter(u => !todays.includes(u)).map(u => unitCard(u, "Review"))];
     info.textContent = daily.map(d => `${d.lane.name} ${Math.min(day + 1, d.total)}/${d.total}`).join(" · ") + ` · Due ${due.length}`;
   } else {
-    const fresh = units.filter(c => !srs[c.dataset.region]);
-    const next = due[0] || fresh[0];
-    cards = next ? [unitCard(next, due[0] ? "Review" : "New unit")] : [];
-    info.textContent = `Due ${due.length} · New ${fresh.length} · Scheduled ${units.length - due.length - fresh.length}`;
+    const unit = chemDaily(units);
+    cards = [unitCard(unit, "Today")];
+    info.textContent = `Unit ${units.indexOf(unit) + 1}/${units.length}`;
   }
   const row = document.createElement("div");
   row.className = "srs-cards";
@@ -397,8 +401,9 @@ function tabDone(tab) {
   if (!storedToday("map-quiz-trivia-" + tab)?.done) return false;
   if (!SRS_TABS.includes(tab)) return true;
   const units = tabUnits(tab);
+  if (tab === "chem") return !!srs[chemDaily(units).dataset.region];
   if (dueUnits(units).length) return false;
-  return tab !== "geo" || geoDaily(units).every(d => !d.unit || srs[d.unit.dataset.region]);
+  return geoDaily(units).every(d => !d.unit || srs[d.unit.dataset.region]);
 }
 function updateTabChecks() {
   document.querySelectorAll(".tabs .tab").forEach(btn => { btn.dataset.done = tabDone(btn.dataset.tab) ? "1" : ""; });
