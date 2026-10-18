@@ -89,7 +89,7 @@ const titleEl = document.querySelector("header h1");
 const DEFAULT_TITLE = titleEl.textContent;
 
 // Which home-page tab a region's card sits under (sections without data-tab are geography).
-const SUBJECTS = { chem: "Chemistry", typing: "Typing", life: "Life Science", phys: "Physics & Space", hist: "History & Society" };
+const SUBJECTS = { chem: "Chemistry", typing: "Typing", life: "Life Science", phys: "Physics & Space", hist: "History & Society", fr: "Français" };
 function subjectOf(region) {
   const section = document.querySelector(`.region-card[data-region="${region}"]`)?.closest(".continent-group");
   return SUBJECTS[section?.dataset.tab] || "Geography";
@@ -434,7 +434,7 @@ renderTodayResults();
 // Home-screen tabs: every section is geography unless it carries
 // a data-tab attribute, so a new topic is just another tagged section.
 const TAB_KEY = "map-quiz-tab";
-const TABS = ["geo", "chem", "typing", "life", "phys", "hist"];
+const TABS = ["geo", "chem", "typing", "life", "phys", "hist", "fr"];
 function showTab(tab) {
   document.querySelectorAll(".home-main .continent-group").forEach(section => {
     const sectionTab = section.dataset.tab || "geo";

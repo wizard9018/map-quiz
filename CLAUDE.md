@@ -20,3 +20,10 @@ Every question written for kids must pass all of these:
 - One clearly correct answer, factually accurate, child-safe, 4 distinct options, no trick wording, no "which of the following".
 - Explanation: one short sentence, at most 10 words, warm and playful, 5th-grade vocabulary.
 - Never repeat the same fact in two questions; a given answer should not appear more than about 4 times in a category.
+
+## French tab (data/trivia/fr.json)
+
+- All text is in French, for a child with 5 years of French immersion (about grade 5 reading level), focused on reading and writing: vocabulary, fill in the blank, spelling, short reading passages, verbs and grammar.
+- Neutral standard French (fine in Canada and in France), perfect accents, no English, no "lequel des suivants".
+- Explanation: one French sentence, at most 10 words (the child types it after a wrong answer; typing e for é is accepted).
+- Vocabulary ideas come from the French frequency list in hermitdave/FrequencyWords (CC BY-SA 4.0), credited on the page.

@@ -61,10 +61,13 @@
 </div>
 <script>
 const PER_DAY = 10;
-const NAMES = { geo: "Geography", chem: "Chemistry", life: "Life Science", phys: "Physics & Space", hist: "History & Society" };
+const NAMES = { geo: "Geography", chem: "Chemistry", life: "Life Science", phys: "Physics & Space", hist: "History & Society", fr: "Français" };
 const cat = new URLSearchParams(location.search).get("cat");
+const FR = cat === "fr";
+if (FR) document.documentElement.lang = "fr";
 const KEY = "map-quiz-trivia-" + cat;
 const card = document.getElementById("card");
+if (FR) document.querySelector(".credit").innerHTML = 'Questions écrites avec Gemini et vérifiées; vocabulaire choisi parmi les mots les plus fréquents de <a href="https://github.com/hermitdave/FrequencyWords" target="_blank" rel="noopener">FrequencyWords</a> (CC BY-SA 4.0). Chaque jour, les 10 questions suivantes.';
 const today = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })();
 
 // state: { date, from, done } - done = score of today's set once finished.
@@ -82,7 +85,7 @@ let state, set, i, correct, missed, practiceRun = false;
 const esc = t => String(t).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 
 const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const CORRECT_WORDS = ["Yes! Got it.", "Right!", "Nice one.", "You know it.", "Correct!", "Exactly."];
+const CORRECT_WORDS = FR ? ["Oui! Bravo!", "Bien joué!", "Exact!", "Tu connais ça!", "Très bien!", "Parfait!"] : ["Yes! Got it.", "Right!", "Nice one.", "You know it.", "Correct!", "Exactly."];
 const say = t => { document.getElementById("status").textContent = t; };
 // One big celebration, only for a perfect round; fly/fade (no strobing), skipped for reduced motion.
 function celebrate(text) {
@@ -129,6 +132,12 @@ function show() {
     `<p class="meta"><span class="tag">${q.d}</span>${i + 1} / ${set.length}</p><p class="q">${esc(q.q)}</p>` +
     q.a.map((t, k) => `<button class="opt" data-k="${k}">${esc(t)}</button>`).join("") + `<div id="after"></div>`;
   card.querySelectorAll(".opt").forEach(b => b.onclick = () => answer(+b.dataset.k));
+  if (FR && window.speechSynthesis) {
+    const spk = document.createElement("button");
+    spk.className = "btn"; spk.textContent = "🔊 Écouter"; spk.style.cssText = "margin:0 0 .6rem;padding:.3rem .8rem;font-size:.85rem";
+    spk.onclick = () => { const u = new SpeechSynthesisUtterance(q.q.replace(/_+/g, "…")); u.lang = "fr-CA"; speechSynthesis.cancel(); speechSynthesis.speak(u); };
+    card.querySelector(".q").after(spk);
+  }
 }
 function answer(k) {
   const q = set[i];
@@ -169,7 +178,9 @@ function answer(k) {
 }
 
 // Type-out step: letters and spaces are typed, punctuation and digits are filled in; a wrong key just flashes red.
-const isTyped = ch => /[a-z]/i.test(ch) || ch === " ";
+// French: accented letters count as typed letters; typing the plain letter (e for é) is accepted, œ and æ are filled in.
+const isTyped = ch => /[a-zà-ÿ]/i.test(ch) || ch === " ";
+const fold = ch => ch.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 function typeOut(text, onDone) {
   let idx = 0;
   const tgt = document.getElementById("tgt"), blanks = document.getElementById("blanks"), typer = document.getElementById("typer");
@@ -189,7 +200,7 @@ function typeOut(text, onDone) {
   skip(); paint(); typer.focus();
   const press = ch => {
     if (idx >= text.length) return;
-    if (text[idx].toLowerCase() === ch.toLowerCase()) {
+    if (fold(text[idx]) === fold(ch)) {
       idx++; skip(); paint();
       if (idx >= text.length) onDone();
     } else { paint(idx); setTimeout(() => paint(), 250); }
