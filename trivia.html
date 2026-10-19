@@ -81,7 +81,28 @@ function loadState() {
 }
 function saveState(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { /* storage unavailable */ } }
 
-let state, set, i, correct, missed, practiceRun = false;
+// Mistakes notebook (kept locally): every wrong answer comes back after 1, 2, 4, 7, 15, 30 and 60 days.
+// A right answer in a review moves it to the next interval (after the last one it is mastered and removed);
+// a wrong answer sends it back to tomorrow.
+const SRS_DAYS = [1, 2, 4, 7, 15, 30, 60];
+const WKEY = "map-quiz-wrong-" + cat;
+const dayPlus = n => { const d = new Date(); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+function loadWrong() { try { return JSON.parse(localStorage.getItem(WKEY)) || {}; } catch (e) { return {}; } }
+function saveWrong(w) { try { localStorage.setItem(WKEY, JSON.stringify(w)); } catch (e) { /* storage unavailable */ } }
+function track(q, right) {
+  if (practiceRun) return;
+  const w = loadWrong();
+  if (reviewRun) {
+    const r = w[q.q];
+    if (!r) return;
+    if (!right) { r.step = 0; r.due = dayPlus(SRS_DAYS[0]); }
+    else if (++r.step >= SRS_DAYS.length) delete w[q.q];
+    else r.due = dayPlus(SRS_DAYS[r.step]);
+  } else if (!right) w[q.q] = { o: q, step: 0, due: dayPlus(SRS_DAYS[0]) };
+  saveWrong(w);
+}
+
+let state, set, daily, bankTotal, i, correct, missed, practiceRun = false, reviewRun = false;
 const esc = t => String(t).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 
 const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -105,7 +126,8 @@ function celebrate(text) {
 fetch(`data/trivia/${cat}.json`).then(r => r.json()).then(bank => {
   state = loadState();
   saveState(state);
-  set = bank.slice(state.from, state.from + PER_DAY);
+  set = daily = bank.slice(state.from, state.from + PER_DAY);
+  bankTotal = bank.length;
   if (!set.length) { card.innerHTML = `<h1>${NAMES[cat]}</h1><p>You have finished the whole question bank (${bank.length} questions). 🎉</p>`; return; }
   state.done ? showDone() : showIntro(bank.length);
 }).catch(() => { card.textContent = "Could not load questions."; });
@@ -114,15 +136,32 @@ function showIntro(total) {
   const levels = [...new Set(set.map(q => q.d))].join(" / ");
   card.innerHTML = `<h1>${NAMES[cat]} · Daily ${set.length}</h1>` +
     `<p class="meta">Questions ${state.from + 1}–${state.from + set.length} of ${total} · ${levels}</p>` +
-    `<button class="btn" id="start">Start</button>`;
+    `<button class="btn" id="start">Start</button>` + reviewBlock();
   document.getElementById("start").onclick = () => start(false);
+  bindReview();
 }
 function showDone() {
   card.innerHTML = `<h1>${NAMES[cat]} · Done for today ✓</h1><p class="meta">Score ${state.done.correct} / ${state.done.total}. Come back tomorrow for the next ${PER_DAY}.</p>` +
-    `<button class="btn" id="again">Practice again</button>`;
+    `<button class="btn" id="again">Practice again</button>` + reviewBlock();
   document.getElementById("again").onclick = () => start(true);
+  bindReview();
+}
+// The mistakes notebook under the buttons: how many are saved, how many are due, and a list of them all.
+function reviewBlock() {
+  const w = Object.values(loadWrong());
+  if (!w.length) return "";
+  const due = w.filter(r => r.due <= today).length;
+  const next = w.map(r => r.due).sort()[0];
+  return `<div class="rv"><p class="meta">Mistakes saved: ${w.length} · ${due ? due + " to review today" : "next review " + next}</p>` +
+    (due ? `<button class="btn" id="review">Review mistakes (${Math.min(due, PER_DAY)})</button>` : "") +
+    `<details><summary class="meta">See all mistakes</summary><ul>${w.map(r => `<li>${esc(r.o.q)} <b>${esc(r.o.a[r.o.c])}</b></li>`).join("")}</ul></details></div>`;
+}
+function bindReview() {
+  const b = document.getElementById("review");
+  if (b) b.onclick = () => { set = Object.values(loadWrong()).filter(r => r.due <= today).sort((a, b) => a.due.localeCompare(b.due)).slice(0, PER_DAY).map(r => r.o); reviewRun = true; practiceRun = false; i = 0; correct = 0; missed = []; show(); };
 }
 function start(practice) {
+  set = daily; reviewRun = false;
   i = 0; correct = 0; missed = []; practiceRun = practice;
   show();
 }
@@ -142,6 +181,7 @@ function show() {
 function answer(k) {
   const q = set[i];
   const isRight = k === q.c;
+  track(q, isRight);
   card.querySelectorAll(".opt").forEach(b => {
     b.disabled = true;
     const bk = +b.dataset.k;
@@ -215,9 +255,8 @@ function typeOut(text, onDone) {
 }
 function finish() {
   if (!practiceRun) {
-    state.done = { correct, total: set.length };
-    saveState(state);
-    try { parent.postMessage({ type: "trivia-result", cat, name: NAMES[cat], correct, total: set.length }, location.origin); } catch (e) { /* standalone */ }
+    if (!reviewRun) { state.done = { correct, total: set.length }; saveState(state); }
+    try { parent.postMessage({ type: reviewRun ? "trivia-review" : "trivia-result", cat, name: NAMES[cat], correct, total: set.length }, location.origin); } catch (e) { /* standalone */ }
   }
   const n = set.length, perfect = missed.length === 0;
   const [face, headline] = perfect ? ["🤩", "Perfect!"]
@@ -228,7 +267,7 @@ function finish() {
   card.innerHTML = `<h1><span class="face" aria-hidden="true">${face}</span>${headline}</h1><p class="meta">${correct} / ${n} correct</p>` +
     (missed.length ? `<p class="meta">Review these:</p><ul>${missed.map(q => `<li>${esc(q.q)} <b>${esc(q.a[q.c])}</b>${q.e ? `<br><small>${esc(q.e)}</small>` : ""}</li>`).join("")}</ul>` : "") +
     `<button class="btn" id="done">OK</button>`;
-  document.getElementById("done").onclick = () => { showDone(); };
+  document.getElementById("done").onclick = () => { set = daily; reviewRun = false; state.done ? showDone() : showIntro(bankTotal); };
 }
 </script>
 </body>

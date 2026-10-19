@@ -179,7 +179,7 @@ button:active {
 .home-main { flex: 1; min-width: 0; }
 
 header .tabs { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; scrollbar-width: none; min-width: 0; flex: 1; }
-header .tabs .tab { font-size: 0.68rem; letter-spacing: 0; }
+header .tabs .tab { font-size: 0.85rem; letter-spacing: 0; padding: 7px 12px; }
 body:has(#home-screen[style*="none"]) header .tabs { display: none; }
 .tabs .tab {
   background: #ffffff;

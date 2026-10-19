@@ -396,9 +396,13 @@ function renderSrs() {
 function storedToday(key) {
   try { const s = JSON.parse(localStorage.getItem(key)); return s && s.date === todayDateStr() ? s : null; } catch (e) { return null; }
 }
+// Mistakes saved by trivia.html that are due for review today (or overdue).
+function wrongDue(tab) {
+  try { return Object.values(JSON.parse(localStorage.getItem("map-quiz-wrong-" + tab)) || {}).some(r => r.due <= todayDateStr()); } catch (e) { return false; }
+}
 function tabDone(tab) {
   if (tab === "typing") return !!storedToday("map-quiz-typing-day")?.posted;
-  if (!storedToday("map-quiz-trivia-" + tab)?.done) return false;
+  if (!storedToday("map-quiz-trivia-" + tab)?.done || wrongDue(tab)) return false;
   if (!SRS_TABS.includes(tab)) return true;
   const units = tabUnits(tab);
   if (tab === "chem") return !!srs[chemDaily(units).dataset.region];
@@ -463,8 +467,8 @@ window.addEventListener("message", e => {
 });
 window.addEventListener("message", e => {
   const d = e.data;
-  if (e.origin !== location.origin || !d || d.type !== "trivia-result") return;
-  addTodayResult(null, d.correct, d.total, "Daily 10 Questions", d.name);
+  if (e.origin !== location.origin || !d || (d.type !== "trivia-result" && d.type !== "trivia-review")) return;
+  addTodayResult(null, d.correct, d.total, d.type === "trivia-review" ? "Mistakes review" : "Daily 10 Questions", d.name);
   updateTabChecks();
 });
 
