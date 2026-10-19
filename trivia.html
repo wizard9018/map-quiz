@@ -13,6 +13,9 @@
     h1{margin:0 0 6px;font-size:1.2rem;font-weight:800;color:var(--green)}
     .meta{font-size:.8rem;color:var(--muted);margin:0 0 12px}
     .q{font-size:1.1rem;line-height:1.4;margin:10px 0 14px}
+    .w{cursor:pointer;border-radius:4px}
+    .w:hover{background:#dbeafe}
+    .fr #tgt .c{cursor:pointer}
     .tag{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--blue);margin-right:8px}
     .opt{display:block;width:100%;text-align:left;margin:0 0 8px;padding:10px 14px;background:#fff;color:var(--text);border:2px solid var(--line);border-radius:14px;box-shadow:0 3px 0 var(--line);font:inherit;cursor:pointer}
     .opt:disabled{cursor:default}
@@ -64,7 +67,35 @@ const PER_DAY = 10;
 const NAMES = { geo: "Geography", chem: "Chemistry", life: "Life Science", phys: "Physics & Space", hist: "History & Society", fr: "Français" };
 const cat = new URLSearchParams(location.search).get("cat");
 const FR = cat === "fr";
-if (FR) document.documentElement.lang = "fr";
+if (FR) { document.documentElement.lang = "fr"; document.body.classList.add("fr"); }
+
+// French listening: every question is read aloud (stem, then the options); tap any word to hear it again.
+const synth = FR && window.speechSynthesis;
+let frVoice = null, slow = false, curText = "";
+try { slow = localStorage.getItem("map-quiz-fr-slow") === "1"; } catch (e) { /* storage unavailable */ }
+function pickVoice() { const vs = synth.getVoices(); frVoice = vs.find(v => /^fr[-_]ca$/i.test(v.lang)) || vs.find(v => /^fr/i.test(v.lang)) || null; }
+if (synth) { pickVoice(); synth.onvoiceschanged = pickVoice; }
+function speak(t) {
+  if (!synth) return;
+  const u = new SpeechSynthesisUtterance(t.replace(/_{2,}/g, " blanc ").replace(/[«»]/g, "").replace(/\s+/g, " ").trim());
+  u.lang = frVoice ? frVoice.lang : "fr-FR"; if (frVoice) u.voice = frVoice;
+  u.rate = slow ? 0.65 : 0.9;
+  synth.speak(u);
+}
+// Spelling questions only read the stem: the options differ in spelling, not in sound.
+function sayQuestion(q) { synth.cancel(); speak(q.q); if (!/orthograph|bien écrit|mal écrit/i.test(q.q)) q.a.forEach(speak); }
+const stopSpeech = () => { if (synth) synth.cancel(); };
+document.addEventListener("click", e => {
+  if (!synth) return;
+  const w = e.target.closest(".w");
+  if (w) { synth.cancel(); speak(w.textContent); return; }
+  const c = e.target.closest("#tgt .c");
+  if (c) { // a letter of the sentence being typed: say the word it belongs to
+    const n = +c.dataset.n, a = curText.lastIndexOf(" ", n) + 1, b = curText.indexOf(" ", n);
+    const word = curText.slice(a, b < 0 ? curText.length : b);
+    if (word.trim()) { synth.cancel(); speak(word); }
+  }
+});
 const KEY = "map-quiz-trivia-" + cat;
 const card = document.getElementById("card");
 if (FR) document.querySelector(".credit").innerHTML = 'Questions écrites avec Gemini et vérifiées; vocabulaire choisi parmi les mots les plus fréquents de <a href="https://github.com/hermitdave/FrequencyWords" target="_blank" rel="noopener">FrequencyWords</a> (CC BY-SA 4.0). Chaque jour, les 10 questions suivantes.';
@@ -168,19 +199,27 @@ function start(practice) {
 function show() {
   const q = set[i];
   card.innerHTML = `<div class="progress"><span style="width:${100 * i / set.length}%"></span></div>` +
-    `<p class="meta"><span class="tag">${q.d}</span>${i + 1} / ${set.length}</p><p class="q">${esc(q.q)}</p>` +
+    `<p class="meta"><span class="tag">${q.d}</span>${i + 1} / ${set.length}</p><p class="q">${synth ? words(q.q) : esc(q.q)}</p>` +
     q.a.map((t, k) => `<button class="opt" data-k="${k}">${esc(t)}</button>`).join("") + `<div id="after"></div>`;
   card.querySelectorAll(".opt").forEach(b => b.onclick = () => answer(+b.dataset.k));
-  if (FR && window.speechSynthesis) {
-    const spk = document.createElement("button");
-    spk.className = "btn"; spk.textContent = "🔊 Écouter"; spk.style.cssText = "margin:0 0 .6rem;padding:.3rem .8rem;font-size:.85rem";
-    spk.onclick = () => { const u = new SpeechSynthesisUtterance(q.q.replace(/_+/g, "…")); u.lang = "fr-CA"; speechSynthesis.cancel(); speechSynthesis.speak(u); };
-    card.querySelector(".q").after(spk);
+  if (synth) {
+    const mk = (label, fn) => { const b = document.createElement("button"); b.className = "btn"; b.style.cssText = "margin:0 .5rem .6rem 0;padding:.3rem .8rem;font-size:.85rem"; b.textContent = label; b.onclick = fn; return b; };
+    const slowLabel = () => "🐢 Lent : " + (slow ? "oui" : "non");
+    const slowBtn = mk(slowLabel(), () => {
+      slow = !slow; slowBtn.textContent = slowLabel();
+      try { localStorage.setItem("map-quiz-fr-slow", slow ? "1" : ""); } catch (e) { /* storage unavailable */ }
+      sayQuestion(q);
+    });
+    card.querySelector(".q").after(mk("🔊 Écouter", () => sayQuestion(q)), slowBtn);
+    sayQuestion(q);
   }
 }
+// Every word of a French question is a tap target that reads that word aloud.
+const words = t => esc(t).replace(/\S+/g, w => /[a-zà-ÿ]/i.test(w) && !w.startsWith("_") ? `<span class="w">${w}</span>` : w);
 function answer(k) {
   const q = set[i];
   const isRight = k === q.c;
+  stopSpeech();
   track(q, isRight);
   card.querySelectorAll(".opt").forEach(b => {
     b.disabled = true;
@@ -208,6 +247,7 @@ function answer(k) {
   if (!q.e) { after.innerHTML = `<div class="why">${head}The answer is ${esc(q.a[q.c])}.</div>` + nextBtn; document.getElementById("next").onclick = goNext; return; }
   after.innerHTML = `<div class="why">${head}<div class="tgt" id="tgt"></div><div class="blanks" id="blanks"></div></div>` +
     `<input id="typer" type="text" placeholder="Type the sentence above to continue…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Type the explanation">`;
+  speak(q.e);
   typeOut(q.e, () => {
     say("Well done. Press Next to continue.");
     document.getElementById("typer").remove();
@@ -223,13 +263,14 @@ const isTyped = ch => /[a-zà-ÿ]/i.test(ch) || ch === " ";
 const fold = ch => ch.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 function typeOut(text, onDone) {
   let idx = 0;
-  const tgt = document.getElementById("tgt"), blanks = document.getElementById("blanks"), typer = document.getElementById("typer");
+  curText = text;
+  const tgt =document.getElementById("tgt"), blanks = document.getElementById("blanks"), typer = document.getElementById("typer");
   const skip = () => { while (idx < text.length && !isTyped(text[idx])) idx++; };
   function paint(wrongAt) {
     tgt.innerHTML = ""; blanks.innerHTML = "";
     let word = null;
     [...text].forEach((ch, n) => {
-      const c = document.createElement("span"); c.className = "c" + (n < idx ? " done" : n === idx ? " cur" : ""); c.textContent = ch; tgt.appendChild(c);
+      const c = document.createElement("span"); c.className = "c" + (n < idx ? " done" : n === idx ? " cur" : ""); c.textContent = ch; c.dataset.n = n; tgt.appendChild(c);
       if (ch === " ") { word = null; return; }
       if (!word) { word = document.createElement("span"); word.className = "word"; blanks.appendChild(word); }
       const s = document.createElement("span");
