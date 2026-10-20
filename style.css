@@ -381,6 +381,8 @@ body:has(#home-screen[style*="none"]) header .tabs { display: none; }
 .srs-card { background: #ffffff; border: 2px solid #e5e5e5; box-shadow: 0 3px 0 #e5e5e5; border-radius: 16px; padding: 16px 20px; flex: 1 1 220px; max-width: 420px; }
 .srs-card h3 { margin: 4px 0; font-size: 1.3rem; }
 .srs-kind { margin: 0; font-size: 0.8rem; color: #1cb0f6; font-weight: 800; }
+.srs-card.done { background: #f1f1f1; filter: grayscale(1); opacity: 0.7; }
+.srs-card.done .srs-kind { color: #58a700; }
 .srs-info { margin: 8px 0 0; font-size: 0.8rem; color: #afafaf; }
 .srs-toggle { margin-top: 10px; background: none; border: 2px solid #e5e5e5; color: #afafaf; border-radius: 8px; padding: 4px 12px; cursor: pointer; }
 .trivia-frame { width: 100%; height: 520px; border: 0; }

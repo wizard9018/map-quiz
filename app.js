@@ -339,8 +339,10 @@ function chemDaily(units) {
 function unitCard(el, kind) {
   const region = el.dataset.region;
   const card = document.createElement("div");
-  card.className = "srs-card";
-  card.innerHTML = `<p class="srs-kind">${kind} · ${el.closest(".continent-group").querySelector(".continent-title").textContent}</p>` +
+  // A unit quizzed today (it has a schedule entry now) is finished until tomorrow's unit replaces it.
+  const done = kind.startsWith("Today") && !!srs[region];
+  card.className = "srs-card" + (done ? " done" : "");
+  card.innerHTML = `<p class="srs-kind">${done ? "Completed ✓" : kind} ·${el.closest(".continent-group").querySelector(".continent-title").textContent}</p>` +
     `<h3>${el.querySelector("h3").textContent}</h3><p class="region-meta">${el.querySelector(".region-meta").textContent}</p>`;
   const actions = document.createElement("div");
   actions.className = "card-actions";
