@@ -52,7 +52,7 @@
     #typer:focus{outline:none;border-color:var(--blue)}
     .progress{height:10px;background:var(--line);border-radius:999px;overflow:hidden;margin:0 0 10px}
     .progress>span{display:block;height:100%;width:0;background:var(--green)}
-    .credit{font-size:.65rem;color:var(--muted);margin:12px 2px 0;line-height:1.4}
+    .pas{background:#f4f8ff;border-left:4px solid #1cb0f6;border-radius:8px;padding:.6rem .8rem;margin:0 0 .8rem;line-height:1.55}.pas .src{display:block;font-size:.65rem;color:var(--muted);margin-top:.3rem}.credit{font-size:.65rem;color:var(--muted);margin:12px 2px 0;line-height:1.4}
     ul{padding-left:18px;margin:8px 0}
   </style>
 </head>
@@ -63,10 +63,10 @@
   <p class="credit">Questions: <a href="https://opentdb.com" target="_blank" rel="noopener">Open Trivia DB</a> (CC BY-SA 4.0) and the U.S. Department of Energy National Science Bowl practice rounds, plus beginner questions written with Gemini and fact-checked. Each day is the next 10 questions, easiest first.</p>
 </div>
 <script>
-const PER_DAY = 10;
-const NAMES = { geo: "Geography", chem: "Chemistry", life: "Life Science", phys: "Physics & Space", hist: "History & Society", fr: "Français" };
+const PER_DAY = new URLSearchParams(location.search).get("cat") === "frlire" ? 5 : 10;
+const NAMES = { geo: "Geography", chem: "Chemistry", life: "Life Science", phys: "Physics & Space", hist: "History & Society", fr: "Français", frlire: "Lecture" };
 const cat = new URLSearchParams(location.search).get("cat");
-const FR = cat === "fr";
+const FR = cat === "fr" || cat === "frlire";
 if (FR) { document.documentElement.lang = "fr"; document.body.classList.add("fr"); }
 
 // French listening: every question is read aloud (stem, then the options); tap any word to hear it again.
@@ -83,7 +83,7 @@ function speak(t) {
   synth.speak(u);
 }
 // Spelling questions only read the stem: the options differ in spelling, not in sound.
-function sayQuestion(q) { synth.cancel(); speak(q.q); if (!/orthograph|bien écrit|mal écrit/i.test(q.q)) q.a.forEach(speak); }
+function sayQuestion(q) { synth.cancel(); if (q.p) speak(q.p); speak(q.q); if (!/orthograph|bien écrit|mal écrit/i.test(q.q)) q.a.forEach(speak); }
 const stopSpeech = () => { if (synth) synth.cancel(); };
 document.addEventListener("click", e => {
   if (!synth) return;
@@ -98,7 +98,8 @@ document.addEventListener("click", e => {
 });
 const KEY = "map-quiz-trivia-" + cat;
 const card = document.getElementById("card");
-if (FR) document.querySelector(".credit").innerHTML = 'Questions écrites avec Gemini et vérifiées; vocabulaire choisi parmi les mots les plus fréquents de <a href="https://github.com/hermitdave/FrequencyWords" target="_blank" rel="noopener">FrequencyWords</a> (CC BY-SA 4.0). Chaque jour, les 10 questions suivantes.';
+if (cat === "frlire") document.querySelector(".credit").innerHTML = 'Textes tirés de <a href="https://fr.vikidia.org" target="_blank" rel="noopener">Vikidia</a>, l’encyclopédie des 8-13 ans (CC BY-SA 3.0); questions écrites avec Gemini et vérifiées. Chaque jour, 5 petits textes.';
+else if (FR) document.querySelector(".credit").innerHTML = 'Questions écrites avec Gemini et vérifiées; vocabulaire choisi parmi les mots les plus fréquents de <a href="https://github.com/hermitdave/FrequencyWords" target="_blank" rel="noopener">FrequencyWords</a> (CC BY-SA 4.0). Chaque jour, les 10 questions suivantes.';
 const today = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })();
 
 // state: { date, from, done } - done = score of today's set once finished.
@@ -122,14 +123,14 @@ function loadWrong() { try { return JSON.parse(localStorage.getItem(WKEY)) || {}
 function saveWrong(w) { try { localStorage.setItem(WKEY, JSON.stringify(w)); } catch (e) { /* storage unavailable */ } }
 function track(q, right) {
   if (practiceRun) return;
-  const w = loadWrong();
+  const w = loadWrong(), k = q.p ? q.p.slice(0, 40) + "|" + q.q : q.q;
   if (reviewRun) {
-    const r = w[q.q];
+    const r = w[k];
     if (!r) return;
     if (!right) { r.step = 0; r.due = dayPlus(SRS_DAYS[0]); }
-    else if (++r.step >= SRS_DAYS.length) delete w[q.q];
+    else if (++r.step >= SRS_DAYS.length) delete w[k];
     else r.due = dayPlus(SRS_DAYS[r.step]);
-  } else if (!right) w[q.q] = { o: q, step: 0, due: dayPlus(SRS_DAYS[0]) };
+  } else if (!right) w[k] = { o: q, step: 0, due: dayPlus(SRS_DAYS[0]) };
   saveWrong(w);
 }
 
@@ -199,7 +200,7 @@ function start(practice) {
 function show() {
   const q = set[i];
   card.innerHTML = `<div class="progress"><span style="width:${100 * i / set.length}%"></span></div>` +
-    `<p class="meta"><span class="tag">${q.d}</span>${i + 1} / ${set.length}</p><p class="q">${synth ? words(q.q) : esc(q.q)}</p>` +
+    `<p class="meta"><span class="tag">${q.d}</span>${i + 1} / ${set.length}</p>${q.p ? `<p class="pas">${synth ? words(q.p) : esc(q.p)} <a class="src" href="https://fr.vikidia.org/wiki/${encodeURIComponent(q.src.replace(/ /g, "_"))}" target="_blank" rel="noopener">Vikidia · ${esc(q.src)}</a></p>` : ""}<p class="q">${synth ? words(q.q) : esc(q.q)}</p>` +
     q.a.map((t, k) => `<button class="opt" data-k="${k}">${esc(t)}</button>`).join("") + `<div id="after"></div>`;
   card.querySelectorAll(".opt").forEach(b => b.onclick = () => answer(+b.dataset.k));
   if (synth) {

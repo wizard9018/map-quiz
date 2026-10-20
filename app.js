@@ -400,17 +400,29 @@ function storedToday(key) {
 function wrongDue(tab) {
   try { return Object.values(JSON.parse(localStorage.getItem("map-quiz-wrong-" + tab)) || {}).some(r => r.due <= todayDateStr()); } catch (e) { return false; }
 }
-function tabDone(tab) {
-  if (tab === "typing") return !!storedToday("map-quiz-typing-day")?.posted;
-  if (!storedToday("map-quiz-trivia-" + tab)?.done || wrongDue(tab)) return false;
-  if (!SRS_TABS.includes(tab)) return true;
+// What is still open on a tab today (empty list = done). Also shown as the tab's tooltip.
+const TRIVIA_SETS = { fr: [["fr", "Daily 10 questions"], ["frlire", "Lecture"]] };
+function tabTodo(tab) {
+  if (tab === "typing") return storedToday("map-quiz-typing-day")?.posted ? [] : ["Typing levels"];
+  const todo = [];
+  for (const [cat, label] of TRIVIA_SETS[tab] || [[tab, "Daily 10 questions"]]) {
+    if (!storedToday("map-quiz-trivia-" + cat)?.done) todo.push(label);
+    if (wrongDue(cat)) todo.push(label + ": mistakes review");
+  }
+  if (!SRS_TABS.includes(tab)) return todo;
   const units = tabUnits(tab);
-  if (tab === "chem") return !!srs[chemDaily(units).dataset.region];
-  if (dueUnits(units).length) return false;
-  return geoDaily(units).every(d => !d.unit || srs[d.unit.dataset.region]);
+  if (tab === "chem") { if (!srs[chemDaily(units).dataset.region]) todo.push("Today's unit quiz"); return todo; }
+  if (dueUnits(units).length) todo.push("Review units");
+  const fresh = geoDaily(units).filter(d => d.unit && !srs[d.unit.dataset.region]).length;
+  if (fresh) todo.push(`Today's ${fresh === 1 ? "map quiz" : "map quizzes"}`);
+  return todo;
 }
 function updateTabChecks() {
-  document.querySelectorAll(".tabs .tab").forEach(btn => { btn.dataset.done = tabDone(btn.dataset.tab) ? "1" : ""; });
+  document.querySelectorAll(".tabs .tab").forEach(btn => {
+    const todo = tabTodo(btn.dataset.tab);
+    btn.dataset.done = todo.length ? "" : "1";
+    btn.title = todo.length ? "Left today: " + todo.join(", ") : "Done for today";
+  });
 }
 
 function refreshHomeProgress() {

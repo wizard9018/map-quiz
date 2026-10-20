@@ -25,6 +25,7 @@ const ASSETS = [
   "data/trivia/phys.json",
   "data/trivia/hist.json",
   "data/trivia/fr.json",
+  "data/trivia/frlire.json",
   "maps/africa.svg",
   "maps/americas.svg",
   "maps/asia.svg",
