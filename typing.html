@@ -23,6 +23,8 @@
     .btn.ghost:active,.btn.level:active{box-shadow:0 0 0 var(--line)}
     .btn.level{min-width:0}
     .btn.level.active{background:var(--blue);color:#fff;border-color:var(--blue-d);box-shadow:0 4px 0 var(--blue-d);outline:none}
+    .btn.level.done::after{content:" ✓";color:var(--green);font-weight:900}
+    .btn.level.active.done::after{color:#fff}
     .btn.level.active:active{box-shadow:0 0 0 var(--blue-d)}
 
     .target{font-size:48px;line-height:1.25;letter-spacing:.04em;text-align:center;font-weight:800;margin:6px 0}
@@ -40,6 +42,7 @@
     .blanks .bl.cur{border-bottom-color:var(--blue)}
     .blanks .bl.bad{border-bottom-color:#ea2b2b;background:#ffdfe0}
     .blanks .au{margin:0 1px}
+    .pygrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:4px 0 10px;text-align:center;letter-spacing:0}.pycard{background:#f7fbff;border:2px solid var(--line);border-radius:12px;padding:6px 4px;cursor:pointer}.pycard:hover{border-color:var(--blue)}.pycard b{display:block;font-size:2rem;line-height:1.2}.pycard span{font-size:1.05rem;font-weight:800;color:var(--blue-d)}
     .pyh{font-size:64px;line-height:1.2;font-weight:800;margin:4px 0}.pyp{font-size:1.9rem;font-weight:800;color:var(--blue-d);letter-spacing:.04em}
     .progress{height:10px;background:var(--line);border-radius:999px;overflow:hidden;margin:10px 0}
     .progress>span{display:block;height:100%;width:0;background:var(--green);transition:width .2s}
@@ -91,7 +94,6 @@
         <button class="btn level" id="lv2Btn">Level 2 — Common Words</button>
         <button class="btn level" id="lv4Btn">Level 3 — Riddles</button>
         <button class="btn level" id="lv5Btn">Level 4 — 拼音 Pinyin</button>
-        <button class="btn ghost" id="restartBtn" style="margin-left:auto">Restart Level</button>
         <label class="pill" style="display:flex; align-items:center; gap:6px; margin-left:8px">
           <input type="checkbox" id="soundToggle" checked /> Sound
         </label>
@@ -190,7 +192,6 @@
     const lv3Btn=document.getElementById('lv3Btn');
     const lv4Btn=document.getElementById('lv4Btn');
     const blanksEl=document.getElementById('blanks');
-    const restartBtn=document.getElementById('restartBtn');
 
     const toast=document.getElementById('toast');
 
@@ -271,24 +272,24 @@
     const pyEls={bar:()=>document.getElementById('pyBar'),next:()=>document.getElementById('pyNext'),peek:()=>document.getElementById('pyPeek'),out:()=>document.getElementById('pyPeekOut')};
     function pyStart(){
       pySet=pyBank.slice(pyState.from,pyState.from+PY_PER); pyQueue=pySet.slice(); pyRetried=new Set(); pyI=0; pyPhase='study'; goal=pyQueue.length||PY_PER;
-      document.getElementById('hintEl').textContent = pyState.done ? 'Today\'s 10 words are done. Come back tomorrow for 10 new ones (you can still practice these).' : 'Study today\'s 10 words, then type the pinyin from memory. No tone marks needed (v or u for ü). You can peek once per word.';
+      document.getElementById('hintEl').textContent = pyState.done ? 'Today\'s 10 words are done. Come back tomorrow for 10 new ones (you can still practice these).' : 'Read all 10 words together, then type the pinyin from memory. No tone marks needed (v or u for ü). You can peek once per word.';
       pyShow();
     }
     function pyShow(){
       const w=pyQueue[pyI]; if(!w){ targetEl.innerHTML=''; return; }
       pyEls.out().textContent=''; clearKeys(); clearFingers();
       if(pyPhase==='study'){
-        targetEl.innerHTML='<div class="pyh">'+w.h+'</div><div class="pyp">'+w.p+'</div>';
+        targetEl.innerHTML='<div class="pygrid">'+pySet.map((x,k)=>'<div class="pycard" data-k="'+k+'"><b>'+x.h+'</b><span>'+x.p+'</span></div>').join('')+'</div>';
         blanksEl.style.display='none'; inputEl.style.display='none';
-        document.getElementById('stageLabel').textContent='Study · card '+(pyI+1)+' of '+pyQueue.length+' · say it out loud';
-        pyEls.next().textContent = pyI===pyQueue.length-1 ? "I'm ready — test me" : 'Next →';
-        pyEls.next().style.display=''; pyEls.peek().style.display='none';
+        document.getElementById('stageLabel').textContent='Study all '+pySet.length+' words · tap a card to hear it';
+        pyEls.next().textContent = "I'm ready — test me";
+        pyEls.next().style.display=''; pyEls.peek().style.display='none'; document.getElementById('pyHear').style.display='none';
       } else {
         pyPlain=toPlain(w.p); pyPeeked=false; index=0;
         targetEl.innerHTML='<div class="pyh">'+w.h+'</div>';
         document.getElementById('stageLabel').textContent='Type the pinyin · word '+(score+1)+' of '+goal;
         inputEl.style.display=''; inputEl.value=''; blanksEl.style.display=''; renderPyBlanks();
-        pyEls.next().style.display='none'; pyEls.peek().style.display=''; pyEls.peek().disabled=false; pyEls.peek().textContent='👀 Peek (once)';
+        pyEls.next().style.display='none'; document.getElementById('pyHear').style.display=''; pyEls.peek().style.display=''; pyEls.peek().disabled=false; pyEls.peek().textContent='👀 Peek (once)';
         inputEl.focus(); pyHighlight();
       }
     }
@@ -322,9 +323,11 @@
       if(score>=goal){ showCongrats(); return; }
       pyShow();
     }
-    pyEls.next().addEventListener('click',()=>{ if(pyPhase!=='study') return; if(pyI>=pyQueue.length-1){ pyPhase='test'; pyI=0; score=0; updateProgress(); } else pyI++; pyShow(); });
+    pyEls.next().addEventListener('click',()=>{ if(pyPhase!=='study') return; pyPhase='test'; pyI=0; score=0; updateProgress(); pyShow(); });
+    const pySay=t=>{ if(!t||!window.speechSynthesis) return; const u=new SpeechSynthesisUtterance(t); u.lang='zh-CN'; u.rate=.8; speechSynthesis.cancel(); speechSynthesis.speak(u); };
+    targetEl.addEventListener('click',e=>{ const c=e.target.closest('.pycard'); if(c&&level===5&&pyPhase==='study') pySay(pySet[+c.dataset.k].h); });
     pyEls.peek().addEventListener('click',()=>{ if(pyPeeked||pyPhase!=='test') return; pyPeeked=true; pyEls.out().textContent=pyQueue[pyI].p; pyEls.peek().disabled=true; inputEl.focus(); });
-    document.getElementById('pyHear').addEventListener('click',()=>{ const w=pyQueue[pyI]; if(!w||!window.speechSynthesis) return; const u=new SpeechSynthesisUtterance(w.h); u.lang='zh-CN'; u.rate=.8; speechSynthesis.cancel(); speechSynthesis.speak(u); });
+    document.getElementById('pyHear').addEventListener('click',()=>pySay(pyQueue[pyI]?.h));
 
     // --- Level 4: riddles. Type the riddle first, then the answer. Sentence on top, underlined blanks below; only letters and spaces are typed.
     let riddleBank=[], riddleSet=[], riddleStage=0;
@@ -344,7 +347,9 @@
     let sessionDone=new Set(day.posted?[]:day.levels), sess=day.posted?{correct:0,total:0,secs:0}:{correct:day.correct,total:day.total,secs:day.secs};
     const firstPending=()=>LEVEL_ORDER.find(l=>!sessionDone.has(l))||LEVEL_ORDER[0];
     const dayMetaEl=()=>document.getElementById('dayMeta');
-    function updateDayMeta(){ dayMetaEl().textContent = (day.posted?LEVEL_ORDER.length:sessionDone.size)+'/'+LEVEL_ORDER.length+(day.posted?' ✓':''); }
+    // a green check on every level button finished today (day.levels is kept for the whole day, even after the day is posted)
+    function markLevels(){ const btn={3:lv3Btn,2:lv2Btn,4:lv4Btn,5:lv5Btn}; LEVEL_ORDER.forEach(l=>btn[l].classList.toggle('done', day.levels.includes(l))); }
+    function updateDayMeta(){ markLevels(); dayMetaEl().textContent = (day.posted?LEVEL_ORDER.length:sessionDone.size)+'/'+LEVEL_ORDER.length+(day.posted?' ✓':''); }
     function setStage(s){ riddleStage=s; const r=riddleSet[score]; targetText = r ? (s===0 ? r.q : r.a) : ''; index=0; document.getElementById('stageLabel').textContent = s===0 ? 'Step 1 of 2 · type the riddle' : 'Step 2 of 2 · now type the answer'; }
     const isTyped=ch=>/[a-z]/i.test(ch)||ch===' ';
     function skipAuto(){ while(index<targetText.length && !isTyped(targetText[index])) index++; }
@@ -426,7 +431,6 @@
     lv3Btn.addEventListener('click',()=>setLevel(3));
     lv4Btn.addEventListener('click',()=>setLevel(4));
     lv5Btn.addEventListener('click',()=>setLevel(5));
-    restartBtn.addEventListener('click',()=>setLevel(level));
     const closeOverlay=()=>{ document.getElementById('congrats').classList.remove('show'); setLevel(firstPending()); };
     document.getElementById('closeCongrats').addEventListener('click',closeOverlay);
     document.getElementById('nextLevel').addEventListener('click',closeOverlay);
