@@ -239,7 +239,8 @@ function answer(k) {
   const goNext = () => { i++; last ? finish() : show(); };
   const nextBtn = `<button class="btn" id="next">${last ? "Finish" : "Next"}</button>`;
   if (isRight) {
-    after.innerHTML = `<div class="fb"><span class="face" aria-hidden="true">😄</span>${word}</div>` + nextBtn;
+    after.innerHTML = `<div class="fb"><span class="face" aria-hidden="true">😄</span>${word}</div>` +
+      `<div class="why"><b>✓ ${esc(q.a[q.c])}</b>${q.e ? esc(q.e) : ""}</div>` + nextBtn;
     document.getElementById("next").onclick = goNext;
     return;
   }
