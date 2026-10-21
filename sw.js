@@ -17,6 +17,7 @@ const ASSETS = [
   "data/de.json",
   "data/label-overrides.json",
   "data/riddles.json",
+  "data/pinyin.json",
   "data/elements.json",
   "data/match.json",
   "data/trivia/geo.json",

@@ -40,6 +40,7 @@
     .blanks .bl.cur{border-bottom-color:var(--blue)}
     .blanks .bl.bad{border-bottom-color:#ea2b2b;background:#ffdfe0}
     .blanks .au{margin:0 1px}
+    .pyh{font-size:64px;line-height:1.2;font-weight:800;margin:4px 0}.pyp{font-size:1.9rem;font-weight:800;color:var(--blue-d);letter-spacing:.04em}
     .progress{height:10px;background:var(--line);border-radius:999px;overflow:hidden;margin:10px 0}
     .progress>span{display:block;height:100%;width:0;background:var(--green);transition:width .2s}
 
@@ -79,7 +80,7 @@
       <h1>Typing Trainer</h1>
       <div class="stats">
         <span class="pill">Level: <b id="levelMeta">—</b></span>
-        <span class="pill">Today: <b id="dayMeta">0/3</b></span>
+        <span class="pill">Today: <b id="dayMeta">0/4</b></span>
         <span class="pill">Score: <b id="scoreMeta">0/0</b></span>
       </div>
     </header>
@@ -89,6 +90,7 @@
         <button class="btn level active" id="lv3Btn">Level 1 — A→Z Order</button>
         <button class="btn level" id="lv2Btn">Level 2 — Common Words</button>
         <button class="btn level" id="lv4Btn">Level 3 — Riddles</button>
+        <button class="btn level" id="lv5Btn">Level 4 — 拼音 Pinyin</button>
         <button class="btn ghost" id="restartBtn" style="margin-left:auto">Restart Level</button>
         <label class="pill" style="display:flex; align-items:center; gap:6px; margin-left:8px">
           <input type="checkbox" id="soundToggle" checked /> Sound
@@ -98,6 +100,7 @@
       <div id="target" class="target"></div>
       <div id="stageLabel" style="display:none;text-align:center;font-size:.75rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--blue-d);margin:0 0 6px"></div>
       <div id="blanks" class="blanks" style="display:none"></div>
+      <div id="pyBar" style="display:none;text-align:center;margin:0 0 10px"><button class="btn" id="pyNext">Next</button> <button class="btn ghost" id="pyHear">🔊</button> <button class="btn ghost" id="pyPeek">👀 Peek</button><div id="pyPeekOut" style="font-size:1.7rem;font-weight:800;color:var(--blue-d);margin-top:8px;min-height:1.2em"></div><div style="font-size:.65rem;color:var(--muted);margin-top:6px">Words: HSK 1-2 lists from <a href="https://github.com/drkameleon/complete-hsk-vocabulary" target="_blank" rel="noopener">complete-hsk-vocabulary</a> (MIT), pinyin from CC-CEDICT (CC BY-SA 4.0).</div></div>
       <input type="text" id="typingInput" placeholder="Click here and type…" autocomplete="off" spellcheck="false" />
       <div class="hint" id="hintEl" style="color:var(--muted);margin-top:8px">Letters are case‑insensitive. Punctuation is ignored by design on these levels.</div>
     </section>
@@ -253,11 +256,80 @@
 
     let level=1; let goal=30; let score=0; let index=0; let targetText=''; let started=false; let alphabetIndex=0; let levelStartTime=0; let correctKeys=0; let totalKeys=0;
 
+    const todayStr=(()=>{ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); })();
+    // --- Level 4 (id 5): Chinese pinyin flashcards. 10 common words a day (HSK 1-2). First study them (characters + pinyin),
+    // then only the characters are shown and the child types the pinyin (tone marks are not typed; v or u for ü). One peek per word;
+    // a peeked word comes back once more at the end of the round.
+    const PY_KEY='map-quiz-typing-pinyin', PY_PER=10;
+    let pyBank=[], pySet=[], pyQueue=[], pyPhase='study', pyI=0, pyPeeked=false, pyRetried=new Set(), pyPlain='';
+    let pyState={date:todayStr,from:0,done:false};
+    try{ const s=JSON.parse(localStorage.getItem(PY_KEY)); if(s){ pyState = s.date===todayStr ? s : {date:todayStr,from:s.done?s.from+PY_PER:s.from,done:false}; } }catch(e){}
+    const savePy=()=>{ try{ localStorage.setItem(PY_KEY,JSON.stringify(pyState)); }catch(e){} };
+    fetch('data/pinyin.json').then(r=>r.json()).then(j=>{ pyBank=j; if(pyState.from>=pyBank.length) pyState.from=0; savePy(); if(level===5) setLevel(5); }).catch(()=>{});
+    // plain letters of a pinyin string: no tone marks, no spaces, ü kept
+    const toPlain=p=>p.normalize('NFD').replace(/[\u0300-\u0307\u0309-\u036f]/g,'').normalize('NFC').replace(/[\s']/g,'').toLowerCase();
+    const pyEls={bar:()=>document.getElementById('pyBar'),next:()=>document.getElementById('pyNext'),peek:()=>document.getElementById('pyPeek'),out:()=>document.getElementById('pyPeekOut')};
+    function pyStart(){
+      pySet=pyBank.slice(pyState.from,pyState.from+PY_PER); pyQueue=pySet.slice(); pyRetried=new Set(); pyI=0; pyPhase='study'; goal=pyQueue.length||PY_PER;
+      document.getElementById('hintEl').textContent = pyState.done ? 'Today\'s 10 words are done. Come back tomorrow for 10 new ones (you can still practice these).' : 'Study today\'s 10 words, then type the pinyin from memory. No tone marks needed (v or u for ü). You can peek once per word.';
+      pyShow();
+    }
+    function pyShow(){
+      const w=pyQueue[pyI]; if(!w){ targetEl.innerHTML=''; return; }
+      pyEls.out().textContent=''; clearKeys(); clearFingers();
+      if(pyPhase==='study'){
+        targetEl.innerHTML='<div class="pyh">'+w.h+'</div><div class="pyp">'+w.p+'</div>';
+        blanksEl.style.display='none'; inputEl.style.display='none';
+        document.getElementById('stageLabel').textContent='Study · card '+(pyI+1)+' of '+pyQueue.length+' · say it out loud';
+        pyEls.next().textContent = pyI===pyQueue.length-1 ? "I'm ready — test me" : 'Next →';
+        pyEls.next().style.display=''; pyEls.peek().style.display='none';
+      } else {
+        pyPlain=toPlain(w.p); pyPeeked=false; index=0;
+        targetEl.innerHTML='<div class="pyh">'+w.h+'</div>';
+        document.getElementById('stageLabel').textContent='Type the pinyin · word '+(score+1)+' of '+goal;
+        inputEl.style.display=''; inputEl.value=''; blanksEl.style.display=''; renderPyBlanks();
+        pyEls.next().style.display='none'; pyEls.peek().style.display=''; pyEls.peek().disabled=false; pyEls.peek().textContent='👀 Peek (once)';
+        inputEl.focus(); pyHighlight();
+      }
+    }
+    function renderPyBlanks(wrongAt){
+      const w=pyQueue[pyI]; blanksEl.innerHTML=''; let n=0;
+      w.p.split(' ').forEach(syl=>{
+        const word=document.createElement('span'); word.className='word'; blanksEl.appendChild(word);
+        [...toPlain(syl)].forEach(ch=>{ const s=document.createElement('span'); s.className='bl'+(n<index?' done':'')+(n===index?' cur':'')+(n===wrongAt?' bad':''); s.textContent=ch; word.appendChild(s); n++; });
+      });
+    }
+    function pyHighlight(){
+      clearKeys(); clearFingers(); const ch=pyPlain[index]; if(!ch) return; const k=ch==='ü'?'v':ch;
+      const id=keyIdMap[k]; if(id) document.getElementById(id)?.classList.add('active');
+      const f=fingerMap[k]; if(f&&f!=='thumbs') fingerEls[f].classList.add('active');
+    }
+    function pyKey(k){
+      if(pyPhase!=='test'||!/^[a-z]$/i.test(k)) return;
+      totalKeys++; const exp=pyPlain[index], key=k.toLowerCase();
+      if(exp===key || (exp==='ü' && (key==='v'||key==='u'))){
+        correctKeys++; index++;
+        if(index>=pyPlain.length){
+          renderPyBlanks(); celebrateBig(pickPraise()); pyDone(); return;
+        }
+        renderPyBlanks(); pyHighlight();
+      } else { renderPyBlanks(index); setTimeout(()=>renderPyBlanks(),250); }
+    }
+    function pyDone(){
+      const w=pyQueue[pyI];
+      if(pyPeeked && !pyRetried.has(w.h)){ pyRetried.add(w.h); pyQueue.push(w); goal++; }
+      score++; updateProgress(); pyI++;
+      if(score>=goal){ showCongrats(); return; }
+      pyShow();
+    }
+    pyEls.next().addEventListener('click',()=>{ if(pyPhase!=='study') return; if(pyI>=pyQueue.length-1){ pyPhase='test'; pyI=0; score=0; updateProgress(); } else pyI++; pyShow(); });
+    pyEls.peek().addEventListener('click',()=>{ if(pyPeeked||pyPhase!=='test') return; pyPeeked=true; pyEls.out().textContent=pyQueue[pyI].p; pyEls.peek().disabled=true; inputEl.focus(); });
+    document.getElementById('pyHear').addEventListener('click',()=>{ const w=pyQueue[pyI]; if(!w||!window.speechSynthesis) return; const u=new SpeechSynthesisUtterance(w.h); u.lang='zh-CN'; u.rate=.8; speechSynthesis.cancel(); speechSynthesis.speak(u); });
+
     // --- Level 4: riddles. Type the riddle first, then the answer. Sentence on top, underlined blanks below; only letters and spaces are typed.
     let riddleBank=[], riddleSet=[], riddleStage=0;
     // Riddles are fixed groups of 5, shortest first; one group per day. A new day moves on to the next group only if the last one was finished.
     const RIDDLE_KEY='map-quiz-typing-riddles';
-    const todayStr=(()=>{ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); })();
     let riddleState={date:todayStr,from:0,done:false};
     try{ const s=JSON.parse(localStorage.getItem(RIDDLE_KEY)); if(s){ riddleState = s.date===todayStr ? s : {date:todayStr,from:s.done?s.from+5:s.from,done:false}; } }catch(e){}
     function saveRiddleState(){ try{ localStorage.setItem(RIDDLE_KEY,JSON.stringify(riddleState)); }catch(e){} }
@@ -289,18 +361,20 @@
     }
     // Internal level ids stay 2 (words), 3 (A→Z), 4 (riddles); the player sees them as Level 2, 1, 3 and plays them in that order.
     const DEFAULT_HINT='Letters are case‑insensitive. Punctuation is ignored by design on these levels.';
-    const LEVEL_NO={3:1,2:2,4:3}, LEVEL_ORDER=[3,2,4];
+    const LEVEL_NO={3:1,2:2,4:3,5:4}, LEVEL_ORDER=[3,2,4,5];
     function setLevel(lv){
       level = lv;
       document.querySelectorAll('.btn.level').forEach(b=>b.classList.remove('active'));
-      (lv===2?lv2Btn:lv===3?lv3Btn:lv4Btn).classList.add('active');
-      targetEl.classList.toggle('riddle', lv===4); blanksEl.style.display = lv===4 ? '' : 'none'; document.getElementById('stageLabel').style.display = lv===4 ? '' : 'none';
-      if(lv!==4) document.getElementById('hintEl').textContent = DEFAULT_HINT;
+      (lv===2?lv2Btn:lv===3?lv3Btn:lv===5?lv5Btn:lv4Btn).classList.add('active');
+      targetEl.classList.toggle('riddle', lv===4); blanksEl.style.display = lv===4 ? '' : 'none'; document.getElementById('stageLabel').style.display = (lv===4||lv===5) ? '' : 'none'; pyEls.bar().style.display = lv===5 ? '' : 'none'; inputEl.style.display = '';
+      if(lv!==4&&lv!==5) document.getElementById('hintEl').textContent = DEFAULT_HINT;
       if(lv===2){
         goal = 20;
       } else if(lv===3){
         goal = 26;
         alphabetIndex = 0;
+      } else if(lv===5){
+        goal = PY_PER;
       } else {
         goal = 5;
         pickRiddles();
@@ -316,7 +390,7 @@
 
     function updateProgress(){ const p = goal? Math.round((score/goal)*100):0; progBar.style.width=p+"%"; scoreMeta.textContent=score+"/"+goal; }
 
-    function newTarget(){ index=0; if(level===2){ // random common word
+    function newTarget(){ index=0; if(level===5){ pyStart(); inputEl.value=''; started=false; return; } if(level===2){ // random common word
         targetText = commonWords[Math.floor(Math.random()*commonWords.length)];
       } else if(level===4){ // riddle: type the letters, punctuation is filled in
         setStage(0);
@@ -332,11 +406,12 @@
       const secs=Math.max(0,(Date.now()-levelStartTime)/1000), wasPosted=day.posted;
       sessionDone.add(level); sess.correct+=correctKeys; sess.total+=totalKeys; sess.secs+=secs;
       if(level===4 && !riddleState.done){ riddleState.done=true; saveRiddleState(); }
+      if(level===5 && !pyState.done){ pyState.done=true; savePy(); }
       if(!wasPosted){ day.levels=[...sessionDone]; day.correct=sess.correct; day.total=sess.total; day.secs=sess.secs; }
       if(sessionDone.size<LEVEL_ORDER.length){ saveDay(); updateDayMeta(); flash('Level '+LEVEL_NO[level]+' complete!'); setLevel(firstPending()); return; }
       // all three levels done
       const acc = sess.total>0 ? (sess.correct/sess.total*100) : 100;
-      document.getElementById('congratsMsg').innerHTML = `All 3 levels complete!<br>Time: <b>${sess.secs.toFixed(1)}s</b> · Accuracy: <b>${acc.toFixed(1)}%</b>`;
+      document.getElementById('congratsMsg').innerHTML = `All ${LEVEL_ORDER.length} levels complete!<br>Time: <b>${sess.secs.toFixed(1)}s</b> · Accuracy: <b>${acc.toFixed(1)}%</b>`;
       document.getElementById('congrats').classList.add('show');
       if(!wasPosted){
         day.posted=true; saveDay();
@@ -350,12 +425,16 @@
     lv2Btn.addEventListener('click',()=>setLevel(2));
     lv3Btn.addEventListener('click',()=>setLevel(3));
     lv4Btn.addEventListener('click',()=>setLevel(4));
+    lv5Btn.addEventListener('click',()=>setLevel(5));
     restartBtn.addEventListener('click',()=>setLevel(level));
     const closeOverlay=()=>{ document.getElementById('congrats').classList.remove('show'); setLevel(firstPending()); };
     document.getElementById('closeCongrats').addEventListener('click',closeOverlay);
     document.getElementById('nextLevel').addEventListener('click',closeOverlay);
 
+    // Phone and tablet keyboards often report key "Unidentified"; their letters arrive as input events instead.
+    inputEl.addEventListener('input',()=>{ if(level!==5) return; const v=inputEl.value; inputEl.value=''; for(const ch of v) pyKey(ch); });
     inputEl.addEventListener('keydown',(e)=>{
+      if(level===5){ if(e.key.length===1 && !e.ctrlKey && !e.metaKey){ e.preventDefault(); pyKey(e.key); } return; }
       if(e.key==='Backspace'){
         if(index>0){ index--; const span=targetEl.children[index]; span.classList.remove('typed-ok','typed-bad'); highlightNext(); }
         return;
