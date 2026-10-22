@@ -282,8 +282,8 @@ function answer(k) {
 
 // Type-out step: letters and spaces are typed, punctuation and digits are filled in; a wrong key just flashes red.
 // French: accented letters count as typed letters; typing the plain letter (e for é) is accepted, œ and æ are filled in.
-const isTyped = ch => /[a-zà-ÿ]/i.test(ch) || ch === " ";
 const fold = ch => ch.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const isTyped = ch => /^[a-z]$/.test(fold(ch)) || ch === " ";
 function typeOut(text, onDone) {
   let idx = 0;
   curText = text;
