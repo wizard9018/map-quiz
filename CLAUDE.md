@@ -6,7 +6,7 @@ When a task needs Gemini (writing or checking quiz questions, riddles, explanati
 local gateway at `http://127.0.0.1:8045/v1/chat/completions` with the model **`gemini-3.8-flash` only**, every time.
 
 - Do not switch to other models (`gemini-3.1-pro-*`, `*-flash-lite`, `gemini-3.5-*`, `gemini-3.7-*`, etc.), and do not add fallback models. If a call fails or is rate limited (HTTP 429), wait and retry the same model, or lower the parallelism.
-- Keep parallel requests modest (about 6 at a time) so the quota is not exhausted.
+- Go slowly: at most 2 requests in parallel and a few seconds between requests. The gateway has warned about requests sent too fast and then rate-limited every account for days.
 - The API key is not stored in this repo. Ask the user for it if it is needed; never write it into a file.
 - Do not write Python scripts to call Gemini; use `curl` or short Node scripts kept outside the repo.
 

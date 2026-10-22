@@ -259,6 +259,15 @@ function answer(k) {
   // Wrong answer: read the explanation, then type it out (same way as the Typing riddles) before moving on.
   const head = `<b><span class="face" aria-hidden="true">🤔</span>Not this time, here's the cool part</b>`;
   if (!q.e) { after.innerHTML = `<div class="why">${head}The answer is ${esc(q.a[q.c])}.</div>` + nextBtn; document.getElementById("next").onclick = goNext; return; }
+  if (!reviewRun) {
+    // First time wrong: just read the explanation (out loud, or with the listen button). Typing it is only for a miss in the mistakes review.
+    const hear = () => { if (FR) { synth && (synth.cancel(), speak(q.e)); } else if (window.speechSynthesis) { const u = new SpeechSynthesisUtterance(q.e); u.lang = "en-US"; u.rate = 0.9; speechSynthesis.cancel(); speechSynthesis.speak(u); } };
+    after.innerHTML = `<div class="why">${head}${synth ? words(q.e) : esc(q.e)}<small style="display:block;margin-top:.4rem;color:var(--muted)">${FR ? "Lis-le à voix haute." : "Read it out loud."}</small></div>` +
+      `<button class="btn" id="hearE" style="margin-right:.5rem">🔊 ${FR ? "Écouter" : "Listen"}</button>` + nextBtn;
+    document.getElementById("hearE").onclick = hear;
+    document.getElementById("next").onclick = goNext;
+    return;
+  }
   after.innerHTML = `<div class="why">${head}<div class="tgt" id="tgt"></div><div class="blanks" id="blanks"></div></div>` +
     `<input id="typer" type="text" placeholder="Type the sentence above to continue…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Type the explanation">`;
   speak(q.e);
