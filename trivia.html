@@ -52,6 +52,7 @@
     #typer:focus{outline:none;border-color:var(--blue)}
     .progress{height:10px;background:var(--line);border-radius:999px;overflow:hidden;margin:0 0 10px}
     .progress>span{display:block;height:100%;width:0;background:var(--green)}
+    .gloss{position:sticky;bottom:6px;margin:8px 2px 0;padding:8px 12px;border-radius:12px;background:#fff8dc;border:2px solid #ffc800;font-weight:700;font-size:.95rem;line-height:1.4;display:none}.gloss b{color:#46a302}
     .artbox{background:#f4f8ff;border-left:4px solid #1cb0f6;border-radius:8px;padding:.7rem 1rem;margin:0 0 .8rem;max-height:60vh;overflow:auto}.art{margin:.3rem 0;line-height:1.7;font-size:1.05rem}.ah{margin:.8rem 0 .2rem;font-size:1rem;color:var(--muted)}.pas summary{cursor:pointer;font-weight:700}.pas p{margin:.3rem 0}
     .pas{background:#f4f8ff;border-left:4px solid #1cb0f6;border-radius:8px;padding:.6rem .8rem;margin:0 0 .8rem;line-height:1.55}.pas .src{display:block;font-size:.65rem;color:var(--muted);margin-top:.3rem}.credit{font-size:.65rem;color:var(--muted);margin:12px 2px 0;line-height:1.4}
     ul{padding-left:18px;margin:8px 0}
@@ -61,6 +62,7 @@
 <div class="wrap">
   <div class="card" id="card"></div>
   <div id="status" role="status" aria-live="polite" style="position:absolute;left:-9999px"></div>
+  <div id="gloss" class="gloss" role="status" aria-live="polite"></div>
   <p class="credit">Questions: <a href="https://opentdb.com" target="_blank" rel="noopener">Open Trivia DB</a> (CC BY-SA 4.0) and the U.S. Department of Energy National Science Bowl practice rounds, plus beginner questions written with Gemini and fact-checked. Each day is the next 10 questions, easiest first.</p>
 </div>
 <script>
@@ -83,13 +85,26 @@ function speak(t) {
   u.rate = slow ? 0.65 : 0.9;
   synth.speak(u);
 }
+// English meaning of a tapped word (data/fr-gloss.json, loaded on the first tap). "l'armoire" shows both parts.
+let glossData = null;
+function showGloss(token) {
+  const box = document.getElementById("gloss");
+  const render = () => {
+    const parts = token.toLowerCase().replace(/[«»"“”.,;:!?()…]/g, "").split(/['’\-]+/).filter(Boolean);
+    const rows = parts.map(p => glossData[p] || glossData[p + "'"] ? [p, glossData[p] || glossData[p + "'"]] : null).filter(Boolean);
+    box.innerHTML = rows.length ? rows.map(([p, g]) => "<b>" + esc(p) + "</b> — " + esc(g)).join("<br>") : "<b>" + esc(token) + "</b> — no English meaning found";
+    box.style.display = "block";
+  };
+  if (glossData) return render();
+  fetch("data/fr-gloss.json").then(r => r.json()).then(d => { glossData = d; render(); }).catch(() => { glossData = {}; render(); });
+}
 // Spelling questions only read the stem: the options differ in spelling, not in sound.
 function sayQuestion(q) { synth.cancel(); if (q.p && !q.full) speak(q.p); speak(q.q); if (!/orthograph|bien écrit|mal écrit/i.test(q.q)) q.a.forEach(speak); }
 const stopSpeech = () => { if (synth) synth.cancel(); };
 document.addEventListener("click", e => {
   if (!synth) return;
   const w = e.target.closest(".w");
-  if (w) { synth.cancel(); speak(w.textContent); return; }
+  if (w) { synth.cancel(); speak(w.textContent); showGloss(w.textContent); return; }
   const c = e.target.closest("#tgt .c");
   if (c) { // a letter of the sentence being typed: say the word it belongs to
     const n = +c.dataset.n, a = curText.lastIndexOf(" ", n) + 1, b = curText.indexOf(" ", n);
@@ -99,8 +114,8 @@ document.addEventListener("click", e => {
 });
 const KEY = "map-quiz-trivia-" + cat;
 const card = document.getElementById("card");
-if (cat === "frlire") document.querySelector(".credit").innerHTML = 'Textes tirés de <a href="https://fr.vikidia.org" target="_blank" rel="noopener">Vikidia</a>, l’encyclopédie des 8-13 ans (CC BY-SA 3.0); questions écrites avec Gemini et vérifiées. Chaque jour, un texte entier.';
-else if (FR) document.querySelector(".credit").innerHTML = 'Questions écrites avec Gemini et vérifiées; vocabulaire choisi parmi les mots les plus fréquents de <a href="https://github.com/hermitdave/FrequencyWords" target="_blank" rel="noopener">FrequencyWords</a> (CC BY-SA 4.0). Chaque jour, les 10 questions suivantes.';
+if (cat === "frlire") document.querySelector(".credit").innerHTML = 'Textes tirés de <a href="https://fr.vikidia.org" target="_blank" rel="noopener">Vikidia</a>, l’encyclopédie des 8-13 ans (CC BY-SA 3.0); questions écrites avec Gemini et vérifiées. Chaque jour, un texte entier. Sens des mots : <a href="https://en.wiktionary.org" target="_blank" rel="noopener">Wiktionary</a> (CC BY-SA 4.0).';
+else if (FR) document.querySelector(".credit").innerHTML = 'Questions écrites avec Gemini et vérifiées; vocabulaire choisi parmi les mots les plus fréquents de <a href="https://github.com/hermitdave/FrequencyWords" target="_blank" rel="noopener">FrequencyWords</a> (CC BY-SA 4.0). Chaque jour, les 10 questions suivantes. Sens des mots : <a href="https://en.wiktionary.org" target="_blank" rel="noopener">Wiktionary</a> (CC BY-SA 4.0).';
 const today = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })();
 
 // state: { date, from, done } - done = score of today's set once finished.
