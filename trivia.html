@@ -15,6 +15,8 @@
     .q{font-size:1.1rem;line-height:1.4;margin:10px 0 14px}
     .w{cursor:pointer;border-radius:4px}
     .w:hover{background:#dbeafe}
+    .hint{color:var(--muted,#6b7280);font-style:italic}
+    [hidden]{display:none!important}
     .fr #tgt .c{cursor:pointer}
     .tag{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--blue);margin-right:8px}
     .opt{display:block;width:100%;text-align:left;margin:0 0 8px;padding:10px 14px;background:#fff;color:var(--text);border:2px solid var(--line);border-radius:14px;box-shadow:0 3px 0 var(--line);font:inherit;cursor:pointer}
@@ -74,8 +76,14 @@ if (FR) { document.documentElement.lang = "fr"; document.body.classList.add("fr"
 
 // French listening: every question is read aloud (stem, then the options); tap any word to hear it again.
 const synth = FR && window.speechSynthesis;
-let frVoice = null, slow = false, curText = "";
-try { slow = localStorage.getItem("map-quiz-fr-slow") === "1"; } catch (e) { /* storage unavailable */ }
+let frVoice = null, slow = false, listenFirst = true, curText = "";
+try { slow = localStorage.getItem("map-quiz-fr-slow") === "1"; listenFirst = localStorage.getItem("map-quiz-fr-listen") !== "0"; } catch (e) { /* storage unavailable */ }
+// Listen first: the question text stays hidden until the child asks for it (or answers).
+function setText(visible) {
+  const t = document.getElementById("qt"); if (!t) return;
+  t.hidden = !visible; document.getElementById("qh").hidden = visible;
+  const r = document.getElementById("reveal"); if (r) r.hidden = visible;
+}
 function pickVoice() { const vs = synth.getVoices(); frVoice = vs.find(v => /^fr[-_]ca$/i.test(v.lang)) || vs.find(v => /^fr/i.test(v.lang)) || null; }
 if (synth) { pickVoice(); synth.onvoiceschanged = pickVoice; }
 function speak(t) {
@@ -227,7 +235,7 @@ function showReading() {
 function show() {
   const q = set[i];
   card.innerHTML = `<div class="progress"><span style="width:${100 * i / set.length}%"></span></div>` +
-    `<p class="meta"><span class="tag">${q.d}</span>${i + 1} / ${set.length}</p>${q.full ? `<details class="pas"><summary>📖 Relire le texte</summary>${q.p.split("\n").map(l => `<p>${esc(l)}</p>`).join("")}</details>` : q.p ? `<p class="pas">${synth ? words(q.p) : esc(q.p)} <a class="src" href="https://fr.vikidia.org/wiki/${encodeURIComponent(q.src.replace(/ /g, "_"))}" target="_blank" rel="noopener">Vikidia · ${esc(q.src)}</a></p>` : ""}<p class="q">${synth ? words(q.q) : esc(q.q)}</p>` +
+    `<p class="meta"><span class="tag">${q.d}</span>${i + 1} / ${set.length}</p>${q.full ? `<details class="pas"><summary>📖 Relire le texte</summary>${q.p.split("\n").map(l => `<p>${esc(l)}</p>`).join("")}</details>` : q.p ? `<p class="pas">${synth ? words(q.p) : esc(q.p)} <a class="src" href="https://fr.vikidia.org/wiki/${encodeURIComponent(q.src.replace(/ /g, "_"))}" target="_blank" rel="noopener">Vikidia · ${esc(q.src)}</a></p>` : ""}<p class="q">${synth ? `<span id="qt"${listenFirst ? " hidden" : ""}>${words(q.q)}</span><span id="qh" class="hint"${listenFirst ? "" : " hidden"}>🎧 Écoute bien la question…</span>` : esc(q.q)}</p>` +
     q.a.map((t, k) => `<button class="opt" data-k="${k}">${esc(t)}</button>`).join("") + `<div id="after"></div>`;
   card.querySelectorAll(".opt").forEach(b => b.onclick = () => answer(+b.dataset.k));
   if (synth) {
@@ -238,7 +246,15 @@ function show() {
       try { localStorage.setItem("map-quiz-fr-slow", slow ? "1" : ""); } catch (e) { /* storage unavailable */ }
       sayQuestion(q);
     });
-    card.querySelector(".q").after(mk("🔊 Écouter", () => sayQuestion(q)), slowBtn);
+    const listenLabel = () => "👂 Écoute d'abord : " + (listenFirst ? "oui" : "non");
+    const listenBtn = mk(listenLabel(), () => {
+      listenFirst = !listenFirst; listenBtn.textContent = listenLabel();
+      try { localStorage.setItem("map-quiz-fr-listen", listenFirst ? "1" : "0"); } catch (e) { /* storage unavailable */ }
+      setText(!listenFirst);
+    });
+    const reveal = mk("👁 Voir le texte", () => setText(true));
+    reveal.id = "reveal"; reveal.hidden = !listenFirst;
+    card.querySelector(".q").after(mk("🔊 Écouter", () => sayQuestion(q)), reveal, slowBtn, listenBtn);
     sayQuestion(q);
   }
 }
@@ -248,6 +264,7 @@ function answer(k) {
   const q = set[i];
   const isRight = k === q.c;
   stopSpeech();
+  setText(true);
   track(q, isRight);
   card.querySelectorAll(".opt").forEach(b => {
     b.disabled = true;
