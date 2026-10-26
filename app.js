@@ -266,11 +266,12 @@ function continentCountries(continent) {
 }
 
 // Ebbinghaus-style spaced repetition for the geo/chem tabs: each unit
-// (region card) shows up one at a time. A perfect first-try quiz moves it to
-// the next interval; any miss sends it back to tomorrow.
+// (region card) shows up one at a time. A unit quizzed perfectly the first time
+// is learned and never comes back; a unit with a miss is reviewed tomorrow, then
+// after 2 and 4 days, and is learned after 3 perfect reviews (any miss restarts it).
 const SRS_KEY = "map-quiz-srs"; // { [region]: { step, due: "YYYY-MM-DD" } }
-const SRS_DAYS = [1, 2, 4, 7, 15, 30, 60];
-const SRS_MASTERED = 2; // step reached by the 3rd perfect quiz in a row: the unit is learned and no longer comes back
+const SRS_DAYS = [1, 2, 4];
+const SRS_MASTERED = 3; // step of a learned unit: it is no longer due
 const SRS_TABS = ["geo", "chem"];
 let srs = {};
 try { srs = JSON.parse(localStorage.getItem(SRS_KEY)) || {}; } catch (e) { srs = {}; }
@@ -283,8 +284,8 @@ function dateStrPlus(days) {
 
 function srsRecord(region, perfect) {
   if (srs[region]?.due > todayDateStr()) return; // already scheduled today (e.g. Try Again), don't double-count
-  const step = perfect ? Math.min((srs[region]?.step ?? -1) + 1, SRS_DAYS.length - 1) : 0;
-  srs[region] = { step, due: dateStrPlus(SRS_DAYS[step]) };
+  const step = !perfect ? 0 : srs[region] ? srs[region].step + 1 : SRS_MASTERED;
+  srs[region] = { step, due: step >= SRS_MASTERED ? "9999-12-31" : dateStrPlus(SRS_DAYS[step]) };
   try { localStorage.setItem(SRS_KEY, JSON.stringify(srs)); } catch (e) { /* storage unavailable */ }
 }
 
