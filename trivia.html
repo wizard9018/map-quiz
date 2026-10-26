@@ -137,10 +137,11 @@ function loadState() {
 }
 function saveState(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { /* storage unavailable */ } }
 
-// Mistakes notebook (kept locally): every wrong answer comes back after 1, 2, 4, 7, 15, 30 and 60 days.
-// A right answer in a review moves it to the next interval (after the last one it is mastered and removed);
+// Mistakes notebook (kept locally): a wrong answer comes back tomorrow, then after 2 and 4 days.
+// A right answer in a review moves it to the next interval; after 3 right answers it is mastered and removed;
 // a wrong answer sends it back to tomorrow.
-const SRS_DAYS = [1, 2, 4, 7, 15, 30, 60];
+const SRS_DAYS = [1, 2, 4];
+const MASTERED = 3;
 const WKEY = "map-quiz-wrong-" + cat;
 const dayPlus = n => { const d = new Date(); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
 function loadWrong() { try { return JSON.parse(localStorage.getItem(WKEY)) || {}; } catch (e) { return {}; } }
@@ -152,7 +153,7 @@ function track(q, right) {
     const r = w[k];
     if (!r) return;
     if (!right) { r.step = 0; r.due = dayPlus(SRS_DAYS[0]); }
-    else if (++r.step >= SRS_DAYS.length) delete w[k];
+    else if (++r.step >= MASTERED) delete w[k];
     else r.due = dayPlus(SRS_DAYS[r.step]);
   } else if (!right) w[k] = { o: q, step: 0, due: dayPlus(SRS_DAYS[0]) };
   saveWrong(w);

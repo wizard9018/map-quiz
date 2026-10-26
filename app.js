@@ -270,6 +270,7 @@ function continentCountries(continent) {
 // the next interval; any miss sends it back to tomorrow.
 const SRS_KEY = "map-quiz-srs"; // { [region]: { step, due: "YYYY-MM-DD" } }
 const SRS_DAYS = [1, 2, 4, 7, 15, 30, 60];
+const SRS_MASTERED = 2; // step reached by the 3rd perfect quiz in a row: the unit is learned and no longer comes back
 const SRS_TABS = ["geo", "chem"];
 let srs = {};
 try { srs = JSON.parse(localStorage.getItem(SRS_KEY)) || {}; } catch (e) { srs = {}; }
@@ -320,7 +321,7 @@ function tabUnits(tab) {
 }
 function dueUnits(units) {
   const today = todayDateStr();
-  return units.filter(c => srs[c.dataset.region] && srs[c.dataset.region].due <= today)
+  return units.filter(c => srs[c.dataset.region] && srs[c.dataset.region].step < SRS_MASTERED && srs[c.dataset.region].due <= today)
     .sort((a, b) => srs[a.dataset.region].due.localeCompare(srs[b.dataset.region].due));
 }
 function geoDaily(units) {
