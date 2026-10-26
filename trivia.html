@@ -193,10 +193,13 @@ function showIntro(total) {
   const levels = [...new Set(set.map(q => q.d))].join(" / ");
   card.innerHTML = `<h1>${NAMES[cat]} · ${cat === "frlire" ? "le texte du jour" : "Daily " + set.length}</h1>` +
     `<p class="meta">${cat === "frlire" ? "Texte " + (state.from + 1) + " sur " + total + " · lis, puis réponds à " + set.length + " questions · " + levels : "Questions " + (state.from + 1) + "–" + (state.from + set.length) + " of " + total + " · " + levels}</p>` +
-    `<button class="btn" id="start">Start</button>` + reviewBlock();
-  document.getElementById("start").onclick = () => start(false);
+    (FR && dueCount() ? `<p class="meta">Révise d'abord tes erreurs, ensuite les 10 questions du jour.</p>` : `<button class="btn" id="start">Start</button>`) + reviewBlock();
+  const startBtn = document.getElementById("start");
+  if (startBtn) startBtn.onclick = () => start(false);
   bindReview();
 }
+// French: the mistakes due today come first; the daily 10 unlock once they are reviewed.
+const dueCount = () => Object.values(loadWrong()).filter(r => r.due <= today).length;
 function showDone() {
   card.innerHTML = `<h1>${NAMES[cat]} · Done for today ✓</h1><p class="meta">Score ${state.done.correct} / ${state.done.total}. ${cat === "frlire" ? "Reviens demain pour un nouveau texte." : "Come back tomorrow for the next " + PER_DAY + "."}</p>` +
     `<button class="btn" id="again">Practice again</button>` + reviewBlock();
