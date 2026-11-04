@@ -1,0 +1,1336 @@
+{
+ "title": "The Seventh Most Important Thing",
+ "author": "Shelley Pearsall",
+ "quizzes": [
+  {
+   "id": 1,
+   "label": "One to Twelve",
+   "qs": [
+    {
+     "q": "What did thirteen-year-old Arthur throw at the old man?",
+     "a": [
+      "A snowball",
+      "A brick",
+      "A bottle",
+      "A shoe"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "One brick, one giant mistake.",
+     "k": "story"
+    },
+    {
+     "q": "What did people in the neighborhood call the old man with the rusty grocery cart?",
+     "a": [
+      "The Tinker",
+      "The Cart Captain",
+      "The Junk Man",
+      "The Garbage King"
+     ],
+     "c": 2,
+     "d": "easy",
+     "e": "He picked up trash, so the name stuck.",
+     "k": "story"
+    },
+    {
+     "q": "Why did the brick only hit the old man's shoulder?",
+     "a": [
+      "Arthur threw it gently",
+      "A wobbly cart wheel and bad aim",
+      "The old man caught it",
+      "It bounced off a wall"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Wind, a wobbly wheel, and bad aim saved him.",
+     "k": "story"
+    },
+    {
+     "q": "How long did Arthur stay in juvie before his court hearing?",
+     "a": [
+      "One day",
+      "Three weeks",
+      "Three months",
+      "One year"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Three long weeks, with Thanksgiving missed.",
+     "k": "story"
+    },
+    {
+     "q": "What was the Junk Man's real name?",
+     "a": [
+      "James Hampton",
+      "Philip Warner",
+      "Tom Owens",
+      "Wanda Billie"
+     ],
+     "c": 0,
+     "d": "easy",
+     "e": "Even the Junk Man had a proper name!",
+     "k": "story"
+    },
+    {
+     "q": "Instead of a long stay in juvie, what did the judge say Arthur must do?",
+     "a": [
+      "Write an apology letter",
+      "Work for Mr. Hampton",
+      "Move to a new town",
+      "Pay money every week"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Mr. Hampton asked for work, not revenge.",
+     "k": "story"
+    },
+    {
+     "q": "Which word did Arthur look up in the dictionary that night?",
+     "a": [
+      "Probation",
+      "Justice",
+      "Redemption",
+      "Obligation"
+     ],
+     "c": 2,
+     "d": "medium",
+     "e": "The judge said it, so Arthur dug in.",
+     "k": "story"
+    },
+    {
+     "q": "Where did Arthur find the old motorcycle cap that looked like his father's?",
+     "a": [
+      "In the closet",
+      "On the porch steps",
+      "In his school bag",
+      "In the mailbox"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "A mystery gift, with a cardboard note!",
+     "k": "story"
+    },
+    {
+     "q": "Where was Mr. Hampton's workplace, the little brick garage?",
+     "a": [
+      "Behind Groovy Jim's tattoo shop",
+      "Inside the courthouse",
+      "Behind the school",
+      "On a farm"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "Groovy Jim pointed the way, kiddo.",
+     "k": "story"
+    },
+    {
+     "q": "What did the cardboard note on the grocery cart ask Arthur to do?",
+     "a": [
+      "Wash the cart",
+      "Please Collect a list of things",
+      "Go home",
+      "Call the judge"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Seven Most Important Things, and Arthur's the collector.",
+     "k": "story"
+    },
+    {
+     "q": "Arthur's anger was really tangled up with missing his dad. What helps when a feeling is too big?",
+     "a": [
+      "Hold it in forever",
+      "Throw something",
+      "Tell someone you trust",
+      "Pretend nothing is wrong"
+     ],
+     "c": 2,
+     "d": "easy",
+     "e": "Big anger is often sadness in a costume!",
+     "k": "life"
+    },
+    {
+     "q": "Mr. Hampton chose a second chance over revenge. What does that show?",
+     "a": [
+      "Forgiving can help people grow",
+      "Punishing is always best",
+      "Old people are easy to fool",
+      "Mistakes never matter"
+     ],
+     "c": 0,
+     "d": "easy",
+     "e": "A second chance can be the strongest gift.",
+     "k": "life"
+    },
+    {
+     "q": "Arthur never knew the Junk Man had a real name. What can we learn?",
+     "a": [
+      "Names are not important",
+      "Only famous people have stories",
+      "Everyone has a name and a story",
+      "Never talk to strangers"
+     ],
+     "c": 2,
+     "d": "easy",
+     "e": "Everybody is somebody, even before we meet them!",
+     "k": "life"
+    },
+    {
+     "q": "Arthur snapped at little Barbara when she asked scary questions. What would be kinder?",
+     "a": [
+      "Tell her to be quiet",
+      "Ignore her",
+      "Say it's a silly question",
+      "Answer gently, because she is scared too"
+     ],
+     "c": 3,
+     "d": "easy",
+     "e": "Little hearts hurt too, so go gently.",
+     "k": "life"
+    },
+    {
+     "q": "Officer Billie told Arthur 'no excuses.' What is the lesson?",
+     "a": [
+      "Excuses make you look smart",
+      "Own your choices and show up",
+      "Never be late",
+      "Grown-ups are always right"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Own it, then fix it. That's brave.",
+     "k": "life"
+    },
+    {
+     "q": "Arthur used different things than the list asked for because it was 'close enough.' What can we learn?",
+     "a": [
+      "Close enough is always fine",
+      "Do what was asked, or ask why",
+      "Lists are for lazy people",
+      "Nobody checks anyway"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Almost right is still not right!",
+     "k": "life"
+    },
+    {
+     "q": "Arthur lied to Groovy Jim and felt guilty. Why does honesty feel better?",
+     "a": [
+      "Lies are for grown-ups",
+      "People like liars more",
+      "Nobody ever finds out",
+      "Lies feel heavy to carry"
+     ],
+     "c": 3,
+     "d": "easy",
+     "e": "Truth is light; lies are backpacks full of rocks.",
+     "k": "life"
+    },
+    {
+     "q": "Arthur's mom made a rule: talk to her when you're upset. Why does this help?",
+     "a": [
+      "Words are boring",
+      "Sharing a feeling makes it lighter",
+      "Moms know everything",
+      "It stops all problems"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "A worry shared is a worry halved!",
+     "k": "life"
+    },
+    {
+     "q": "Arthur wanted to quit the cart job, but he went back. What does this show?",
+     "a": [
+      "Quitting is smarter",
+      "Hard jobs are never worth it",
+      "Only adults can be brave",
+      "Facing hard things builds courage"
+     ],
+     "c": 3,
+     "d": "medium",
+     "e": "Brave means trying even when it's tough.",
+     "k": "life"
+    },
+    {
+     "q": "Arthur's bad cart wheel kept sticking, but he kept trying to fix it. What does that teach?",
+     "a": [
+      "Keep trying small fixes, step by step",
+      "Break things that don't work",
+      "Give the cart to someone else",
+      "Complain until it's fixed"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "Stuck wheels move with patience and a good kick!",
+     "k": "life"
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "label": "Thirteen to Twenty-Three",
+   "qs": [
+    {
+     "q": "What did Officer Billie scold Arthur for on the phone?",
+     "a": [
+      "Being rude to Barbara",
+      "Not following Mr. Hampton's directions",
+      "Missing school",
+      "Losing the cart"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Directions matter, even odd ones!",
+     "k": "story"
+    },
+    {
+     "q": "Where did the vice principal move Arthur's locker?",
+     "a": [
+      "Next to the library",
+      "Near the gym, far from the other seventh graders",
+      "Inside the cafeteria",
+      "By the front door"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "A lonely locker with a stinky smell.",
+     "k": "story"
+    },
+    {
+     "q": "What quote did Mr. Hampton add to the cart sign?",
+     "a": [
+      "Home is where the heart is",
+      "Where there is no vision, the people perish",
+      "Look before you leap",
+      "Slow and steady wins"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Mysterious words in blue pen.",
+     "k": "story"
+    },
+    {
+     "q": "What big thing did Arthur find in the trash on his second Saturday, right after talking to Groovy Jim?",
+     "a": [
+      "A mirror",
+      "A bicycle",
+      "A TV",
+      "A piano"
+     ],
+     "c": 0,
+     "d": "easy",
+     "e": "Just what the list wanted. A bit cracked, but perfect!",
+     "k": "story"
+    },
+    {
+     "q": "What happened when Arthur and his mom started building the Christmas tree?",
+     "a": [
+      "The lights blew out",
+      "The tree fell over on Arthur",
+      "Barbara hid the branches",
+      "The cat knocked it down"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Timber! Then Mom laughed until she cried.",
+     "k": "story"
+    },
+    {
+     "q": "What did Officer Billie bring Arthur at Christmas?",
+     "a": [
+      "A toy car",
+      "A cookie tin of caramel corn",
+      "A new coat",
+      "A book"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Tough cop, sweet treat!",
+     "k": "story"
+    },
+    {
+     "q": "What did Arthur give his mom for Christmas?",
+     "a": [
+      "A flowerpot shaped like a watering can",
+      "A scarf",
+      "A perfume bottle",
+      "A silver coin"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "A trash-can treasure, fixed up with love.",
+     "k": "story"
+    },
+    {
+     "q": "When Barbara asked Mr. Hampton about his cart, what did he say it was?",
+     "a": [
+      "A wheelbarrow",
+      "A chariot without visible horses",
+      "A robot",
+      "A boat"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Giddy up, invisible horses!",
+     "k": "story"
+    },
+    {
+     "q": "What did Barbara show Arthur that Mr. Hampton had given her?",
+     "a": [
+      "A button",
+      "A silver toaster knob",
+      "A marble",
+      "A penny"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Her 'pretty silver bead' came from Arthur's toaster!",
+     "k": "story"
+    },
+    {
+     "q": "Where was Squeak (Reginald) when Arthur found him at school?",
+     "a": [
+      "Stuck in a locker",
+      "In a trash can full of basketballs",
+      "On the roof",
+      "In the bathroom"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Bullies' idea of fun. Arthur's idea of rescue.",
+     "k": "story"
+    },
+    {
+     "q": "Arthur gave excuses, but Officer Billie wanted a straight answer. What is the lesson?",
+     "a": [
+      "Excuses always work",
+      "Listen to the question and answer it honestly",
+      "Hang up quickly",
+      "Blame someone else"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Straight answers beat long excuses.",
+     "k": "life"
+    },
+    {
+     "q": "At school, everyone avoided Arthur because of his past. What should we remember?",
+     "a": [
+      "People are only their worst moment",
+      "Stay away from everyone",
+      "Ignore new kids",
+      "Rumors are always true"
+     ],
+     "c": 0,
+     "d": "easy",
+     "e": "One mistake isn't the whole story!",
+     "k": "life"
+    },
+    {
+     "q": "Groovy Jim said 'vision' means looking deeper to see possibilities. How could you use that?",
+     "a": [
+      "Look quickly and move on",
+      "Look at what something could become",
+      "Only trust what you see first",
+      "Throw away old things"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Look twice, see the sparkle in the junk!",
+     "k": "life"
+    },
+    {
+     "q": "Arthur's family laughed over the fallen tree even though they were sad. What does that show?",
+     "a": [
+      "Laughing is rude when you're sad",
+      "It's okay to laugh in hard times",
+      "Trees are funny",
+      "Sad people shouldn't talk"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Laughter makes heavy hearts a little lighter.",
+     "k": "life"
+    },
+    {
+     "q": "The tree lights made the family feel hopeful. What do small bright things teach us?",
+     "a": [
+      "Little lights can warm a dark time",
+      "Only big things matter",
+      "Lights cost too much",
+      "Darkness always wins"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "One little light can brighten a whole room!",
+     "k": "life"
+    },
+    {
+     "q": "Someone threw out a flowerpot, but it became the perfect gift. What can we learn?",
+     "a": [
+      "Never fix broken things",
+      "Things can matter more to someone else",
+      "Presents must be expensive",
+      "Trash is always trash"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "One person's junk is another's treasure!",
+     "k": "life"
+    },
+    {
+     "q": "Mom threw out Dad's cap, thinking it did not matter, but it mattered to Arthur. What helps?",
+     "a": [
+      "Guess what others need",
+      "Ask what matters to them",
+      "Keep everything forever",
+      "Never give gifts"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Asking beats guessing, every time.",
+     "k": "life"
+    },
+    {
+     "q": "Barbara learned a lot from Mr. Hampton just by being friendly and curious. What does that show?",
+     "a": [
+      "Kids shouldn't talk to anyone",
+      "Kindness and curiosity open doors",
+      "Questions are annoying",
+      "Shy people win"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "A friendly hello can unlock great stories!",
+     "k": "life"
+    },
+    {
+     "q": "Arthur helped Squeak even though nobody asked him to. What does that show?",
+     "a": [
+      "Helping others takes courage",
+      "Mind your own business",
+      "Never get involved",
+      "Heroes never feel scared"
+     ],
+     "c": 0,
+     "d": "easy",
+     "e": "Real heroes help even when they're scared.",
+     "k": "life"
+    },
+    {
+     "q": "Officer Billie seemed grumpy, yet she shared her caramel corn. What do we learn?",
+     "a": [
+      "Grumpy people can't be kind",
+      "People can surprise you",
+      "Never accept gifts",
+      "Don't say thank you"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Under a tough shell can be a soft heart!",
+     "k": "life"
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "label": "The Second Important Thing to Thirty-Four",
+   "qs": [
+    {
+     "q": "What was Squeak's lunch always wrapped in?",
+     "a": [
+      "Wax paper",
+      "Foil",
+      "Plastic bags",
+      "Newspaper"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Neat, shiny, and just what Arthur needed!",
+     "k": "story"
+    },
+    {
+     "q": "Squeak called Mr. Hampton an 'enigma.' What does that word mean?",
+     "a": [
+      "A very loud person",
+      "Someone who doesn't make sense",
+      "A kind neighbor",
+      "A famous artist"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Enigma means a puzzle in a person-shaped box.",
+     "k": "story"
+    },
+    {
+     "q": "The new sign on the cart said 'FIND THRONE CHAIR.' What did Arthur bring back?",
+     "a": [
+      "A plastic lawn chair",
+      "A red velvet chair with gold paint",
+      "A rocking chair",
+      "A wooden stool"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "A throne fit for a king, found in the trash!",
+     "k": "story"
+    },
+    {
+     "q": "Where was Mr. Hampton when Arthur found him?",
+     "a": [
+      "Lying on the garage floor",
+      "Sitting in his chair",
+      "At the grocery store",
+      "Outside on the curb"
+     ],
+     "c": 0,
+     "d": "easy",
+     "e": "Arthur followed the open door to find him.",
+     "k": "story"
+    },
+    {
+     "q": "What did Arthur see when he turned on the lights in the garage?",
+     "a": [
+      "Gold and silver furniture covered in wings",
+      "A pile of old bikes",
+      "An empty room",
+      "A car engine"
+     ],
+     "c": 0,
+     "d": "easy",
+     "e": "Wow! Junk that glittered like treasure.",
+     "k": "story"
+    },
+    {
+     "q": "What did Mr. Hampton say he was building?",
+     "a": [
+      "A boat",
+      "The Throne of the Third Heaven",
+      "A bicycle shop",
+      "A toy museum"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "A real masterpiece, made from trash!",
+     "k": "story"
+    },
+    {
+     "q": "What nickname did Mr. Hampton give Arthur?",
+     "a": [
+      "Brick Boy",
+      "Saint Arthur",
+      "Artie the Great",
+      "Junior"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "A saint with a wobbly record!",
+     "k": "story"
+    },
+    {
+     "q": "Who came to pick Arthur up from the hospital, wearing karate clothes?",
+     "a": [
+      "Groovy Jim",
+      "Squeak's mom",
+      "Officer Billie",
+      "Judge Warner"
+     ],
+     "c": 2,
+     "d": "easy",
+     "e": "Surprise! The tough cop does karate.",
+     "k": "story"
+    },
+    {
+     "q": "What hard news did Officer Billie share at the diner?",
+     "a": [
+      "Arthur was going back to juvie",
+      "Mr. Hampton was very sick and might not live long",
+      "Groovy Jim was moving away",
+      "The garage was closing"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "A sad truth that Arthur wasn't ready for.",
+     "k": "story"
+    },
+    {
+     "q": "What did Squeak write on his sign when he stood on the cafeteria table?",
+     "a": [
+      "Please Stop",
+      "Go Ahead. Throw Things at Me.",
+      "I Am Not Afraid of Vice",
+      "Leave Arthur Alone"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Squeak: tiny hero, giant bravery!",
+     "k": "story"
+    },
+    {
+     "q": "Squeak sat with Arthur even though everyone else stayed away. What does that show?",
+     "a": [
+      "Friendship starts with a kind choice",
+      "Lonely kids should be left alone",
+      "Only popular kids make friends",
+      "It's better to sit alone"
+     ],
+     "c": 0,
+     "d": "easy",
+     "e": "One seat can start a big friendship.",
+     "k": "life"
+    },
+    {
+     "q": "Squeak happily shared his foil without asking for anything back. What can we learn?",
+     "a": [
+      "Sharing is a waste",
+      "Giving freely makes friendships grow",
+      "Keep everything for yourself",
+      "Trade only for gifts"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Sharing a little can mean a lot.",
+     "k": "life"
+    },
+    {
+     "q": "After hearing Mr. Hampton was sick, Arthur wanted to run away from it all. What helps most?",
+     "a": [
+      "Never see Mr. Hampton again",
+      "Talk to a friend you trust",
+      "Pretend it never happened",
+      "Be angry at everyone"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "A friend can carry part of the heavy bag.",
+     "k": "life"
+    },
+    {
+     "q": "Squeak said, 'You helped me last time. This time, it was my turn.' What does a good friend do?",
+     "a": [
+      "Takes turns helping",
+      "Keeps score of favors",
+      "Waits to be asked",
+      "Only helps strong friends"
+     ],
+     "c": 0,
+     "d": "easy",
+     "e": "Friends take turns being the hero.",
+     "k": "life"
+    },
+    {
+     "q": "Squeak stood on the table, even though he looked silly. What does that show?",
+     "a": [
+      "Standing up for friends takes courage",
+      "Looking silly is always bad",
+      "Teachers can't be trusted",
+      "Only big kids are brave"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "Courage looks different than muscles.",
+     "k": "life"
+    },
+    {
+     "q": "Mr. Hampton said the brick that hurt him actually 'saved' him. What does this show?",
+     "a": [
+      "Bad events never help",
+      "How we see something can change its meaning",
+      "Bricks are lucky",
+      "Pain is always good"
+     ],
+     "c": 1,
+     "d": "hard",
+     "e": "The same story can have a brighter ending.",
+     "k": "life"
+    },
+    {
+     "q": "Mr. Hampton said building heaven takes years and a lifetime. What does this teach?",
+     "a": [
+      "Beautiful things take time and patience",
+      "Big projects are pointless",
+      "Quick work is best",
+      "Only experts can create"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "Great things grow one tiny piece at a time.",
+     "k": "life"
+    },
+    {
+     "q": "The nurse offered Arthur juice and cookies, and he said no, though he was hungry. What would be wiser?",
+     "a": [
+      "Say no to everything",
+      "Accept help when you need it",
+      "Wait until you faint",
+      "Ask for twice as much"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Saying yes to help is okay.",
+     "k": "life"
+    },
+    {
+     "q": "Officer Billie told Arthur the hard truth plainly. Why is honesty important, even when it hurts?",
+     "a": [
+      "Because it lets you prepare and trust",
+      "Because it makes people cry",
+      "Because secrets are fun",
+      "Because kids don't matter"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "Truth is a hard hug, but it's still a hug.",
+     "k": "life"
+    },
+    {
+     "q": "Arthur kept having bad dreams about his dad. What does this tell us?",
+     "a": [
+      "Missing someone shows how much we love them",
+      "Dreams are always scary",
+      "Sadness means you're weak",
+      "You should stop thinking about people"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "Missing someone is love with nowhere to go.",
+     "k": "life"
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "label": "Thirty-Five to Forty-Three",
+   "qs": [
+    {
+     "q": "What did Squeak wear to go trash picking with Arthur?",
+     "a": [
+      "Old work clothes",
+      "Loafers, neat jeans and a bright red sweater",
+      "A raincoat",
+      "A bow tie and tuxedo"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Dressed for college, not for trash!",
+     "k": "story"
+    },
+    {
+     "q": "Where did Mr. Hampton make his very first piece, the little jewelry-type box?",
+     "a": [
+      "On Guam, during World War II",
+      "In a shop in Washington",
+      "In a school workshop",
+      "On a farm in the South"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "Broken war pieces became something beautiful.",
+     "k": "story"
+    },
+    {
+     "q": "What do the foil-wrapped lightbulbs stand for, according to Mr. Hampton?",
+     "a": [
+      "Lights in the darkness",
+      "Tiny moons",
+      "Pearls",
+      "Silver eggs"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "A little sparkle fights the dark.",
+     "k": "story"
+    },
+    {
+     "q": "How many years of bad luck did Squeak count after Arthur smashed six mirrors?",
+     "a": [
+      "Seven",
+      "Fourteen",
+      "Forty-two",
+      "One hundred"
+     ],
+     "c": 2,
+     "d": "medium",
+     "e": "Seven years times six. Math hero Squeak!",
+     "k": "story"
+    },
+    {
+     "q": "Who is Roger, the person who came to supper?",
+     "a": [
+      "A policeman",
+      "A carpenter who is friends with Arthur's mom",
+      "Squeak's dad",
+      "A teacher at Arthur's school"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Roger turned out to be better than Arthur expected.",
+     "k": "story"
+    },
+    {
+     "q": "What did Roger make for Arthur's mom?",
+     "a": [
+      "A bookshelf",
+      "A birdhouse",
+      "A rocking chair",
+      "A toy boat"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Popsicle-stick shingles and tiny windows.",
+     "k": "story"
+    },
+    {
+     "q": "Which TV show did Arthur's dad never let anyone interrupt?",
+     "a": [
+      "Looney Tunes",
+      "The Price Is Right",
+      "The News",
+      "Cowboy Hour"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Pillow ready for anyone who talked!",
+     "k": "story"
+    },
+    {
+     "q": "In Mr. Hampton's family tradition, what did you stick on a tree in spring?",
+     "a": [
+      "A flower",
+      "An empty soda bottle",
+      "A paper star",
+      "A ribbon"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Out pour the worries, away they go!",
+     "k": "story"
+    },
+    {
+     "q": "What promise did Mr. Hampton ask Arthur to make?",
+     "a": [
+      "To become a carpenter",
+      "To save his creation if something happened to him",
+      "To write him a letter",
+      "To visit Guam"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Director of Special Projects for the State of Eternity!",
+     "k": "story"
+    },
+    {
+     "q": "Who helped pay the landlord so the garage would not be cleared out?",
+     "a": [
+      "Officer Billie",
+      "Groovy Jim",
+      "Squeak",
+      "Judge Warner"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Groovy Jim emptied his wallet and his jar of coins!",
+     "k": "story"
+    },
+    {
+     "q": "Mr. Hampton turned broken things from war into something beautiful. What can we learn?",
+     "a": [
+      "Broken things are useless",
+      "Something good can grow out of hard times",
+      "War is exciting",
+      "Never keep old things"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Even cracks can let the light in.",
+     "k": "life"
+    },
+    {
+     "q": "Smashing the mirrors made Arthur feel free of his worries. What does this show?",
+     "a": [
+      "Breaking things solves problems",
+      "Letting go of worry can feel light",
+      "Mirrors are evil",
+      "Anger is always good"
+     ],
+     "c": 1,
+     "d": "hard",
+     "e": "Let go of the weight, feel the lift!",
+     "k": "life"
+    },
+    {
+     "q": "Arthur disliked Roger before even meeting him. Then he liked parts of him. What is the lesson?",
+     "a": [
+      "First impressions are always right",
+      "Give people a fair chance before deciding",
+      "Never trust adults",
+      "Stay away from new people"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Wait to meet the person before you judge.",
+     "k": "life"
+    },
+    {
+     "q": "Arthur felt both loyal and disloyal to his dad at supper with Roger. What is true?",
+     "a": [
+      "You must hate new people to love someone you lost",
+      "You can love someone and still welcome new good people",
+      "Dads can be replaced",
+      "Feelings must always be simple"
+     ],
+     "c": 1,
+     "d": "hard",
+     "e": "Hearts have plenty of room.",
+     "k": "life"
+    },
+    {
+     "q": "Mr. Hampton asked about Arthur's dad's life, not his death. Why is that kind?",
+     "a": [
+      "It makes people remember the happy parts",
+      "It avoids talking at all",
+      "It makes dads seem perfect",
+      "It's a trick question"
+     ],
+     "c": 0,
+     "d": "easy",
+     "e": "Remember how they lived, not just how they left.",
+     "k": "life"
+    },
+    {
+     "q": "Mr. Hampton said, 'Anything of value takes time.' What does this teach?",
+     "a": [
+      "Rush so you finish first",
+      "Good things need patience and care",
+      "Time is a waste",
+      "Only the first try matters"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Slow and sparkly wins the day.",
+     "k": "life"
+    },
+    {
+     "q": "Putting the bottle on the tree was a way to let go of guilt. What could you do after a mistake?",
+     "a": [
+      "Say sorry, learn, and forgive yourself",
+      "Hide it forever",
+      "Blame others",
+      "Never try again"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "Pour it out, then plant something new.",
+     "k": "life"
+    },
+    {
+     "q": "Mr. Hampton said, 'Don't wait for a better time.' What does this mean for us?",
+     "a": [
+      "Start working on your dreams now",
+      "Wait for perfect weather",
+      "Dreams don't matter",
+      "Let others go first"
+     ],
+     "c": 0,
+     "d": "easy",
+     "e": "Today is the best time to begin.",
+     "k": "life"
+    },
+    {
+     "q": "Arthur smashed the mirrors while careful Squeak wrapped the bulbs. What does this show?",
+     "a": [
+      "Everyone has different strengths that help a team",
+      "Only strong people are useful",
+      "Careful people are slow",
+      "Teams should be all the same"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "A team works best with different superpowers.",
+     "k": "life"
+    },
+    {
+     "q": "Groovy Jim gave all his money and promised to keep watch. What kind of friend is he?",
+     "a": [
+      "One who helps and keeps his promises",
+      "One who only talks",
+      "One who wants a prize",
+      "One who disappears"
+     ],
+     "c": 0,
+     "d": "easy",
+     "e": "Real friends show up, even when it costs.",
+     "k": "life"
+    }
+   ]
+  },
+  {
+   "id": 5,
+   "label": "Forty-Four to the end",
+   "qs": [
+    {
+     "q": "Where did Arthur's mom hide his birthday money?",
+     "a": [
+      "In a cookie jar",
+      "In a tissue box",
+      "Under the bed",
+      "In a shoe"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "So she would never forget where it was!",
+     "k": "story"
+    },
+    {
+     "q": "What gave Arthur the idea to raise money with coffee cans?",
+     "a": [
+      "A TV ad",
+      "A band fund coffee can in the school office",
+      "A bake sale poster",
+      "Squeak's piggy bank"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "Mr. Hampton's sixth thing gave a clue.",
+     "k": "story"
+    },
+    {
+     "q": "Which coffee can message finally paid off?",
+     "a": [
+      "Save a Spectacular Work of Art",
+      "Save a Heavenly Work of Art",
+      "Help Us Save Heaven",
+      "Save a Far-Out Work of Art"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Heavenly was the lucky word.",
+     "k": "story"
+    },
+    {
+     "q": "What was Squeak's dad's job?",
+     "a": [
+      "Reporter",
+      "Newspaper delivery truck driver",
+      "Judge",
+      "Photographer"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "He rushed Mr. Hampton to the hospital!",
+     "k": "story"
+    },
+    {
+     "q": "Why did the museum visitors say the number seven was used?",
+     "a": [
+      "Seven is lucky at games",
+      "Seven means completeness and perfection",
+      "It was Mr. Hampton's birthday",
+      "Seven is easy to count"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Seven days of creation, seven times the magic!",
+     "k": "story"
+    },
+    {
+     "q": "What did the National Collection of Fine Arts decide to do with the Throne?",
+     "a": [
+      "Put it on display right away",
+      "Keep it in storage until they have room",
+      "Sell it",
+      "Give it back to the landlord"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "A museum nap for heaven.",
+     "k": "story"
+    },
+    {
+     "q": "What did Arthur take with him from the empty garage?",
+     "a": [
+      "The throne chair",
+      "The grocery cart (the chariot)",
+      "A foil lightbulb",
+      "The wings"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "The chariot with the invisible horses!",
+     "k": "story"
+    },
+    {
+     "q": "What did the small cardboard sign say at the top of the Throne display?",
+     "a": [
+      "Look Up",
+      "Fear Not",
+      "Be Kind",
+      "Welcome"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Seven letters, one big promise.",
+     "k": "story"
+    },
+    {
+     "q": "What did Judge Warner whisper to Arthur at the ribbon cutting?",
+     "a": [
+      "Good luck",
+      "From brick throwing to ribbon cutting, that's redemption",
+      "You're late",
+      "Don't mess up"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "That word again, now with a happy ending!",
+     "k": "story"
+    },
+    {
+     "q": "What did the pigeons flying off the museum steps remind Arthur of?",
+     "a": [
+      "Mr. Hampton's idea that some angels are like city pigeons",
+      "A storm coming",
+      "His old school",
+      "Barbara's dolls"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "Even plain wings can lift you high.",
+     "k": "story"
+    },
+    {
+     "q": "Arthur's mom said, 'Sometimes in life you have to let things go.' What does this mean?",
+     "a": [
+      "Starting over isn't the same as forgetting",
+      "You should never keep anything",
+      "Memories are bad",
+      "Mothers know everything"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "Letting go makes room for new good things.",
+     "k": "life"
+    },
+    {
+     "q": "Arthur said something hurtful to his mom, then apologized. What is the lesson?",
+     "a": [
+      "Words can hurt, so say sorry honestly",
+      "Never talk at dinner",
+      "Moms never forgive",
+      "Apologies are for babies"
+     ],
+     "c": 0,
+     "d": "easy",
+     "e": "A real sorry is a bandage for the heart.",
+     "k": "life"
+    },
+    {
+     "q": "Squeak tried many different words on the coffee cans, and one worked. What can we learn?",
+     "a": [
+      "Try several ways until one works",
+      "Quit after one try",
+      "Only one idea is right",
+      "Never change your words"
+     ],
+     "c": 0,
+     "d": "easy",
+     "e": "Keep trying, a winner is in there!",
+     "k": "life"
+    },
+    {
+     "q": "Arthur and Squeak both weren't who people thought they were. What does this show?",
+     "a": [
+      "Labels don't tell the whole story about a person",
+      "Everyone lies",
+      "Never trust friends",
+      "Rumors are true"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "People are bigger than their labels.",
+     "k": "life"
+    },
+    {
+     "q": "Squeak's dad saved Mr. Hampton, who saved Arthur, who saved Squeak. What does this show?",
+     "a": [
+      "Kindness passes from person to person",
+      "Luck decides everything",
+      "Heroes work alone",
+      "Saving others is a job for adults"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "One kind act can start a happy chain!",
+     "k": "life"
+    },
+    {
+     "q": "Arthur and Squeak asked to stay anonymous in the article. What does this show?",
+     "a": [
+      "Doing good doesn't need applause",
+      "Helping is a secret crime",
+      "Kids can't be famous",
+      "Reporters are scary"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "Real helpers don't need a spotlight.",
+     "k": "life"
+    },
+    {
+     "q": "The museum visitors guessed wrong and called the foil balls Ping-Pong balls. What should Arthur do?",
+     "a": [
+      "Say nothing",
+      "Politely speak up about what he knows",
+      "Laugh at them",
+      "Walk out"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "If you know the story, share it kindly.",
+     "k": "life"
+    },
+    {
+     "q": "At his birthday game, Arthur had fun but felt sad his dad was missing. What does that show?",
+     "a": [
+      "You can feel happy and sad at the same time",
+      "Only one feeling at a time is okay",
+      "Fun is wrong when you're sad",
+      "Birthdays are boring"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "Hearts can hold two feelings at once.",
+     "k": "life"
+    },
+    {
+     "q": "The Throne went to storage, not display. Officer Billie said, 'Nothing in this world is perfect.' What is the lesson?",
+     "a": [
+      "Be thankful for good results while hoping for more",
+      "Always be disappointed",
+      "Give up easily",
+      "Only perfect results count"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "A good ending can still be a bit bumpy.",
+     "k": "life"
+    },
+    {
+     "q": "Years later, the boy who threw a brick helped open a museum exhibit. What does this show?",
+     "a": [
+      "People can change and grow",
+      "Mistakes follow you forever",
+      "Judges are never wrong",
+      "Once bad, always bad"
+     ],
+     "c": 0,
+     "d": "easy",
+     "e": "Your worst day is not your whole story!",
+     "k": "life"
+    }
+   ]
+  }
+ ]
+}

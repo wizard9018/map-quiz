@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Book quizzes</title>
+  <style>
+    :root{--muted:#afafaf;--text:#3c3c3c;--green:#58cc02;--green-d:#46a302;--blue:#1cb0f6;--red:#ea2b2b;--line:#e5e5e5}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Segoe UI","Nunito",system-ui,sans-serif;font-weight:600;background:#fff;color:var(--text)}
+    .wrap{max-width:720px;margin:0 auto;padding:4px 2px 16px}
+    .card{background:#fff;border:2px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 3px 0 var(--line)}
+    h1{margin:0 0 6px;font-size:1.2rem;font-weight:800;color:var(--green)}
+    .meta{font-size:.8rem;color:var(--muted);margin:0 0 12px}
+    .q{font-size:1.1rem;line-height:1.4;margin:10px 0 14px}
+    .tag{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--blue);margin-right:8px}
+    .tag.life{color:#ce82ff}
+    .opt{display:block;width:100%;text-align:left;margin:0 0 8px;padding:10px 14px;background:#fff;color:var(--text);border:2px solid var(--line);border-radius:14px;box-shadow:0 3px 0 var(--line);font:inherit;cursor:pointer}
+    .opt:disabled{cursor:default}
+    .opt:not(:disabled):hover{border-color:var(--blue)}
+    .opt.ok{background:#d7ffb8;border-color:var(--green)}
+    .opt.bad{background:#ffdfe0;border-color:var(--red)}
+    .btn{appearance:none;background:var(--green);color:#fff;border:0;padding:8px 18px;border-radius:14px;font:inherit;font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;cursor:pointer;box-shadow:0 4px 0 var(--green-d)}
+    .btn.ghost{background:#fff;color:var(--blue);border:2px solid var(--line);box-shadow:0 3px 0 var(--line)}
+    .why{margin:12px 0 10px;padding:10px 14px;background:#fff7d6;border:2px solid #ffc800;border-radius:14px;font-size:.95rem;line-height:1.4}
+    .progress{height:10px;background:var(--line);border-radius:999px;overflow:hidden;margin:0 0 10px}
+    .progress>span{display:block;height:100%;width:0;background:var(--green)}
+    .qz{display:flex;align-items:center;gap:12px;margin:0 0 10px;padding:12px 14px;border:2px solid var(--line);border-radius:14px;box-shadow:0 3px 0 var(--line)}
+    .qz.done{background:#f3ffe6;border-color:var(--green)}
+    .qz>div{flex:1;min-width:0}
+    .qz b{display:block;font-size:1rem}
+    .qz span{font-size:.8rem;color:var(--muted)}
+    .credit{font-size:.65rem;color:var(--muted);margin:12px 2px 0;line-height:1.4}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card" id="card"></div>
+  <p class="credit">Quizzes written for this site about <i>The Seventh Most Important Thing</i> by Shelley Pearsall. Read the book on paper, then take the quizzes here; the book's text is not included.</p>
+</div>
+<script>
+const KEY = "map-quiz-book-seventh"; // { "<quiz id>": { score, total, date } }
+const card = document.getElementById("card");
+let book, saved = {};
+try { saved = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { /* storage unavailable */ }
+
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const esc = s => s.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+
+function home() {
+  const rows = book.quizzes.map(z => {
+    const s = saved[z.id];
+    return `<div class="qz${s ? " done" : ""}"><div><b>Quiz ${z.id} · ${esc(z.label)}</b><span>${s ? "Best score " + s.score + " / " + s.total + " ✓" : "20 questions: 10 about the story, 10 about life"}</span></div><button class="btn${s ? " ghost" : ""}" data-id="${z.id}">${s ? "Again" : "Start"}</button></div>`;
+  }).join("");
+  card.innerHTML = `<h1>${esc(book.title)}</h1><p class="meta">Read the chapters in your book, then take the quiz.</p>${rows}`;
+  card.querySelectorAll("button[data-id]").forEach(b => b.onclick = () => run(book.quizzes.find(z => z.id == b.dataset.id)));
+}
+
+function run(z) {
+  const qs = z.qs.map(q => {
+    const right = q.a[q.c], a = shuffle(q.a);
+    return { ...q, a, c: a.indexOf(right) };
+  });
+  let i = 0, score = 0;
+  const show = () => {
+    const q = qs[i];
+    card.innerHTML = `<h1>Quiz ${z.id} · ${esc(z.label)}</h1><div class="progress"><span style="width:${i / qs.length * 100}%"></span></div>` +
+      `<p class="q"><span class="tag${q.k === "life" ? " life" : ""}">${q.k === "life" ? "Life lesson" : "Story"}</span>${esc(q.q)}</p>` +
+      q.a.map((t, n) => `<button class="opt" data-n="${n}">${esc(t)}</button>`).join("") + `<div id="fb"></div>`;
+    card.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+      const n = +b.dataset.n, ok = n === q.c;
+      if (ok) score++;
+      card.querySelectorAll(".opt").forEach((o, k) => { o.disabled = true; if (k === q.c) o.classList.add("ok"); else if (k === n) o.classList.add("bad"); });
+      document.getElementById("fb").innerHTML = `<div class="why">${ok ? "Yes! " : "Not quite. "}${esc(q.e)}</div><button class="btn" id="next">${i + 1 < qs.length ? "Next" : "Finish"}</button>`;
+      document.getElementById("next").onclick = () => { i++; i < qs.length ? show() : finish(); };
+    });
+  };
+  const finish = () => {
+    const best = Math.max(score, saved[z.id]?.score || 0);
+    saved[z.id] = { score: best, total: qs.length, date: new Date().toISOString().slice(0, 10) };
+    try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* storage unavailable */ }
+    parent.postMessage({ type: "book-result", quiz: z.id, correct: score, total: qs.length, name: "Reading" }, location.origin);
+    card.innerHTML = `<h1>Quiz ${z.id} done ✓</h1><p class="q">You got <b>${score} / ${qs.length}</b>.</p><button class="btn" id="back">All quizzes</button>`;
+    document.getElementById("back").onclick = home;
+  };
+  show();
+}
+
+fetch("data/reading/seventh.json").then(r => r.json()).then(d => { book = d; home(); });
+</script>
+</body>
+</html>
