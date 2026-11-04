@@ -7,134 +7,134 @@
    "label": "One to Twelve",
    "qs": [
     {
-     "q": "When a reporter asked the Junk Man, 'You being saved?', what odd answer did he give?",
+     "q": "Why did Arthur throw the brick at the Junk Man?",
      "a": [
-      "Yes, by an angel.",
-      "No. Me being hit.",
-      "Ask the driver.",
-      "I don't know."
-     ],
-     "c": 1,
-     "d": "hard",
-     "e": "A clue that only makes sense later.",
-     "k": "story"
-    },
-    {
-     "q": "The judge said Mr. Hampton wanted 'redemption,' not 'retribution.' Which pair of meanings is right?",
-     "a": [
-      "Both mean a kind gift.",
-      "Redemption: a chance to make things right. Retribution: punishment as payback.",
-      "Both mean a prison sentence.",
-      "Redemption: punishment as payback. Retribution: a chance to make things right."
-     ],
-     "c": 1,
-     "d": "medium",
-     "e": "Second chances beat payback every time.",
-     "k": "word"
-    },
-    {
-     "q": "Why did Judge Warner not believe Arthur's explanation about the hat?",
-     "a": [
-      "He thought the hat was fake.",
-      "He had lost the paperwork.",
-      "He thought Arthur would turn out like his father.",
-      "He was in a hurry for lunch."
-     ],
-     "c": 2,
-     "d": "hard",
-     "e": "The judge believed the apple falls near the tree.",
-     "k": "story"
-    },
-    {
-     "q": "The Junk Man's hair was 'usually disheveled.' What does disheveled mean?",
-     "a": [
-      "Very short",
-      "Messy and untidy",
-      "Freshly washed",
-      "Bright white"
-     ],
-     "c": 1,
-     "d": "medium",
-     "e": "Messy, like a bird's nest.",
-     "k": "word"
-    },
-    {
-     "q": "Which missing item from Arthur's parents' room had Arthur made himself in third grade?",
-     "a": [
-      "The radio",
-      "A clay ashtray",
-      "The wedding picture",
-      "A model car"
-     ],
-     "c": 1,
-     "d": "hard",
-     "e": "A swirly green-and-blue clay ashtray.",
-     "k": "story"
-    },
-    {
-     "q": "Which was NOT one of Mom's new rules?",
-     "a": [
-      "Finish homework before supper",
-      "Come straight home to watch Barbara",
-      "Talk to Mom when you're upset",
-      "No more trouble with the police"
-     ],
-     "c": 0,
-     "d": "hard",
-     "e": "Homework wasn't on Mom's list.",
-     "k": "story"
-    },
-    {
-     "q": "The words unprovoked, unconventional and unreal all start with un-. What does un- mean?",
-     "a": [
-      "Too much",
-      "Not",
-      "Again",
-      "Before"
-     ],
-     "c": 1,
-     "d": "medium",
-     "e": "Un- flips a word to mean 'not'.",
-     "k": "word"
-    },
-    {
-     "q": "On his first Saturday, what did Arthur bring instead of foil?",
-     "a": [
-      "Evergreen branches",
-      "A lamp",
-      "Two coffee cans",
-      "A toaster and a hubcap"
+      "He wanted to rob him.",
+      "He was playing a game with friends.",
+      "He was angry about a school test.",
+      "He saw the old man wearing his dead father's cap and lost control."
      ],
      "c": 3,
-     "d": "hard",
-     "e": "Shiny things, but not the right shiny thing.",
+     "d": "easy",
+     "e": "Grief turned into anger in one terrible moment.",
      "k": "story"
     },
     {
-     "q": "How many hours of work did the court require, and how long was each Saturday shift?",
+     "q": "'Reluctantly, he turned back toward the garage.' What does reluctantly mean?",
      "a": [
-      "120 hours, four hours a Saturday",
-      "200 hours, eight hours a Saturday",
-      "60 hours, six hours a Saturday",
-      "100 hours, two hours a Saturday"
+      "Not wanting to, but doing it anyway",
+      "In a very loud way",
+      "Without thinking",
+      "Happily and fast"
      ],
      "c": 0,
-     "d": "hard",
-     "e": "Officer Billie counted every single minute.",
+     "d": "medium",
+     "e": "Slow feet, but he kept going.",
+     "k": "word"
+    },
+    {
+     "q": "What did Mr. Hampton ask the judge to do instead of sending Arthur to juvie?",
+     "a": [
+      "Let Arthur go with no punishment",
+      "Make Arthur work for him until his arm healed",
+      "Send Arthur to another school",
+      "Make Arthur pay a big fine"
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "He wanted a second chance, not payback.",
      "k": "story"
     },
     {
-     "q": "Arthur's dad wore his cap 'never straight, always jaunty.' What does jaunty mean?",
+     "q": "Someone called the Junk Man a 'worthless' trash picker. What does the ending -less mean in worthless?",
      "a": [
-      "Heavy and warm",
-      "Cheerful and a bit showy",
-      "Sad and slow",
-      "Clean and new"
+      "Without",
+      "Full of",
+      "Before",
+      "Again"
      ],
-     "c": 1,
+     "c": 0,
      "d": "medium",
-     "e": "A tilted cap with a happy attitude!",
+     "e": "Worthless means without any worth.",
      "k": "word"
+    },
+    {
+     "q": "What were Mom's new rules mainly meant to do?",
+     "a": [
+      "Keep Arthur out of trouble and help him share his feelings",
+      "Keep Barbara away from Arthur",
+      "Make Arthur quit school",
+      "Punish Arthur for the brick"
+     ],
+     "c": 0,
+     "d": "easy",
+     "e": "Mom wanted her son safe and talking.",
+     "k": "story"
+    },
+    {
+     "q": "Officer Billie said, 'I don't care ___ you get lost, sick or tired.' Which word fits: weather or whether?",
+     "a": [
+      "whether (it means 'if')",
+      "weather (it means rain or snow)",
+      "Both fit",
+      "Neither fits"
+     ],
+     "c": 0,
+     "d": "medium",
+     "e": "Whether means 'if'. Weather is rain or snow.",
+     "k": "word"
+    },
+    {
+     "q": "What was the main message of Officer Billie's first meeting with Arthur?",
+     "a": [
+      "His case was already closed.",
+      "He should find a new job.",
+      "He was free to do as he liked.",
+      "He had a second chance and must not mess it up."
+     ],
+     "c": 3,
+     "d": "easy",
+     "e": "Strict words, but a real second chance.",
+     "k": "story"
+    },
+    {
+     "q": "Mr. Hampton misspelled Arthur's name. What does the beginning mis- mean?",
+     "a": [
+      "Before",
+      "Again",
+      "Wrongly",
+      "Not"
+     ],
+     "c": 2,
+     "d": "medium",
+     "e": "Mis- means wrongly, so misspelled means spelled wrong.",
+     "k": "word"
+    },
+    {
+     "q": "What was Arthur's job each Saturday for Mr. Hampton?",
+     "a": [
+      "Collecting things from a list called the Seven Most Important Things",
+      "Painting the garage door",
+      "Carrying messages to the judge",
+      "Washing the cart and sweeping the garage"
+     ],
+     "c": 0,
+     "d": "easy",
+     "e": "A strange list with a secret purpose.",
+     "k": "story"
+    },
+    {
+     "q": "Which sentence best sums up chapters One to Twelve?",
+     "a": [
+      "A judge becomes friends with a tattoo artist.",
+      "A family moves to a new city.",
+      "A boy wins a prize at school.",
+      "A boy who hurt an old man must work for him and starts to wonder about a mysterious list."
+     ],
+     "c": 3,
+     "d": "easy",
+     "e": "The mystery begins with one brick.",
+     "k": "story"
     },
     {
      "q": "Arthur's anger was really tangled up with missing his dad. What helps when a feeling is too big?",
@@ -273,134 +273,134 @@
    "label": "Thirteen to Twenty-Three",
    "qs": [
     {
-     "q": "'It was ironic that the first thing Arthur spotted was a mirror,' right after the talk about looking deeper. What does ironic mean?",
+     "q": "How did Arthur feel at school after he came back from juvie?",
      "a": [
-      "Odd or surprising in a way that feels like a joke",
-      "Completely boring",
-      "Made of iron",
-      "Very sad"
+      "Alone, because everybody avoided him",
+      "Bored with his classes",
+      "Popular, because everyone wanted to hear his story",
+      "Happy to be with old friends"
+     ],
+     "c": 0,
+     "d": "easy",
+     "e": "An invisible box around him.",
+     "k": "story"
+    },
+    {
+     "q": "'The garage was deserted.' What does deserted mean?",
+     "a": [
+      "Empty, with nobody there",
+      "Full of people",
+      "Very large",
+      "Brand new"
      ],
      "c": 0,
      "d": "medium",
-     "e": "Life loves a twist, like a good Pixar plot!",
+     "e": "Deserted places echo.",
      "k": "word"
     },
     {
-     "q": "What number was Arthur's new locker in the gym hallway?",
+     "q": "Why was Arthur dreading putting up the Christmas tree?",
      "a": [
-      "2034",
-      "1043",
-      "1304",
-      "1034"
-     ],
-     "c": 3,
-     "d": "hard",
-     "e": "Locker 1034, with its famous foot-odor perfume.",
-     "k": "story"
-    },
-    {
-     "q": "Why did everyone call the earth science teacher Mr. C?",
-     "a": [
-      "His last name was Cee.",
-      "He was from Canada.",
-      "He taught chemistry.",
-      "His full name was about twenty letters long."
-     ],
-     "c": 3,
-     "d": "hard",
-     "e": "Too many letters, so just the first one.",
-     "k": "story"
-    },
-    {
-     "q": "Arthur heard 'raucous laughter' in the hallway. What does raucous mean?",
-     "a": [
-      "Far away",
-      "Soft and shy",
-      "Loud and rough",
-      "Short and quiet"
+      "He was too busy with school.",
+      "Mom told him it was too hard.",
+      "His dad always did it, and he missed him.",
+      "He had never seen a tree before."
      ],
      "c": 2,
+     "d": "easy",
+     "e": "The tree reminded him of Dad.",
+     "k": "story"
+    },
+    {
+     "q": "Mom's bills were 'unopened.' What does un- mean in unopened?",
+     "a": [
+      "Under",
+      "Again",
+      "Very",
+      "Not"
+     ],
+     "c": 3,
      "d": "medium",
-     "e": "Raucous is loud enough to rattle lockers.",
+     "e": "Un- plus opened means not opened.",
      "k": "word"
     },
     {
-     "q": "Besides Groovy Jim, who else had the 'no vision' quote taped to their counter?",
+     "q": "What did Arthur discover was the first important thing?",
      "a": [
-      "Officer Billie",
-      "The grocery store owner across the street",
-      "The vice principal",
-      "Mr. C"
+      "A mirror to see himself",
+      "A toaster to cook breakfast",
+      "Cardboard to build a tree",
+      "Lights, which brought hope and togetherness back to his family"
      ],
-     "c": 1,
-     "d": "hard",
-     "e": "Mr. Hampton handed that quote out a lot.",
+     "c": 3,
+     "d": "easy",
+     "e": "Little lights, big hope.",
      "k": "story"
     },
     {
-     "q": "The polished table Arthur found was missing what?",
+     "q": "Mom gave Arthur six silver 'peace' dollars, and Mr. Hampton's work was a 'masterpiece.' Which is right?",
      "a": [
-      "A leg",
-      "A top",
-      "A drawer",
-      "Its gold paint"
-     ],
-     "c": 2,
-     "d": "hard",
-     "e": "Lovely curved legs, but no drawer.",
-     "k": "story"
-    },
-    {
-     "q": "Arthur's dad was a perfectionist about the lights. What does the ending -ist add to a word?",
-     "a": [
-      "Done again",
-      "A person who cares about or does something",
-      "Too small",
-      "Not able to"
+      "Peace means a part; piece means calm.",
+      "Peace means calm; piece means a part or a work.",
+      "They are both numbers.",
+      "They mean the same thing."
      ],
      "c": 1,
      "d": "medium",
-     "e": "Perfect plus ist: someone who wants it perfect.",
+     "e": "Peace is calm. Piece is a bit of something.",
      "k": "word"
     },
     {
-     "q": "Officer Billie gave Arthur two weeks off. When did his work for Mr. Hampton start again?",
+     "q": "What did Arthur learn about Officer Billie at Christmas?",
      "a": [
-      "Saturday, January fourth",
-      "Christmas Day",
-      "Saturday, January eleventh",
-      "New Year's Eve"
+      "She wanted him back in juvie.",
+      "She has a kind side beneath her tough manner.",
+      "She had stopped caring about him.",
+      "She was leaving her job."
      ],
-     "c": 0,
-     "d": "hard",
-     "e": "Two weeks off, then back to the cart.",
-     "k": "story"
-    },
-    {
-     "q": "How many silver coins were in the frame Arthur's mom gave him?",
-     "a": [
-      "Six",
-      "Three",
-      "Twelve",
-      "Ten"
-     ],
-     "c": 0,
-     "d": "hard",
-     "e": "Six mint-condition peace dollars.",
+     "c": 1,
+     "d": "easy",
+     "e": "Caramel corn from a no-nonsense cop!",
      "k": "story"
     },
     {
      "q": "Arthur 'dreaded' putting up the tree. How is dread different from regret?",
      "a": [
-      "Dread and regret mean exactly the same.",
+      "Dread is about the past; regret is about the future.",
       "Dread is happy; regret is angry.",
-      "Dread is fear of what's coming; regret is sorrow about what's done.",
-      "Dread is about the past; regret is about the future."
+      "Dread and regret mean exactly the same.",
+      "Dread is fear of what's coming; regret is sorrow about what's done."
      ],
-     "c": 2,
+     "c": 3,
      "d": "medium",
      "e": "Dread looks forward. Regret looks back.",
      "k": "word"
+    },
+    {
+     "q": "What did Arthur realize about the things people throw away?",
+     "a": [
+      "Everything thrown away is useless.",
+      "They should never be touched.",
+      "They can matter to someone else for reasons you may not see.",
+      "Only expensive things matter."
+     ],
+     "c": 2,
+     "d": "easy",
+     "e": "Some trash is hidden treasure.",
+     "k": "story"
+    },
+    {
+     "q": "Why did Arthur rush to help Squeak at school?",
+     "a": [
+      "He was looking for a fight.",
+      "A teacher told him to.",
+      "He couldn't stand seeing someone treated cruelly.",
+      "He wanted to be popular."
+     ],
+     "c": 2,
+     "d": "easy",
+     "e": "Arthur knew how it felt to be punished.",
+     "k": "story"
     },
     {
      "q": "Arthur gave excuses, but Officer Billie wanted a straight answer. What is the lesson?",
@@ -539,51 +539,103 @@
    "label": "The Second Important Thing to Thirty-Four",
    "qs": [
     {
-     "q": "Squeak called Mr. Hampton 'an enigma.' What does that word mean?",
+     "q": "Why did Squeak keep sitting with Arthur?",
      "a": [
-      "A famous artist",
-      "A kind neighbor",
-      "A very loud person",
-      "Someone or something hard to understand"
+      "He was afraid of Arthur.",
+      "He wanted to copy Arthur's homework.",
+      "The principal told him to.",
+      "He wanted a friend and wanted to thank Arthur for the rescue."
      ],
      "c": 3,
-     "d": "medium",
-     "e": "An enigma is a puzzle in a person-shaped box.",
-     "k": "word"
-    },
-    {
-     "q": "Which was NOT something Squeak noticed about the Seven Most Important Things?",
-     "a": [
-      "They all come from kitchens.",
-      "Most are shiny or reflective.",
-      "Many of them hold things.",
-      "They are all solids."
-     ],
-     "c": 0,
-     "d": "hard",
-     "e": "Squeak found three clues, but not that one.",
+     "d": "easy",
+     "e": "A friendship started with a lunch bag.",
      "k": "story"
     },
     {
-     "q": "Squeak's lunch never changed: a ham and cheese sandwich, an apple or orange, and how many cookies?",
+     "q": "Arthur saw 'a wall of shimmering gold and silver.' What does shimmering mean?",
      "a": [
-      "Six",
-      "Ten",
-      "Two",
-      "Four"
+      "Broken",
+      "Covered in mud",
+      "Shining with a soft, flickering light",
+      "Very heavy"
      ],
-     "c": 0,
-     "d": "hard",
-     "e": "Six cookies, always wrapped in foil.",
+     "c": 2,
+     "d": "medium",
+     "e": "Like sunlight on a pond.",
+     "k": "word"
+    },
+    {
+     "q": "What secret did Arthur discover inside Mr. Hampton's garage?",
+     "a": [
+      "A hidden room of money",
+      "A workshop that fixed cars",
+      "A home for stray cats",
+      "A huge sculpture of heaven built from trash"
+     ],
+     "c": 3,
+     "d": "easy",
+     "e": "Trash turned into a shimmering heaven.",
+     "k": "story"
+    },
+    {
+     "q": "Mr. Hampton looked 'exhausted.' What does exhausted mean?",
+     "a": [
+      "Very happy",
+      "Very angry",
+      "Very hungry",
+      "Extremely tired"
+     ],
+     "c": 3,
+     "d": "medium",
+     "e": "Out of energy, like a drained battery.",
+     "k": "word"
+    },
+    {
+     "q": "What did Mr. Hampton mean by the Seven Most Important Things?",
+     "a": [
+      "They were gifts for the judge.",
+      "They were his favorite foods.",
+      "They were rules for good behavior.",
+      "They were the building blocks of heaven."
+     ],
+     "c": 3,
+     "d": "easy",
+     "e": "The list had a purpose all along.",
+     "k": "story"
+    },
+    {
+     "q": "Mr. Hampton called the sculpture his 'masterpiece.' Masterpiece is master + piece. What does it mean?",
+     "a": [
+      "A broken chair",
+      "A teacher's desk",
+      "A piece of a master key",
+      "A work made with great skill"
+     ],
+     "c": 3,
+     "d": "medium",
+     "e": "A piece made by a master. Simple and grand.",
+     "k": "word"
+    },
+    {
+     "q": "Why did Arthur say he could not keep working for Mr. Hampton?",
+     "a": [
+      "He was tired of the cart.",
+      "Squeak told him to quit.",
+      "He wanted to play baseball.",
+      "Mr. Hampton was dying, and it reminded Arthur of his dad's death."
+     ],
+     "c": 3,
+     "d": "easy",
+     "e": "Too much loss, too close.",
      "k": "story"
     },
     {
      "q": "Arthur wondered if 'throne' was a mistake for 'thrown-out.' What is the difference?",
      "a": [
       "A throne is a royal chair; thrown is the past of throw.",
-      "They mean the same thing.",
+      "Throne is a verb; thrown is a chair.",
       "Thrown is a king's chair; throne means tossed.",
-      "Throne is a verb; thrown is a chair."
+      "They mean the same thing."
      ],
      "c": 0,
      "d": "medium",
@@ -591,81 +643,29 @@
      "k": "word"
     },
     {
-     "q": "While Arthur hauled the throne chair back, a man in a pickup truck offered him how much?",
+     "q": "How did Squeak stand up for Arthur in the cafeteria?",
      "a": [
-      "Five dollars",
-      "One dollar",
-      "Ten dollars",
-      "Twenty dollars"
-     ],
-     "c": 2,
-     "d": "hard",
-     "e": "Arthur said no and kept pushing.",
-     "k": "story"
-    },
-    {
-     "q": "Mr. Hampton's head moved 'almost imperceptibly.' What does that mean?",
-     "a": [
-      "In a circle",
-      "So slightly it was hard to notice",
-      "Very fast",
-      "Loudly"
+      "He fought the bullies.",
+      "He stood on a table with a sign inviting the bullies to throw things at him.",
+      "He hid under the table.",
+      "He told the principal."
      ],
      "c": 1,
-     "d": "medium",
-     "e": "Hardly any movement, like a feather sneeze.",
-     "k": "word"
+     "d": "easy",
+     "e": "A tiny hero with a big sign.",
+     "k": "story"
     },
     {
-     "q": "Why was Arthur afraid to leave Mr. Hampton to get help?",
+     "q": "What helped Arthur decide to keep going with the project?",
      "a": [
-      "The garage door was locked.",
-      "He had once left him lying alone on the sidewalk.",
-      "He had no shoes.",
-      "Groovy Jim was away."
+      "A new coat from Mom",
+      "Squeak's advice that he shouldn't give up on Mr. Hampton",
+      "A reward from the judge",
+      "A call from the museum"
      ],
      "c": 1,
-     "d": "hard",
-     "e": "He feared looking like a coward again.",
-     "k": "story"
-    },
-    {
-     "q": "Mr. Hampton called the sculpture his 'masterpiece.' Masterpiece is master + piece. What does it mean?",
-     "a": [
-      "A work made with great skill",
-      "A piece of a master key",
-      "A broken chair",
-      "A teacher's desk"
-     ],
-     "c": 0,
-     "d": "medium",
-     "e": "A piece made by a master. Simple and grand.",
-     "k": "word"
-    },
-    {
-     "q": "Why did Mr. Hampton keep his illness secret from Arthur?",
-     "a": [
-      "He didn't want it to change Arthur's sentence.",
-      "The judge asked him to.",
-      "He was embarrassed by doctors.",
-      "He forgot to say."
-     ],
-     "c": 0,
-     "d": "hard",
-     "e": "A secret kept to be fair to Arthur.",
-     "k": "story"
-    },
-    {
-     "q": "In Arthur's bad dream, what did he have to collect to save his father?",
-     "a": [
-      "Silver coins",
-      "Foil trays",
-      "Empty beer bottles",
-      "Coffee cans"
-     ],
-     "c": 2,
-     "d": "hard",
-     "e": "A race against time in the rain.",
+     "d": "easy",
+     "e": "A friend can steady a shaky heart.",
      "k": "story"
     },
     {
@@ -805,134 +805,134 @@
    "label": "Thirty-Five to Forty-Three",
    "qs": [
     {
-     "q": "Why did Mr. Hampton call it the Throne of the Third Heaven?",
+     "q": "Why did Mr. Hampton begin building heaven?",
      "a": [
-      "Squeak chose the name.",
-      "It was his third garage.",
-      "It had three chairs.",
-      "He saw a big number three in the sky in a dream."
-     ],
-     "c": 3,
-     "d": "hard",
-     "e": "A mystery he never questioned.",
-     "k": "story"
-    },
-    {
-     "q": "Arthur tried to send Squeak 'a subliminal message' with a look. What is a subliminal message?",
-     "a": [
-      "A message on a sign",
-      "A message shouted loudly",
-      "A letter in the mail",
-      "A hidden signal you get without really noticing"
-     ],
-     "c": 3,
-     "d": "medium",
-     "e": "Sub- means below; it slips in quietly.",
-     "k": "word"
-    },
-    {
-     "q": "How many lightbulbs did Mr. Hampton need for the top of the silver pedestal?",
-     "a": [
-      "Four",
-      "Twenty",
-      "Ten",
-      "Seven"
+      "A museum asked him to.",
+      "He wanted to sell his art.",
+      "After the war, he dreamed of making something beautiful from broken things.",
+      "He won a contest."
      ],
      "c": 2,
-     "d": "hard",
-     "e": "Ten shiny globes, wrapped layer by layer.",
+     "d": "easy",
+     "e": "Death and War became something beautiful.",
      "k": "story"
     },
     {
-     "q": "Arthur felt 'strangely invincible.' The in- in invincible means 'not.' Which word uses in- the same way?",
+     "q": "The little box 'looked fragile.' What does fragile mean?",
      "a": [
-      "Invent",
-      "Incomplete",
-      "Inside",
-      "Insect"
-     ],
-     "c": 1,
-     "d": "medium",
-     "e": "In- means not: incomplete is 'not complete'.",
-     "k": "word"
-    },
-    {
-     "q": "Squeak counted seven years of bad luck per mirror and ended at 42. How many mirrors did Arthur smash?",
-     "a": [
-      "Eight",
-      "Six",
-      "Seven",
-      "Four"
-     ],
-     "c": 1,
-     "d": "hard",
-     "e": "Six mirrors times seven years equals 42.",
-     "k": "story"
-    },
-    {
-     "q": "Where did Roger say he lived until he got his first carpentry job?",
-     "a": [
-      "At his grandfather's house",
-      "In the dentist's office",
-      "In his rusted Ford truck",
-      "In a tent"
+      "Very shiny",
+      "Very old",
+      "Easily broken",
+      "Very heavy"
      ],
      "c": 2,
-     "d": "hard",
-     "e": "Parking lots and campgrounds were home.",
-     "k": "story"
-    },
-    {
-     "q": "Mr. Hampton said angel wings have different 'colors and iridescence.' What is iridescence?",
-     "a": [
-      "A kind of glue",
-      "Shimmering colors that seem to shift",
-      "Dull gray paint",
-      "Heavy weight"
-     ],
-     "c": 1,
      "d": "medium",
-     "e": "Like a soap bubble in the sun!",
+     "e": "Handle with care, like eggs.",
      "k": "word"
     },
     {
-     "q": "How many days after the soda bottle Saturday did Mr. Hampton die?",
+     "q": "Why was Arthur upset when he learned his mom had a boyfriend?",
      "a": [
-      "Three",
-      "One",
-      "Ten",
-      "Seven"
+      "He didn't like carpenters.",
+      "He wanted a bigger house.",
+      "He felt Roger was replacing his dad.",
+      "Roger was rude."
+     ],
+     "c": 2,
+     "d": "easy",
+     "e": "Hearts are loyal, even when it's complicated.",
+     "k": "story"
+    },
+    {
+     "q": "Soda bottles on a tree were a family 'tradition.' What is a tradition?",
+     "a": [
+      "A sudden surprise",
+      "Something a family does the same way year after year",
+      "A mistake",
+      "A kind of soda"
+     ],
+     "c": 1,
+     "d": "medium",
+     "e": "Same fun thing, every spring.",
+     "k": "word"
+    },
+    {
+     "q": "How did Arthur's opinion of Roger slowly change?",
+     "a": [
+      "Roger moved far away.",
+      "Roger bought him presents.",
+      "Roger became his teacher.",
+      "He saw that Roger was kind, honest and good at fixing things."
+     ],
+     "c": 3,
+     "d": "easy",
+     "e": "Fair chances sometimes turn into friends.",
+     "k": "story"
+    },
+    {
+     "q": "Lightbulb is a compound word (light + bulb). Which word is also a compound word?",
+     "a": [
+      "Unhappy",
+      "Careful",
+      "Beautiful",
+      "Birdhouse"
+     ],
+     "c": 3,
+     "d": "medium",
+     "e": "Bird plus house makes birdhouse.",
+     "k": "word"
+    },
+    {
+     "q": "Why did Mr. Hampton ask Arthur so much about his dad?",
+     "a": [
+      "He cared about the good things in his dad's life.",
+      "He didn't believe Arthur.",
+      "He wanted to write a book.",
+      "He was bored."
      ],
      "c": 0,
-     "d": "hard",
-     "e": "Only three days later.",
+     "d": "easy",
+     "e": "Someone finally asked about his dad's life.",
      "k": "story"
     },
     {
-     "q": "How much back rent did the landlord want for April and May?",
+     "q": "Arthur hated using words like 'passed away.' Which sentence uses passed and past correctly?",
      "a": [
-      "Twenty dollars",
-      "Fifty dollars",
-      "Two hundred dollars",
-      "One hundred dollars"
+      "Grandpa past away in the past year.",
+      "Grandpa passed away in the passed year.",
+      "Grandpa past away in the passed year.",
+      "Grandpa passed away in the past year."
      ],
      "c": 3,
-     "d": "hard",
-     "e": "Groovy Jim paid fifty right away.",
+     "d": "medium",
+     "e": "Passed is an action. Past means before now.",
+     "k": "word"
+    },
+    {
+     "q": "What was the point of the soda bottle tradition?",
+     "a": [
+      "To win a game",
+      "To save money",
+      "To plant a tree",
+      "To pour out things you're not proud of and feel lighter"
+     ],
+     "c": 3,
+     "d": "easy",
+     "e": "Out with the guilt, in with the spring.",
      "k": "story"
     },
     {
-     "q": "Crawdads were a 'delicacy,' and the pieces of the Throne were 'delicate.' What is the difference?",
+     "q": "What problem faced Arthur after Mr. Hampton died?",
      "a": [
-      "They mean the same thing.",
-      "A delicacy is fragile; delicate is a special food.",
-      "A delicacy is a special food; delicate means easily broken.",
-      "Both mean very large."
+      "Squeak moved away.",
+      "Roger took the sculpture.",
+      "The judge ended the probation.",
+      "The landlord would clear out the garage unless the rent was paid."
      ],
-     "c": 2,
-     "d": "medium",
-     "e": "Same root, different jobs.",
-     "k": "word"
+     "c": 3,
+     "d": "easy",
+     "e": "A race to save heaven in a garage.",
+     "k": "story"
     },
     {
      "q": "Mr. Hampton turned broken things from war into something beautiful. What can we learn?",
@@ -974,7 +974,7 @@
      "k": "life"
     },
     {
-     "q": "Arthur felt both loyal and disloyal to his dad at supper with Roger. What is true?",
+     "q": "At supper with Roger, Arthur felt he was letting his dad down. What is true?",
      "a": [
       "You must hate new people to love someone you lost",
       "You can love someone and still welcome new good people",
@@ -1071,133 +1071,133 @@
    "label": "Forty-Four to the end",
    "qs": [
     {
-     "q": "How many unused coffee cans did Arthur and Squeak count in the garage?",
+     "q": "How did Arthur and Squeak try to raise money for the garage?",
      "a": [
-      "Fifty",
-      "Twenty-one",
-      "Twelve",
-      "Thirty-two"
+      "They put decorated coffee cans in shops around town.",
+      "They washed cars.",
+      "They sold the sculpture pieces.",
+      "They asked the judge for a loan."
      ],
-     "c": 3,
-     "d": "hard",
-     "e": "Thirty-two cans, thirty-two chances.",
+     "c": 0,
+     "d": "easy",
+     "e": "Coffee cans do the heavy lifting.",
      "k": "story"
     },
     {
-     "q": "Squeak asked that their volunteer work 'remain anonymous.' What does anonymous mean?",
+     "q": "The cans said 'Donate.' What does donate mean?",
      "a": [
-      "With no name given",
-      "Done in a hurry",
-      "Very famous",
-      "Paid for"
-     ],
-     "c": 0,
-     "d": "medium",
-     "e": "No name tag required for good deeds.",
-     "k": "word"
-    },
-    {
-     "q": "Where had Squeak left the 'Heavenly' coffee can that held the reporter's card?",
-     "a": [
-      "At the newspaper office where his dad works",
-      "At the dentist's office",
-      "At Groovy Jim's shop",
-      "At the school office"
-     ],
-     "c": 0,
-     "d": "hard",
-     "e": "Squeak's secret: his dad delivers newspapers.",
-     "k": "story"
-    },
-    {
-     "q": "Squeak suggested the word 'surreal' for a coffee can. What does surreal mean?",
-     "a": [
-      "Strange, like a dream",
-      "Very cheap",
-      "Very real",
-      "Very small"
-     ],
-     "c": 0,
-     "d": "medium",
-     "e": "Surreal is dream-weird, like a floating whale.",
-     "k": "word"
-    },
-    {
-     "q": "How much of his college savings did Squeak offer for the rent?",
-     "a": [
-      "Thirty dollars",
-      "One hundred dollars",
-      "Fifty dollars",
-      "Ten dollars"
-     ],
-     "c": 0,
-     "d": "hard",
-     "e": "A friend offered his college money.",
-     "k": "story"
-    },
-    {
-     "q": "Why couldn't Squeak come to the museum visit?",
-     "a": [
-      "He had a math test.",
-      "His cousin was getting married.",
-      "He had a violin lesson.",
-      "He was sick."
+      "Spend money on candy",
+      "Give money or things to help",
+      "Hide money",
+      "Take money away"
      ],
      "c": 1,
-     "d": "hard",
-     "e": "Arthur faced the fancy visitors alone.",
-     "k": "story"
-    },
-    {
-     "q": "The cans said 'Donate' while the museum wanted to 'acquire' the Throne. Which is correct?",
-     "a": [
-      "Donate means to give; acquire means to get.",
-      "Both mean to throw away.",
-      "Both mean to borrow.",
-      "Donate means to get; acquire means to give."
-     ],
-     "c": 0,
      "d": "medium",
-     "e": "One hand gives, the other hand gets.",
+     "e": "Donate means to give to help.",
      "k": "word"
     },
     {
-     "q": "At the birthday baseball game, which team beat the Senators?",
+     "q": "What brought the most attention to Mr. Hampton's work?",
      "a": [
-      "The Yankees",
-      "The Tigers",
-      "The Red Sox",
-      "The Orioles"
+      "A TV show",
+      "A newspaper article after a reporter visited the garage",
+      "A school poster",
+      "A phone call to the mayor"
      ],
-     "c": 3,
-     "d": "hard",
-     "e": "The Senators got hits but still lost.",
+     "c": 1,
+     "d": "easy",
+     "e": "One card in one can opened a big door.",
      "k": "story"
     },
     {
      "q": "Squeak suggested 'Save a Unique Work of Art.' Which word starts with uni- meaning 'one,' like unique?",
      "a": [
-      "Unicycle",
-      "Uncle",
       "Under",
-      "Until"
+      "Uncle",
+      "Until",
+      "Unicycle"
      ],
-     "c": 0,
+     "c": 3,
      "d": "medium",
      "e": "One wheel, one of a kind.",
      "k": "word"
     },
     {
-     "q": "Seven years later, what tiny tattoo did Squeak get on his arm?",
+     "q": "What did the art museum decide to do with the Throne?",
      "a": [
-      "A guitar",
-      "F = ma",
-      "A snake",
-      "A skull"
+      "Put it on display next week",
+      "Keep it in its storage collection until it had room",
+      "Give it back to the landlord",
+      "Throw it away"
      ],
      "c": 1,
-     "d": "hard",
-     "e": "Newton's second law, tiny and brave.",
+     "d": "easy",
+     "e": "Saved, even if it had to wait.",
+     "k": "story"
+    },
+    {
+     "q": "Someone said heaven should 'reflect' the people looking at it. What does reflect mean?",
+     "a": [
+      "Hide away",
+      "Wash clean",
+      "Show back, like a mirror",
+      "Make louder"
+     ],
+     "c": 2,
+     "d": "medium",
+     "e": "Mirrors and foil both reflect.",
+     "k": "word"
+    },
+    {
+     "q": "What did Arthur realize about the Seven Most Important Things?",
+     "a": [
+      "They were only junk.",
+      "They were a joke by the judge.",
+      "They were also the building blocks of his own redemption.",
+      "They were a list of chores."
+     ],
+     "c": 2,
+     "d": "easy",
+     "e": "The list was building him, too.",
+     "k": "story"
+    },
+    {
+     "q": "The museum people would talk it over with 'the board.' Which sentence uses board and bored correctly?",
+     "a": [
+      "The bored met, but I was board.",
+      "The bored met, but I was bored.",
+      "The board met, but I was bored.",
+      "The board met, but I was board."
+     ],
+     "c": 2,
+     "d": "medium",
+     "e": "A board decides; bored means not interested.",
+     "k": "word"
+    },
+    {
+     "q": "How does the story end, seven years later?",
+     "a": [
+      "The garage is torn down.",
+      "The Throne is shown in a museum, and people keep coming to see it.",
+      "Mr. Hampton returns.",
+      "Arthur moves away for good."
+     ],
+     "c": 1,
+     "d": "easy",
+     "e": "The people kept coming, just as he said.",
+     "k": "story"
+    },
+    {
+     "q": "What surprising connection did Squeak reveal about his dad?",
+     "a": [
+      "His dad was a museum director.",
+      "His dad was the judge.",
+      "His dad was the delivery driver who found Mr. Hampton after the brick.",
+      "His dad owned the garage."
+     ],
+     "c": 2,
+     "d": "easy",
+     "e": "A big circle of kindness and luck.",
      "k": "story"
     },
     {
@@ -1266,7 +1266,7 @@
      "k": "life"
     },
     {
-     "q": "Arthur and Squeak asked to stay anonymous in the article. What does this show?",
+     "q": "Arthur and Squeak asked to keep their names out of the newspaper article. What does this show?",
      "a": [
       "Doing good doesn't need applause",
       "Helping is a secret crime",
