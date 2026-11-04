@@ -15,6 +15,7 @@
     .q{font-size:1.1rem;line-height:1.4;margin:10px 0 14px}
     .tag{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--blue);margin-right:8px}
     .tag.life{color:#ce82ff}
+    .tag.word{color:#ff9600}
     .opt{display:block;width:100%;text-align:left;margin:0 0 8px;padding:10px 14px;background:#fff;color:var(--text);border:2px solid var(--line);border-radius:14px;box-shadow:0 3px 0 var(--line);font:inherit;cursor:pointer}
     .opt:disabled{cursor:default}
     .opt:not(:disabled):hover{border-color:var(--blue)}
@@ -55,7 +56,7 @@ function home() {
   const next = (book.quizzes.find(z => !saved[z.id]) || {}).id;
   const rows = book.quizzes.map(z => {
     const s = saved[z.id], open = !!s || (z.id === next && !doneToday);
-    const sub = s ? "Best score " + s.score + " / " + s.total + " ✓" : open ? "20 questions: 10 about the story, 10 about life" : z.id === next ? "Come back tomorrow" : "Locked";
+    const sub = s ? "Best score " + s.score + " / " + s.total + " ✓" : open ? "20 questions: 4 words, 6 story, 10 life lessons" : z.id === next ? "Come back tomorrow" : "Locked";
     return `<div class="qz${s ? " done" : ""}"><div><b>Quiz ${z.id} · ${esc(z.label)}</b><span>${sub}</span></div>${open ? `<button class="btn${s ? " ghost" : ""}" data-id="${z.id}">${s ? "Again" : "Start"}</button>` : ""}</div>`;
   }).join("");
   card.innerHTML = `<h1>${esc(book.title)}</h1><p class="meta">One new quiz a day. Read the chapters in your book, then take the quiz.</p>${rows}`;
@@ -71,7 +72,7 @@ function run(z) {
   const show = () => {
     const q = qs[i];
     card.innerHTML = `<h1>Quiz ${z.id} · ${esc(z.label)}</h1><div class="progress"><span style="width:${i / qs.length * 100}%"></span></div>` +
-      `<p class="q"><span class="tag${q.k === "life" ? " life" : ""}">${q.k === "life" ? "Life lesson" : "Story"}</span>${esc(q.q)}</p>` +
+      `<p class="q"><span class="tag${q.k === "life" ? " life" : q.k === "word" ? " word" : ""}">${q.k === "life" ? "Life lesson" : q.k === "word" ? "Word power" : "Story"}</span>${esc(q.q)}</p>` +
       q.a.map((t, n) => `<button class="opt" data-n="${n}">${esc(t)}</button>`).join("") + `<div id="fb"></div>`;
     card.querySelectorAll(".opt").forEach(b => b.onclick = () => {
       const n = +b.dataset.n, ok = n === q.c;
