@@ -24,7 +24,6 @@ const ASSETS = [
   "data/trivia/chem.json",
   "data/trivia/life.json",
   "data/trivia/phys.json",
-  "data/trivia/hist.json",
   "data/trivia/fr.json",
   "data/trivia/frlire.json",
   "data/fr-gloss.json",

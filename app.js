@@ -89,7 +89,7 @@ const titleEl = document.querySelector("header h1");
 const DEFAULT_TITLE = titleEl.textContent;
 
 // Which home-page tab a region's card sits under (sections without data-tab are geography).
-const SUBJECTS = { chem: "Chemistry", typing: "Typing", life: "Life Science", phys: "Physics & Space", hist: "History & Society", fr: "Français" };
+const SUBJECTS = { chem: "Chemistry", typing: "Typing", life: "Life Science", phys: "Physics & Space", fr: "Français" };
 function subjectOf(region) {
   const section = document.querySelector(`.region-card[data-region="${region}"]`)?.closest(".continent-group");
   return SUBJECTS[section?.dataset.tab] || "Geography";
@@ -408,6 +408,7 @@ function wrongDue(tab) {
 const TRIVIA_SETS = { fr: [["fr", "Daily 10 questions"], ["frlire", "Lecture"]] };
 function tabTodo(tab) {
   if (tab === "typing") return storedToday("map-quiz-typing-day")?.posted ? [] : ["Typing levels"];
+  if (tab === "reading") return ["Content coming soon"]; // no tasks yet, so no checkmark
   const todo = [];
   for (const [cat, label] of TRIVIA_SETS[tab] || [[tab, "Daily 10 questions"]]) {
     if (!storedToday("map-quiz-trivia-" + cat)?.done) todo.push(label);
@@ -454,7 +455,7 @@ renderTodayResults();
 // Home-screen tabs: every section is geography unless it carries
 // a data-tab attribute, so a new topic is just another tagged section.
 const TAB_KEY = "map-quiz-tab";
-const TABS = ["geo", "chem", "typing", "life", "phys", "hist", "fr"];
+const TABS = ["geo", "chem", "typing", "life", "phys", "reading", "fr"];
 function showTab(tab) {
   document.querySelectorAll(".home-main .continent-group").forEach(section => {
     const sectionTab = section.dataset.tab || "geo";
