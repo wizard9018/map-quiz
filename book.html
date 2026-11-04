@@ -47,12 +47,18 @@ try { saved = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { /* stor
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const esc = s => s.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+
+// One new quiz a day: the first quiz not yet taken, unless one was already taken today.
 function home() {
+  const doneToday = Object.values(saved).some(s => s.date === today());
+  const next = (book.quizzes.find(z => !saved[z.id]) || {}).id;
   const rows = book.quizzes.map(z => {
-    const s = saved[z.id];
-    return `<div class="qz${s ? " done" : ""}"><div><b>Quiz ${z.id} · ${esc(z.label)}</b><span>${s ? "Best score " + s.score + " / " + s.total + " ✓" : "20 questions: 10 about the story, 10 about life"}</span></div><button class="btn${s ? " ghost" : ""}" data-id="${z.id}">${s ? "Again" : "Start"}</button></div>`;
+    const s = saved[z.id], open = !!s || (z.id === next && !doneToday);
+    const sub = s ? "Best score " + s.score + " / " + s.total + " ✓" : open ? "20 questions: 10 about the story, 10 about life" : z.id === next ? "Come back tomorrow" : "Locked";
+    return `<div class="qz${s ? " done" : ""}"><div><b>Quiz ${z.id} · ${esc(z.label)}</b><span>${sub}</span></div>${open ? `<button class="btn${s ? " ghost" : ""}" data-id="${z.id}">${s ? "Again" : "Start"}</button>` : ""}</div>`;
   }).join("");
-  card.innerHTML = `<h1>${esc(book.title)}</h1><p class="meta">Read the chapters in your book, then take the quiz.</p>${rows}`;
+  card.innerHTML = `<h1>${esc(book.title)}</h1><p class="meta">One new quiz a day. Read the chapters in your book, then take the quiz.</p>${rows}`;
   card.querySelectorAll("button[data-id]").forEach(b => b.onclick = () => run(book.quizzes.find(z => z.id == b.dataset.id)));
 }
 
@@ -77,7 +83,7 @@ function run(z) {
   };
   const finish = () => {
     const best = Math.max(score, saved[z.id]?.score || 0);
-    saved[z.id] = { score: best, total: qs.length, date: new Date().toISOString().slice(0, 10) };
+    saved[z.id] = { score: best, total: qs.length, date: saved[z.id]?.date || today() }; // date = first time taken
     try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* storage unavailable */ }
     parent.postMessage({ type: "book-result", quiz: z.id, correct: score, total: qs.length, name: "Reading" }, location.origin);
     card.innerHTML = `<h1>Quiz ${z.id} done ✓</h1><p class="q">You got <b>${score} / ${qs.length}</b>.</p><button class="btn" id="back">All quizzes</button>`;

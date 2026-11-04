@@ -408,10 +408,12 @@ function wrongDue(tab) {
 const TRIVIA_SETS = { fr: [["fr", "Daily 10 questions"], ["frlire", "Lecture"]] };
 function tabTodo(tab) {
   if (tab === "typing") return storedToday("map-quiz-typing-day")?.posted ? [] : ["Typing levels"];
-  if (tab === "reading") { // checkmark once every quiz of the book has been taken
+  if (tab === "reading") { // one new book quiz a day; checkmark once today's is taken (or the book is finished)
     let done = {};
     try { done = JSON.parse(localStorage.getItem("map-quiz-book-seventh")) || {}; } catch (e) { /* storage unavailable */ }
-    return [1, 2, 3, 4, 5].filter(n => !done[n]).map(n => `Book quiz ${n}`);
+    if (Object.values(done).some(s => s.date === todayDateStr())) return [];
+    const next = [1, 2, 3, 4, 5].find(n => !done[n]);
+    return next ? [`Book quiz ${next}`] : [];
   }
   const todo = [];
   for (const [cat, label] of TRIVIA_SETS[tab] || [[tab, "Daily 10 questions"]]) {
